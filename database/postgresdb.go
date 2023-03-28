@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jmoiron/sqlx"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func NewPostgresDBClient() (*sqlx.DB, error) {
+func NewPostgresDBClient() (*gorm.DB, error) {
 	dbHost := os.Getenv("DB_HOST")
 	if dbHost == "" {
 		dbHost = "localhost"
@@ -38,6 +39,6 @@ func NewPostgresDBClient() (*sqlx.DB, error) {
 		dbSSL = "disable"
 	}
 	connStr := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v", dbHost, dbPort, dbUser, dbPass, dbName, dbSSL)
-	db, err := sqlx.Open("postgres", connStr)
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	return db, err
 }
