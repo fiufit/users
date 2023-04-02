@@ -36,7 +36,11 @@ func NewServer() *Server {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&models.User{})
+
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		panic(err)
+	}
 
 	logger, _ := zap.NewDevelopment()
 
@@ -47,6 +51,9 @@ func NewServer() *Server {
 	}
 
 	auth, err := app.Auth(context.Background())
+	if err != nil {
+		panic(err)
+	}
 
 	fromMail := os.Getenv("SMTP_USER")
 	password := os.Getenv("SMTP_PASSWORD")
