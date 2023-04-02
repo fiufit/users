@@ -14,8 +14,8 @@ import (
 )
 
 type Registerer interface {
-	Register(ctx context.Context, req contracts.RegisterRequest) error
-	FinishRegister(ctx context.Context, req contracts.FinishRegisterRequest) error
+	Register(ctx context.Context, req contracts.RegisterRequest) (contracts.RegisterResponse, error)
+	FinishRegister(ctx context.Context, req contracts.FinishRegisterRequest) (contracts.FinishRegisterResponse, error)
 }
 
 type RegistererImpl struct {
@@ -29,29 +29,33 @@ func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth *auth.Cl
 	return RegistererImpl{users: users, logger: logger, auth: auth, mailer: mailer}
 }
 
-func (uc *RegistererImpl) Register(ctx context.Context, req contracts.RegisterRequest) error {
+func (uc *RegistererImpl) Register(ctx context.Context, req contracts.RegisterRequest) (contracts.RegisterResponse, error) {
 	params := (&auth.UserToCreate{}).Email(req.Email).Password(req.Password).EmailVerified(false)
 	user, err := uc.auth.CreateUser(ctx, params)
 	if err != nil {
-		return err
+		return contracts.RegisterResponse{}, contracts.ErrUserAlreadyExists
 	}
 
 	verificationLink, err := uc.auth.EmailVerificationLink(ctx, user.Email)
 	if err != nil {
 		uc.logger.Error("Unable to generate verification link for email", zap.String("email", req.Email), zap.Error(err))
-		return err
+		return contracts.RegisterResponse{}, err
 	}
 
 	/*TODO Find out how to user firebase's email verification instead of our own mail account + SMTP server. Apparently
 	the Go firebase SDK doesn't have auth.SendEmailVerification()
 	*/
-	return uc.mailer.SendAccountVerificationEmail(user.Email, verificationLink)
+	err = uc.mailer.SendAccountVerificationEmail(user.Email, verificationLink)
+	if err != nil {
+		return contracts.RegisterResponse{}, err
+	}
+	return contracts.RegisterResponse{UserID: user.UID}, nil
 }
 
-func (uc *RegistererImpl) FinishRegister(ctx context.Context, req contracts.FinishRegisterRequest) error {
+func (uc *RegistererImpl) FinishRegister(ctx context.Context, req contracts.FinishRegisterRequest) (contracts.FinishRegisterResponse, error) {
 	_, err := uc.users.GetByID(ctx, req.UserID)
 	if !errors.Is(err, contracts.ErrUserNotFound) {
-		return contracts.ErrUserAlreadyExists
+		return contracts.FinishRegisterResponse{}, contracts.ErrUserAlreadyExists
 	}
 
 	usr := models.User{
@@ -68,5 +72,5 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req contracts.Fini
 		Interests:         nil,
 	}
 	_, err = uc.users.CreateUser(ctx, usr)
-	return err
+	return contracts.FinishRegisterResponse{User: usr}, err
 }

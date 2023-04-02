@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/fiufit/users/contracts"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,7 @@ func BindUserIDFromUri() gin.HandlerFunc {
 		var u UserID
 		err := ctx.ShouldBindUri(&u)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err})
+			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
 			return
 		}
 		ctx.Set("userID", u.UserID)

@@ -2,11 +2,17 @@ package contracts
 
 import (
 	"time"
+
+	"github.com/fiufit/users/models"
 )
 
 type RegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type RegisterResponse struct {
+	UserID string `json:"userID"`
 }
 
 type FinishRegisterRequest struct {
@@ -19,4 +25,8 @@ type FinishRegisterRequest struct {
 	Weight       uint      `json:"weight"`
 	MainLocation string    `json:"main-location"`
 	Interests    []string  `json:"-"`
+}
+
+type FinishRegisterResponse struct {
+	User models.User `json:"user"`
 }

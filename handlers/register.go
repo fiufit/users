@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -23,16 +24,20 @@ func (h Register) Handle() gin.HandlerFunc {
 		var req contracts.RegisterRequest
 		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, "Unable to read request body")
+			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
 			return
 		}
 
-		err = h.users.Register(ctx, req)
+		res, err := h.users.Register(ctx, req)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, "Something went wrong")
+			if errors.Is(err, contracts.ErrUserAlreadyExists) {
+				ctx.JSON(http.StatusConflict, contracts.FormatErrResponse(err))
+			}
+
+			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, "OK")
+		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(res))
 	}
 }

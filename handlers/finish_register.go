@@ -24,23 +24,23 @@ func (h FinishRegister) Handle() gin.HandlerFunc {
 		var req contracts.FinishRegisterRequest
 		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, "Unable to read request body")
+			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
 			return
 		}
 
 		userID := ctx.MustGet("userID").(string)
 		req.UserID = userID
 
-		err = h.users.FinishRegister(ctx, req)
+		res, err := h.users.FinishRegister(ctx, req)
 		if err != nil {
 			if errors.Is(err, contracts.ErrUserAlreadyExists) {
-				ctx.JSON(http.StatusConflict, err.Error())
+				ctx.JSON(http.StatusConflict, contracts.FormatErrResponse(err))
 				return
 			}
-			ctx.JSON(http.StatusInternalServerError, "Something went wrong")
+			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, "OK")
+		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(res))
 	}
 }
