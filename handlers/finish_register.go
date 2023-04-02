@@ -28,6 +28,9 @@ func (h FinishRegister) Handle() gin.HandlerFunc {
 			return
 		}
 
+		userID := ctx.MustGet("userID").(string)
+		req.UserID = userID
+
 		err = h.users.FinishRegister(ctx, req)
 		if err != nil {
 			if errors.Is(err, contracts.ErrUserAlreadyExists) {

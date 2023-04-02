@@ -10,7 +10,7 @@ type RegisterRequest struct {
 }
 
 type FinishRegisterRequest struct {
-	UserID       string    `json:"user-id"`
+	UserID       string
 	Nickname     string    `json:"nick-name"`
 	DisplayName  string    `json:"display-name"`
 	IsMale       bool      `json:"is-male"`
