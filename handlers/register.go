@@ -32,6 +32,7 @@ func (h Register) Handle() gin.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, contracts.ErrUserAlreadyExists) {
 				ctx.JSON(http.StatusConflict, contracts.FormatErrResponse(err))
+				return
 			}
 
 			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))

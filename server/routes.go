@@ -6,6 +6,11 @@ func (s *Server) InitRoutes() {
 	baseRouter := s.router.Group("/:version")
 	userRouter := baseRouter.Group("/users")
 
-	baseRouter.POST("/register", s.register.Handle())
-	userRouter.POST("/:userID/finish-register", middleware.BindUserIDFromUri(), s.finishRegister.Handle())
+	baseRouter.POST("/register", middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.register.Handle(),
+	}))
+
+	userRouter.POST("/:userID/finish-register", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.finishRegister.Handle(),
+	}))
 }
