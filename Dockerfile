@@ -9,6 +9,6 @@ RUN go build -o /fiufit-users
 ##SECRETS
 
 ##DEPLOY
-EXPOSE 8888
+EXPOSE ${SERVICE_PORT}
 CMD [ "/fiufit-users" ]
 

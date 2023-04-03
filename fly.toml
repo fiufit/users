@@ -24,3 +24,14 @@ processes = []
   [[services.ports]]
     handlers = ["tls", "http"]
     port = 443
+
+[env]
+  SERVICE_PORT = "8888"
+  DB_HOST = "db.yohuhdcgcaxsccbfyqje.supabase.co"
+  DB_NAME = "postgres"
+  DB_PORT = 5432
+  DB_USER = "postgres"
+  SMTP_HOST = "smtp-mail.outlook.com"
+  SMTP_NAME = "FIUFIT"
+  SMTP_PORT = 587
+  SMTP_USER = "fiufit@outlook.com"

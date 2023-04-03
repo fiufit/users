@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -26,7 +27,7 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-	err := s.router.Run(":8888")
+	err := s.router.Run(fmt.Sprintf(":%v", os.Getenv("SERVICE_PORT")))
 	if err != nil {
 		panic(err)
 	}
