@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
 	"os"
 	"strconv"
 
@@ -44,7 +45,12 @@ func NewServer() *Server {
 
 	logger, _ := zap.NewDevelopment()
 
-	opt := option.WithCredentialsFile("./firebase-adminsdk.json")
+	sdkJson, err := base64.StdEncoding.DecodeString(os.Getenv("FIREBASE_B64_SDK_JSON"))
+	if err != nil {
+		panic(err)
+	}
+
+	opt := option.WithCredentialsJSON(sdkJson)
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		panic(err)
