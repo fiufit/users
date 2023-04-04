@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/fiufit/users/server"
+	_ "github.com/lib/pq"
+)
 
 func main() {
-	fmt.Println("Hello fiufit")
+	srv := server.NewServer()
+	srv.InitRoutes()
+	srv.Run()
 }

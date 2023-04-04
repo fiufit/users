@@ -1,0 +1,5 @@
+.idea
+*adminsdk*.json
+out
+gen
+.env
