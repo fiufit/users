@@ -6,8 +6,6 @@ COPY . ./
 RUN go mod download
 RUN go build -o /fiufit-users
 
-##SECRETS
-
 ##DEPLOY
 EXPOSE ${SERVICE_PORT}
 CMD [ "/fiufit-users" ]
