@@ -27,7 +27,7 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-	err := s.router.Run(fmt.Sprintf(":%v", os.Getenv("SERVICE_PORT")))
+	err := s.router.Run(fmt.Sprintf("0.0.0.0:%v", os.Getenv("SERVICE_PORT")))
 	if err != nil {
 		panic(err)
 	}
