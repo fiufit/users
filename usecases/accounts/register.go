@@ -30,26 +30,31 @@ func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth *auth.Cl
 }
 
 func (uc *RegistererImpl) Register(ctx context.Context, req contracts.RegisterRequest) (contracts.RegisterResponse, error) {
+
+	user, err := uc.auth.GetUserByEmail(ctx, req.Email)
+	if err == nil && user != nil {
+		if user.EmailVerified {
+			return contracts.RegisterResponse{}, contracts.ErrUserAlreadyExists
+		}
+		err = uc.mailer.SendAccountVerificationEmail(ctx, user.Email)
+		if err != nil {
+			return contracts.RegisterResponse{}, err
+		}
+		return contracts.RegisterResponse{UserID: user.UID}, nil
+	}
+
 	params := (&auth.UserToCreate{}).Email(req.Email).Password(req.Password).EmailVerified(false)
-	user, err := uc.auth.CreateUser(ctx, params)
-	if err != nil {
-		return contracts.RegisterResponse{}, contracts.ErrUserAlreadyExists
-	}
-
-	verificationLink, err := uc.auth.EmailVerificationLink(ctx, user.Email)
-	if err != nil {
-		uc.logger.Error("Unable to generate verification link for email", zap.String("email", req.Email), zap.Error(err))
-		return contracts.RegisterResponse{}, err
-	}
-
-	/*TODO Find out how to user firebase's email verification instead of our own mail account + SMTP server. Apparently
-	the Go firebase SDK doesn't have auth.SendEmailVerification()
-	*/
-	err = uc.mailer.SendAccountVerificationEmail(user.Email, verificationLink)
+	newUser, err := uc.auth.CreateUser(ctx, params)
 	if err != nil {
 		return contracts.RegisterResponse{}, err
 	}
-	return contracts.RegisterResponse{UserID: user.UID}, nil
+
+	err = uc.mailer.SendAccountVerificationEmail(ctx, req.Email)
+	if err != nil {
+		return contracts.RegisterResponse{}, err
+	}
+
+	return contracts.RegisterResponse{UserID: newUser.UID}, nil
 }
 
 func (uc *RegistererImpl) FinishRegister(ctx context.Context, req contracts.FinishRegisterRequest) (contracts.FinishRegisterResponse, error) {
