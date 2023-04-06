@@ -7,8 +7,8 @@ import (
 )
 
 type RegisterRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 type RegisterResponse struct {
@@ -17,13 +17,13 @@ type RegisterResponse struct {
 
 type FinishRegisterRequest struct {
 	UserID       string
-	Nickname     string    `json:"nick_name"`
-	DisplayName  string    `json:"display_name"`
-	IsMale       bool      `json:"is_male"`
-	BirthDate    time.Time `json:"birth_date"`
-	Height       uint      `json:"height"`
-	Weight       uint      `json:"weight"`
-	MainLocation string    `json:"main_location"`
+	Nickname     string    `json:"nick_name" binding:"required"`
+	DisplayName  string    `json:"display_name" binding:"required"`
+	IsMale       bool      `json:"is_male" binding:"required"`
+	BirthDate    time.Time `json:"birth_date" binding:"required"`
+	Height       uint      `json:"height" binding:"required"`
+	Weight       uint      `json:"weight" binding:"required"`
+	MainLocation string    `json:"main_location" binding:"required"`
 	Interests    []string  `json:"-"`
 }
 

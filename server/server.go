@@ -66,7 +66,7 @@ func NewServer() *Server {
 	password := os.Getenv("SMTP_PASSWORD")
 	host := os.Getenv("SMTP_HOST")
 	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	mail := utils.NewMailerImpl(fromMail, password, host, port)
+	mail := utils.NewMailerImpl(fromMail, password, host, port, auth, logger)
 
 	// REPOSITORIES
 	userRepo := repositories.NewUserRepository(db, logger)
