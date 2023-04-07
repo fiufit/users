@@ -7,4 +7,5 @@ var (
 	ErrBadRequest        = errors.New("unable to parse request")
 	ErrUserNotFound      = errors.New("user not found")
 	ErrUserAlreadyExists = errors.New("user already exist, attempting to re-register same user")
+	ErrInvalidPassword   = errors.New("invalid password")
 )
