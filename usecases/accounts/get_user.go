@@ -2,9 +2,7 @@ package accounts
 
 import (
 	"context"
-	"errors"
 
-	"github.com/fiufit/users/contracts"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
 	"go.uber.org/zap"
@@ -27,9 +25,6 @@ func NewUserGetterImpl(users repositories.Users, logger *zap.Logger) UserGetterI
 func (uc *UserGetterImpl) GetUserByID(ctx context.Context, uid string) (models.User, error) {
 	user, err := uc.users.GetByID(ctx, uid)
 	if err != nil {
-		if errors.Is(err, contracts.ErrUserNotFound) {
-			return models.User{}, contracts.ErrUserNotFound
-		}
 		return models.User{}, err
 	}
 	return user, nil
@@ -38,9 +33,6 @@ func (uc *UserGetterImpl) GetUserByID(ctx context.Context, uid string) (models.U
 func (uc *UserGetterImpl) GetUserByNickname(ctx context.Context, nickname string) (models.User, error) {
 	user, err := uc.users.GetByNickname(ctx, nickname)
 	if err != nil {
-		if errors.Is(err, contracts.ErrUserNotFound) {
-			return models.User{}, contracts.ErrUserNotFound
-		}
 		return models.User{}, err
 	}
 	return user, nil
