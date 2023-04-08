@@ -20,7 +20,7 @@ func (s *Server) InitRoutes() {
 		"v1": s.getUserByID.Handle(),
 	}))
 
-	userRouter.GET("", middleware.BindNicknameFromQuery(), middleware.HandleByVersion(middleware.VersionHandlers{
+	userRouter.GET("", middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.getUserByNickname.Handle(),
 	}))
 }

@@ -21,7 +21,11 @@ func NewGetUserByNickname(users accounts.UserGetter, logger *zap.Logger) GetUser
 
 func (h GetUserByNickname) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		nickname := ctx.MustGet("nickname").(string)
+		nickname := ctx.Query("nickname")
+		if nickname == "" {
+			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
+			return
+		}
 		user, err := h.users.GetUserByNickname(ctx, nickname)
 		if err != nil {
 			if errors.Is(err, contracts.ErrUserNotFound) {
