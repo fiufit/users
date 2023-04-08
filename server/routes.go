@@ -1,6 +1,8 @@
 package server
 
-import "github.com/fiufit/users/middleware"
+import (
+	"github.com/fiufit/users/middleware"
+)
 
 func (s *Server) InitRoutes() {
 	baseRouter := s.router.Group("/:version")
@@ -12,5 +14,13 @@ func (s *Server) InitRoutes() {
 
 	userRouter.POST("/:userID/finish-register", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.finishRegister.Handle(),
+	}))
+
+	userRouter.GET("/:userID", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getUserByID.Handle(),
+	}))
+
+	userRouter.GET("", middleware.BindNicknameFromQuery(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getUserByNickname.Handle(),
 	}))
 }

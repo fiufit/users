@@ -22,8 +22,10 @@ import (
 type Server struct {
 	router *gin.Engine
 
-	register       handlers.Register
-	finishRegister handlers.FinishRegister
+	register          handlers.Register
+	finishRegister    handlers.FinishRegister
+	getUserByID       handlers.GetUserByID
+	getUserByNickname handlers.GetUserByNickname
 }
 
 func (s *Server) Run() {
@@ -73,14 +75,20 @@ func NewServer() *Server {
 
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth, mail)
+	getUserUc := accounts.NewUserGetterImpl(userRepo, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
 	finishRegister := handlers.NewFinishRegister(&registerUc, logger)
 
+	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
+	getUserByNickname := handlers.NewGetUserByNickname(&getUserUc, logger)
+
 	return &Server{
-		router:         gin.Default(),
-		register:       register,
-		finishRegister: finishRegister,
+		router:            gin.Default(),
+		register:          register,
+		finishRegister:    finishRegister,
+		getUserByID:       getUserByID,
+		getUserByNickname: getUserByNickname,
 	}
 }
