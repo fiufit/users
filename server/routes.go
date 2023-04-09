@@ -25,6 +25,14 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.POST("/:userID/finish-register", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.finishRegister.Handle(),
 	}))
+
+	router.GET("/:userID", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getUserByID.Handle(),
+	}))
+
+	router.GET("", middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getUserByNickname.Handle(),
+	}))
 }
 
 func (s *Server) InitAdminroutes(router *gin.RouterGroup) {

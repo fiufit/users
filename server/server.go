@@ -22,10 +22,12 @@ import (
 type Server struct {
 	router *gin.Engine
 
-	register       handlers.Register
-	finishRegister handlers.FinishRegister
-	adminRegister  handlers.AdminRegister
-	adminLogin     handlers.AdminLogin
+	register          handlers.Register
+	finishRegister    handlers.FinishRegister
+	adminRegister     handlers.AdminRegister
+	adminLogin        handlers.AdminLogin
+	getUserByID       handlers.GetUserByID
+	getUserByNickname handlers.GetUserByNickname
 }
 
 func (s *Server) Run() {
@@ -91,6 +93,7 @@ func NewServer() *Server {
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth, mail)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
+	getUserUc := accounts.NewUserGetterImpl(userRepo, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -98,11 +101,16 @@ func NewServer() *Server {
 	adminRegister := handlers.NewAdminRegister(&adminRegisterUc, logger)
 	adminLogin := handlers.NewAdminLogin(&adminRegisterUc, logger)
 
+	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
+	getUserByNickname := handlers.NewGetUserByNickname(&getUserUc, logger)
+
 	return &Server{
-		router:         gin.Default(),
-		register:       register,
-		finishRegister: finishRegister,
-		adminRegister:  adminRegister,
-		adminLogin:     adminLogin,
+		router:            gin.Default(),
+		register:          register,
+		finishRegister:    finishRegister,
+		adminRegister:     adminRegister,
+		adminLogin:        adminLogin,
+		getUserByID:       getUserByID,
+		getUserByNickname: getUserByNickname,
 	}
 }
