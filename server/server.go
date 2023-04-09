@@ -24,6 +24,8 @@ type Server struct {
 
 	register       handlers.Register
 	finishRegister handlers.FinishRegister
+	adminRegister  handlers.AdminRegister
+	adminLogin     handlers.AdminLogin
 }
 
 func (s *Server) Run() {
@@ -68,19 +70,39 @@ func NewServer() *Server {
 	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
 	mail := utils.NewMailerImpl(fromMail, password, host, port, auth, logger)
 
+	pubJwtKey, err := base64.StdEncoding.DecodeString(os.Getenv("PUB_RSA_B64"))
+	if err != nil {
+		panic(err)
+	}
+
+	privJwtKey, err := base64.StdEncoding.DecodeString(os.Getenv("PRIV_RSA_B64"))
+	if err != nil {
+		panic(err)
+	}
+	toker, err := utils.NewJwtToker(privJwtKey, pubJwtKey)
+	if err != nil {
+		panic(err)
+	}
+
 	// REPOSITORIES
 	userRepo := repositories.NewUserRepository(db, logger)
+	adminRepo := repositories.NewAdminRepository(db, logger)
 
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth, mail)
+	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
 	finishRegister := handlers.NewFinishRegister(&registerUc, logger)
+	adminRegister := handlers.NewAdminRegister(&adminRegisterUc, logger)
+	adminLogin := handlers.NewAdminLogin(&adminRegisterUc, logger)
 
 	return &Server{
 		router:         gin.Default(),
 		register:       register,
 		finishRegister: finishRegister,
+		adminRegister:  adminRegister,
+		adminLogin:     adminLogin,
 	}
 }
