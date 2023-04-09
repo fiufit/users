@@ -9,7 +9,6 @@ import (
 	"github.com/fiufit/users/contracts"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
-	"github.com/fiufit/users/utils"
 	"go.uber.org/zap"
 )
 
@@ -22,11 +21,10 @@ type RegistererImpl struct {
 	users  repositories.Users
 	logger *zap.Logger
 	auth   *auth.Client
-	mailer utils.Mailer
 }
 
-func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth *auth.Client, mailer utils.Mailer) RegistererImpl {
-	return RegistererImpl{users: users, logger: logger, auth: auth, mailer: mailer}
+func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth *auth.Client) RegistererImpl {
+	return RegistererImpl{users: users, logger: logger, auth: auth}
 }
 
 func (uc *RegistererImpl) Register(ctx context.Context, req contracts.RegisterRequest) (contracts.RegisterResponse, error) {
@@ -36,20 +34,17 @@ func (uc *RegistererImpl) Register(ctx context.Context, req contracts.RegisterRe
 		if user.EmailVerified {
 			return contracts.RegisterResponse{}, contracts.ErrUserAlreadyExists
 		}
-		err = uc.mailer.SendAccountVerificationEmail(ctx, user.Email)
+
+		updateUserParams := (&auth.UserToUpdate{}).Password(req.Password)
+		updatedUser, err := uc.auth.UpdateUser(ctx, user.UID, updateUserParams)
 		if err != nil {
 			return contracts.RegisterResponse{}, err
 		}
-		return contracts.RegisterResponse{UserID: user.UID}, nil
+		return contracts.RegisterResponse{UserID: updatedUser.UID}, nil
 	}
 
 	params := (&auth.UserToCreate{}).Email(req.Email).Password(req.Password).EmailVerified(false)
 	newUser, err := uc.auth.CreateUser(ctx, params)
-	if err != nil {
-		return contracts.RegisterResponse{}, err
-	}
-
-	err = uc.mailer.SendAccountVerificationEmail(ctx, req.Email)
 	if err != nil {
 		return contracts.RegisterResponse{}, err
 	}

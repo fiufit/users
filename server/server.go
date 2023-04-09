@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-	"strconv"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/fiufit/users/database"
@@ -66,12 +65,6 @@ func NewServer() *Server {
 		panic(err)
 	}
 
-	fromMail := os.Getenv("SMTP_USER")
-	password := os.Getenv("SMTP_PASSWORD")
-	host := os.Getenv("SMTP_HOST")
-	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	mail := utils.NewMailerImpl(fromMail, password, host, port, auth, logger)
-
 	pubJwtKey, err := base64.StdEncoding.DecodeString(os.Getenv("PUB_RSA_B64"))
 	if err != nil {
 		panic(err)
@@ -91,7 +84,7 @@ func NewServer() *Server {
 	adminRepo := repositories.NewAdminRepository(db, logger)
 
 	// USECASES
-	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth, mail)
+	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 	getUserUc := accounts.NewUserGetterImpl(userRepo, logger)
 
