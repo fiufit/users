@@ -20,13 +20,13 @@ type TokenClaims struct {
 	jwt.RegisteredClaims
 }
 
-func NewJwtToker(privRsa string, pubRsa string) (JwtToker, error) {
-	signKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privRsa))
+func NewJwtToker(privRsa []byte, pubRsa []byte) (JwtToker, error) {
+	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privRsa)
 	if err != nil {
 		return JwtToker{}, err
 	}
 
-	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pubRsa))
+	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(pubRsa)
 	if err != nil {
 		return JwtToker{}, err
 	}
@@ -56,5 +56,5 @@ func HashPassword(password string) (string, error) {
 }
 
 func ValidatePassword(password string, storedHash string) error {
-	return bcrypt.CompareHashAndPassword([]byte(password), []byte(storedHash))
+	return bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(password))
 }
