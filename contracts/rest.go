@@ -5,6 +5,7 @@ var errCodes = map[error]string{
 	ErrBadRequest:        "U1",
 	ErrUserNotFound:      "U2",
 	ErrUserAlreadyExists: "U3",
+	ErrInvalidPassword:   "U4",
 }
 
 type OkResponse struct {
