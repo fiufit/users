@@ -15,6 +15,10 @@ type AdminLogin struct {
 	logger *zap.Logger
 }
 
+func NewAdminLogin(admins accounts.AdminRegisterer, logger *zap.Logger) AdminLogin {
+	return AdminLogin{admins: admins, logger: logger}
+}
+
 func (h AdminLogin) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req contracts.AdminLoginRequest

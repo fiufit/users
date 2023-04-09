@@ -23,6 +23,10 @@ type AdminRegistererImpl struct {
 	toker  utils.JwtToker
 }
 
+func NewAdminRegistererImpl(admins repositories.Admins, logger *zap.Logger, toker utils.JwtToker) AdminRegistererImpl {
+	return AdminRegistererImpl{admins: admins, logger: logger, toker: toker}
+}
+
 func (uc *AdminRegistererImpl) Login(ctx context.Context, req contracts.AdminLoginRequest) (contracts.AdminLoginResponse, error) {
 	admin, err := uc.admins.GetByEmail(ctx, req.Email)
 	if err != nil {

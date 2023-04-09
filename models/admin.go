@@ -9,7 +9,7 @@ import (
 type Administrator struct {
 	gorm.Model
 	Email    string `gorm:"not null;unique;index"`
-	Password string `gorm:"not null"`
+	Password string `gorm:"not null" json:"-"`
 }
 
 func (a Administrator) MarshalJson() ([]byte, error) {
