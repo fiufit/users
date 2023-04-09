@@ -15,13 +15,11 @@ func (s *Server) InitRoutes() {
 
 }
 
-func (s *Server) InitBaseRoutes(router *gin.RouterGroup) {
+func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.POST("/register", middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.register.Handle(),
 	}))
-}
 
-func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.POST("/:userID/finish-register", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.finishRegister.Handle(),
 	}))
