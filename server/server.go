@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-	"strconv"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/fiufit/users/database"
@@ -24,6 +23,8 @@ type Server struct {
 
 	register          handlers.Register
 	finishRegister    handlers.FinishRegister
+	adminRegister     handlers.AdminRegister
+	adminLogin        handlers.AdminLogin
 	getUserByID       handlers.GetUserByID
 	getUserByNickname handlers.GetUserByNickname
 }
@@ -41,7 +42,7 @@ func NewServer() *Server {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(&models.User{}, &models.Administrator{})
 	if err != nil {
 		panic(err)
 	}
@@ -64,22 +65,34 @@ func NewServer() *Server {
 		panic(err)
 	}
 
-	fromMail := os.Getenv("SMTP_USER")
-	password := os.Getenv("SMTP_PASSWORD")
-	host := os.Getenv("SMTP_HOST")
-	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	mail := utils.NewMailerImpl(fromMail, password, host, port, auth, logger)
+	pubJwtKey, err := base64.StdEncoding.DecodeString(os.Getenv("PUB_RSA_B64"))
+	if err != nil {
+		panic(err)
+	}
+
+	privJwtKey, err := base64.StdEncoding.DecodeString(os.Getenv("PRIV_RSA_B64"))
+	if err != nil {
+		panic(err)
+	}
+	toker, err := utils.NewJwtToker(privJwtKey, pubJwtKey)
+	if err != nil {
+		panic(err)
+	}
 
 	// REPOSITORIES
 	userRepo := repositories.NewUserRepository(db, logger)
+	adminRepo := repositories.NewAdminRepository(db, logger)
 
 	// USECASES
-	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth, mail)
+	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth)
+	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 	getUserUc := accounts.NewUserGetterImpl(userRepo, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
 	finishRegister := handlers.NewFinishRegister(&registerUc, logger)
+	adminRegister := handlers.NewAdminRegister(&adminRegisterUc, logger)
+	adminLogin := handlers.NewAdminLogin(&adminRegisterUc, logger)
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
 	getUserByNickname := handlers.NewGetUserByNickname(&getUserUc, logger)
@@ -88,6 +101,8 @@ func NewServer() *Server {
 		router:            gin.Default(),
 		register:          register,
 		finishRegister:    finishRegister,
+		adminRegister:     adminRegister,
+		adminLogin:        adminLogin,
 		getUserByID:       getUserByID,
 		getUserByNickname: getUserByNickname,
 	}

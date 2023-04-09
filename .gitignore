@@ -1,3 +1,5 @@
 .idea/
 *adminsdk*.json
 .env
+*.rsa*
+*.pem*
