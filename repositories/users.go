@@ -14,6 +14,7 @@ type Users interface {
 	GetByID(ctx context.Context, userID string) (models.User, error)
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
+	Update(ctx context.Context, user models.User) (models.User, error)
 }
 
 type UserRepository struct {
@@ -43,6 +44,7 @@ func (repo UserRepository) GetByID(ctx context.Context, userID string) (models.U
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return models.User{}, contracts.ErrUserNotFound
 		}
+		repo.logger.Error("Unable to get user", zap.Error(result.Error), zap.String("ID", userID))
 		return models.User{}, result.Error
 	}
 
@@ -58,8 +60,19 @@ func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return models.User{}, contracts.ErrUserNotFound
 		}
+		repo.logger.Error("Unable to get user", zap.Error(result.Error), zap.String("nickname", nickname))
 		return models.User{}, result.Error
 	}
 
 	return usr, nil
+}
+
+func (repo UserRepository) Update(ctx context.Context, user models.User) (models.User, error) {
+	db := repo.db.WithContext(ctx)
+	result := db.Save(&user)
+	if result.Error != nil {
+		repo.logger.Error("Unable to update user", zap.Error(result.Error), zap.Any("user", user))
+		return models.User{}, result.Error
+	}
+	return user, nil
 }

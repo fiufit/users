@@ -28,6 +28,7 @@ type Server struct {
 	adminLogin        handlers.AdminLogin
 	getUserByID       handlers.GetUserByID
 	getUserByNickname handlers.GetUserByNickname
+	updateUser        handlers.UpdateUser
 }
 
 func (s *Server) Run() {
@@ -88,6 +89,7 @@ func NewServer() *Server {
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 	getUserUc := users.NewUserGetterImpl(userRepo, logger)
+	updateUserUc := users.NewUserUpdaterImpl(userRepo)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -97,6 +99,7 @@ func NewServer() *Server {
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
 	getUserByNickname := handlers.NewGetUserByNickname(&getUserUc, logger)
+	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 
 	return &Server{
 		router:            gin.Default(),
@@ -106,5 +109,6 @@ func NewServer() *Server {
 		adminLogin:        adminLogin,
 		getUserByID:       getUserByID,
 		getUserByNickname: getUserByNickname,
+		updateUser:        updateUser,
 	}
 }
