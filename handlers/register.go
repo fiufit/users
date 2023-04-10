@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
-	accounts2 "github.com/fiufit/users/contracts/accounts"
+	ucontracts "github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/usecases/accounts"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -22,7 +22,7 @@ func NewRegister(users accounts.Registerer, logger *zap.Logger) Register {
 
 func (h Register) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req accounts2.RegisterRequest
+		var req ucontracts.RegisterRequest
 		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
