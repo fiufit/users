@@ -12,6 +12,7 @@ import (
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
 	"github.com/fiufit/users/usecases/accounts"
+	"github.com/fiufit/users/usecases/users"
 	"github.com/fiufit/users/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -86,7 +87,7 @@ func NewServer() *Server {
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
-	getUserUc := accounts.NewUserGetterImpl(userRepo, logger)
+	getUserUc := users.NewUserGetterImpl(userRepo, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)

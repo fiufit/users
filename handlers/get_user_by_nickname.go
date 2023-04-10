@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
-	"github.com/fiufit/users/usecases/accounts"
+	"github.com/fiufit/users/usecases/users"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type GetUserByNickname struct {
-	users  accounts.UserGetter
+	users  users.UserGetter
 	logger *zap.Logger
 }
 
-func NewGetUserByNickname(users accounts.UserGetter, logger *zap.Logger) GetUserByNickname {
+func NewGetUserByNickname(users users.UserGetter, logger *zap.Logger) GetUserByNickname {
 	return GetUserByNickname{users: users, logger: logger}
 }
 
