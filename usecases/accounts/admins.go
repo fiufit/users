@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/fiufit/users/contracts"
+	"github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
 	"github.com/fiufit/users/utils"
@@ -13,8 +14,8 @@ import (
 )
 
 type AdminRegisterer interface {
-	Login(ctx context.Context, req contracts.AdminLoginRequest) (contracts.AdminLoginResponse, error)
-	Register(ctx context.Context, req contracts.AdminRegisterRequest) (contracts.AdminRegisterResponse, error)
+	Login(ctx context.Context, req accounts.AdminLoginRequest) (accounts.AdminLoginResponse, error)
+	Register(ctx context.Context, req accounts.AdminRegisterRequest) (accounts.AdminRegisterResponse, error)
 }
 
 type AdminRegistererImpl struct {
@@ -27,30 +28,30 @@ func NewAdminRegistererImpl(admins repositories.Admins, logger *zap.Logger, toke
 	return AdminRegistererImpl{admins: admins, logger: logger, toker: toker}
 }
 
-func (uc *AdminRegistererImpl) Login(ctx context.Context, req contracts.AdminLoginRequest) (contracts.AdminLoginResponse, error) {
+func (uc *AdminRegistererImpl) Login(ctx context.Context, req accounts.AdminLoginRequest) (accounts.AdminLoginResponse, error) {
 	admin, err := uc.admins.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return contracts.AdminLoginResponse{}, err
+		return accounts.AdminLoginResponse{}, err
 	}
 
 	if err := utils.ValidatePassword(req.Password, admin.Password); err != nil {
-		return contracts.AdminLoginResponse{}, contracts.ErrInvalidPassword
+		return accounts.AdminLoginResponse{}, contracts.ErrInvalidPassword
 	}
 
 	token, err := uc.toker.CreateToken(strconv.Itoa(int(admin.ID)), true)
 	if err != nil {
 		uc.logger.Error("Unable to generate JWT for admin", zap.Error(err), zap.Any("admin", admin))
-		return contracts.AdminLoginResponse{}, err
+		return accounts.AdminLoginResponse{}, err
 	}
 
-	return contracts.AdminLoginResponse{Token: token}, nil
+	return accounts.AdminLoginResponse{Token: token}, nil
 }
 
-func (uc *AdminRegistererImpl) Register(ctx context.Context, req contracts.AdminRegisterRequest) (contracts.AdminRegisterResponse, error) {
+func (uc *AdminRegistererImpl) Register(ctx context.Context, req accounts.AdminRegisterRequest) (accounts.AdminRegisterResponse, error) {
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return contracts.AdminRegisterResponse{}, err
+		return accounts.AdminRegisterResponse{}, err
 	}
 
 	admin := models.Administrator{
@@ -61,8 +62,8 @@ func (uc *AdminRegistererImpl) Register(ctx context.Context, req contracts.Admin
 
 	createdAdmin, err := uc.admins.Create(ctx, admin)
 	if err != nil {
-		return contracts.AdminRegisterResponse{}, err
+		return accounts.AdminRegisterResponse{}, err
 	}
 
-	return contracts.AdminRegisterResponse{Admin: createdAdmin}, nil
+	return accounts.AdminRegisterResponse{Admin: createdAdmin}, nil
 }

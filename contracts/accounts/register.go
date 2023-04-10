@@ -1,4 +1,4 @@
-package contracts
+package accounts
 
 import (
 	"time"
