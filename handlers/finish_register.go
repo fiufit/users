@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
+	ucontracts "github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/usecases/accounts"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -21,7 +22,7 @@ func NewFinishRegister(users accounts.Registerer, logger *zap.Logger) FinishRegi
 
 func (h FinishRegister) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req contracts.FinishRegisterRequest
+		var req ucontracts.FinishRegisterRequest
 		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))

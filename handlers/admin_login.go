@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
+	acontracts "github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/usecases/accounts"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -21,7 +22,7 @@ func NewAdminLogin(admins accounts.AdminRegisterer, logger *zap.Logger) AdminLog
 
 func (h AdminLogin) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req contracts.AdminLoginRequest
+		var req acontracts.AdminLoginRequest
 		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))

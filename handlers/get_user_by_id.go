@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
-	"github.com/fiufit/users/usecases/accounts"
+	"github.com/fiufit/users/usecases/users"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type GetUserByID struct {
-	users  accounts.UserGetter
+	users  users.UserGetter
 	logger *zap.Logger
 }
 
-func NewGetUserByID(users accounts.UserGetter, logger *zap.Logger) GetUserByID {
+func NewGetUserByID(users users.UserGetter, logger *zap.Logger) GetUserByID {
 	return GetUserByID{users: users, logger: logger}
 }
 
