@@ -61,19 +61,19 @@ func (uc *UserUpdaterImpl) patchUserModel(ctx context.Context, user models.User,
 		user.DisplayName = req.DisplayName
 	}
 
-	if req.BirthDate != user.BornAt {
+	if !req.BirthDate.IsZero() {
 		user.BornAt = req.BirthDate
 	}
 
-	if req.Weight != user.Weight {
+	if req.Weight != 0 {
 		user.Weight = req.Weight
 	}
 
-	if req.Height != user.Height {
+	if req.Height != 0 {
 		user.Height = req.Height
 	}
 
-	if req.MainLocation != user.MainLocation {
+	if req.MainLocation != "" {
 		user.MainLocation = req.MainLocation
 	}
 
