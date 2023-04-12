@@ -29,6 +29,7 @@ type Server struct {
 	getUserByID       handlers.GetUserByID
 	getUserByNickname handlers.GetUserByNickname
 	updateUser        handlers.UpdateUser
+	deleteUser        handlers.DeleteUser
 }
 
 func (s *Server) Run() {
@@ -77,12 +78,12 @@ func NewServer() *Server {
 		panic(err)
 	}
 	toker, err := utils.NewJwtToker(privJwtKey, pubJwtKey)
-	if err != nil {
-		panic(err)
-	}
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	// REPOSITORIES
-	userRepo := repositories.NewUserRepository(db, logger)
+	userRepo := repositories.NewUserRepository(db, logger, auth)
 	adminRepo := repositories.NewAdminRepository(db, logger)
 
 	// USECASES
@@ -90,6 +91,7 @@ func NewServer() *Server {
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 	getUserUc := users.NewUserGetterImpl(userRepo, logger)
 	updateUserUc := users.NewUserUpdaterImpl(userRepo)
+	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -100,6 +102,7 @@ func NewServer() *Server {
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
 	getUserByNickname := handlers.NewGetUserByNickname(&getUserUc, logger)
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
+	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 
 	return &Server{
 		router:            gin.Default(),
@@ -110,5 +113,6 @@ func NewServer() *Server {
 		getUserByID:       getUserByID,
 		getUserByNickname: getUserByNickname,
 		updateUser:        updateUser,
+		deleteUser:        deleteUser,
 	}
 }

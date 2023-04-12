@@ -32,6 +32,10 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 		"v1": s.updateUser.Handle(),
 	}))
 
+	router.DELETE("/:userID", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.deleteUser.Handle(),
+	}))
+
 	router.GET("", middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.getUserByNickname.Handle(),
 	}))
