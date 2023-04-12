@@ -78,9 +78,9 @@ func NewServer() *Server {
 		panic(err)
 	}
 	toker, err := utils.NewJwtToker(privJwtKey, pubJwtKey)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	if err != nil {
+		panic(err)
+	}
 
 	// REPOSITORIES
 	userRepo := repositories.NewUserRepository(db, logger, auth)
