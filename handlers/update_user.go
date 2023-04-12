@@ -26,6 +26,7 @@ func (h UpdateUser) Handle() gin.HandlerFunc {
 		err := ctx.ShouldBindJSON(&req)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
+			return
 		}
 
 		userID := ctx.MustGet("userID").(string)

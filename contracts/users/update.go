@@ -10,7 +10,7 @@ type UpdateUserRequest struct {
 	ID           string
 	Nickname     string    `json:"nickname" `
 	DisplayName  string    `json:"display_name" `
-	IsMale       bool      `json:"is_male" `
+	IsMale       *bool     `json:"is_male" `
 	BirthDate    time.Time `json:"birth_date" `
 	Height       uint      `json:"height" `
 	Weight       uint      `json:"weight" `

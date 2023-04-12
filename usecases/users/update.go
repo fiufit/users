@@ -53,8 +53,8 @@ func (uc *UserUpdaterImpl) patchUserModel(ctx context.Context, user models.User,
 		user.Nickname = req.Nickname
 	}
 
-	if req.IsMale != user.IsMale {
-		user.IsMale = req.IsMale
+	if req.IsMale != nil {
+		user.IsMale = *req.IsMale
 	}
 
 	if req.DisplayName != "" {
