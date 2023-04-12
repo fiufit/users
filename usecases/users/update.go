@@ -41,7 +41,7 @@ func (uc *UserUpdaterImpl) UpdateUser(ctx context.Context, req ucontracts.Update
 }
 
 func (uc *UserUpdaterImpl) patchUserModel(ctx context.Context, user models.User, req ucontracts.UpdateUserRequest) (models.User, error) {
-	if req.Nickname != "" {
+	if req.Nickname != "" && req.Nickname != user.Nickname {
 		_, err := uc.users.GetByNickname(ctx, req.Nickname)
 		if err != nil && !errors.Is(err, contracts.ErrUserNotFound) {
 			return models.User{}, err
