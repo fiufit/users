@@ -17,7 +17,7 @@ type RegisterResponse struct {
 
 type FinishRegisterRequest struct {
 	UserID       string
-	Nickname     string    `json:"nick_name" binding:"required"`
+	Nickname     string    `json:"nickname" binding:"required"`
 	DisplayName  string    `json:"display_name" binding:"required"`
 	IsMale       bool      `json:"is_male" binding:"required"`
 	BirthDate    time.Time `json:"birth_date" binding:"required"`
