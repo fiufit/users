@@ -63,7 +63,7 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.Finis
 		ID:                req.UserID,
 		Nickname:          req.Nickname,
 		DisplayName:       req.DisplayName,
-		IsMale:            req.IsMale,
+		IsMale:            *req.IsMale,
 		CreatedAt:         time.Now(),
 		BornAt:            req.BirthDate,
 		Height:            req.Height,
