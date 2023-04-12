@@ -19,9 +19,5 @@ func NewUserDeleterImpl(users repositories.Users) UserDeleterImpl {
 }
 
 func (uc *UserDeleterImpl) DeleteUser(ctx context.Context, userID string) error {
-	err := uc.users.DeleteUser(ctx, userID)
-	if err != nil {
-		return err
-	}
-	return err
+	return uc.users.DeleteUser(ctx, userID)
 }

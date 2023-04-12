@@ -31,6 +31,6 @@ func (h DeleteUser) Handle() gin.HandlerFunc {
 			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
 			return
 		}
-		ctx.JSON(http.StatusOK, contracts.FormatOkResponse("User deleted succesfully"))
+		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(""))
 	}
 }
