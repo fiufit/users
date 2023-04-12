@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -10,6 +12,7 @@ type User struct {
 	DisplayName       string    `gorm:"not null"`
 	IsMale            bool      `gorm:"not null"`
 	CreatedAt         time.Time `gorm:"not null"`
+	DeletedAt         gorm.DeletedAt
 	BornAt            time.Time `gorm:"not null"`
 	Height            uint      `gorm:"not null"`
 	Weight            uint      `gorm:"not null"`

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
 	"github.com/fiufit/users/models"
 	"go.uber.org/zap"
@@ -15,15 +16,17 @@ type Users interface {
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
+	DeleteUser(ctx context.Context, userID string) error
 }
 
 type UserRepository struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	auth   *auth.Client
 }
 
-func NewUserRepository(db *gorm.DB, logger *zap.Logger) UserRepository {
-	return UserRepository{db: db, logger: logger}
+func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth *auth.Client) UserRepository {
+	return UserRepository{db: db, logger: logger, auth: auth}
 }
 
 func (repo UserRepository) CreateUser(ctx context.Context, user models.User) (models.User, error) {
@@ -49,6 +52,30 @@ func (repo UserRepository) GetByID(ctx context.Context, userID string) (models.U
 	}
 
 	return usr, nil
+}
+
+func (repo UserRepository) DeleteUser(ctx context.Context, userID string) error {
+	db := repo.db.WithContext(ctx)
+	var usr models.User
+	err := db.Transaction(func(tx *gorm.DB) error {
+		result := tx.Delete(&usr, "id = ?", userID)
+		if result.Error != nil {
+			return result.Error
+		}
+		fbError := repo.auth.DeleteUser(ctx, userID)
+		if fbError != nil {
+			return fbError
+		}
+		return nil
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return contracts.ErrUserNotFound
+		}
+		repo.logger.Error("Unable to delete user", zap.Error(err), zap.String("ID", userID))
+		return err
+	}
+	return nil
 }
 
 func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (models.User, error) {
