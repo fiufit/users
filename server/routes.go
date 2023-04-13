@@ -37,7 +37,7 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	}))
 
 	router.GET("", middleware.HandleByVersion(middleware.VersionHandlers{
-		"v1": s.getUserByNickname.Handle(),
+		"v1": s.getUsers.Handle(),
 	}))
 
 }
