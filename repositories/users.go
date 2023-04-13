@@ -33,8 +33,11 @@ func (repo UserRepository) CreateUser(ctx context.Context, user models.User) (mo
 	db := repo.db.WithContext(ctx)
 	result := db.Create(&user)
 	if result.Error != nil {
-		// TODO: check if this is error resulted from being a duplicate user in the database.
-		return models.User{}, errors.New("unable to create user")
+		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
+			return models.User{}, contracts.ErrUserAlreadyExists
+		}
+		repo.logger.Error("Unable to create user", zap.Error(result.Error), zap.Any("user", user))
+		return models.User{}, result.Error
 	}
 	return user, nil
 }

@@ -39,6 +39,6 @@ func NewPostgresDBClient() (*gorm.DB, error) {
 		dbSSL = "disable"
 	}
 	connStr := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v", dbHost, dbPort, dbUser, dbPass, dbName, dbSSL)
-	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{TranslateError: true})
 	return db, err
 }

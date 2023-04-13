@@ -2,7 +2,6 @@ package accounts
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"firebase.google.com/go/v4/auth"
@@ -54,10 +53,6 @@ func (uc *RegistererImpl) Register(ctx context.Context, req accounts.RegisterReq
 }
 
 func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.FinishRegisterRequest) (accounts.FinishRegisterResponse, error) {
-	_, err := uc.users.GetByID(ctx, req.UserID)
-	if !errors.Is(err, contracts.ErrUserNotFound) {
-		return accounts.FinishRegisterResponse{}, contracts.ErrUserAlreadyExists
-	}
 
 	usr := models.User{
 		ID:                req.UserID,
@@ -72,6 +67,6 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.Finis
 		MainLocation:      req.MainLocation,
 		Interests:         nil,
 	}
-	_, err = uc.users.CreateUser(ctx, usr)
-	return accounts.FinishRegisterResponse{User: usr}, err
+	createdUser, err := uc.users.CreateUser(ctx, usr)
+	return accounts.FinishRegisterResponse{User: createdUser}, err
 }
