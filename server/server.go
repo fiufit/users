@@ -22,14 +22,14 @@ import (
 type Server struct {
 	router *gin.Engine
 
-	register          handlers.Register
-	finishRegister    handlers.FinishRegister
-	adminRegister     handlers.AdminRegister
-	adminLogin        handlers.AdminLogin
-	getUserByID       handlers.GetUserByID
-	getUserByNickname handlers.GetUsers
-	updateUser        handlers.UpdateUser
-	deleteUser        handlers.DeleteUser
+	register       handlers.Register
+	finishRegister handlers.FinishRegister
+	adminRegister  handlers.AdminRegister
+	adminLogin     handlers.AdminLogin
+	getUserByID    handlers.GetUserByID
+	getUsers       handlers.GetUsers
+	updateUser     handlers.UpdateUser
+	deleteUser     handlers.DeleteUser
 }
 
 func (s *Server) Run() {
@@ -100,19 +100,19 @@ func NewServer() *Server {
 	adminLogin := handlers.NewAdminLogin(&adminRegisterUc, logger)
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
-	getUserByNickname := handlers.NewGetUsers(&getUserUc, logger)
+	getUsers := handlers.NewGetUsers(&getUserUc, logger)
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 
 	return &Server{
-		router:            gin.Default(),
-		register:          register,
-		finishRegister:    finishRegister,
-		adminRegister:     adminRegister,
-		adminLogin:        adminLogin,
-		getUserByID:       getUserByID,
-		getUserByNickname: getUserByNickname,
-		updateUser:        updateUser,
-		deleteUser:        deleteUser,
+		router:         gin.Default(),
+		register:       register,
+		finishRegister: finishRegister,
+		adminRegister:  adminRegister,
+		adminLogin:     adminLogin,
+		getUserByID:    getUserByID,
+		getUsers:       getUsers,
+		updateUser:     updateUser,
+		deleteUser:     deleteUser,
 	}
 }
