@@ -7,7 +7,7 @@ import (
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
-	"github.com/fiufit/users/contracts/users"
+	ucontracts "github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/database"
 	"github.com/fiufit/users/models"
 	"go.uber.org/zap"
@@ -17,7 +17,7 @@ import (
 type Users interface {
 	GetByID(ctx context.Context, userID string) (models.User, error)
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)
-	Get(ctx context.Context, req users.GetUsersRequest) ([]models.User, error)
+	Get(ctx context.Context, req ucontracts.GetUsersRequest) (ucontracts.GetUsersResponse, error)
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
@@ -84,7 +84,7 @@ func (repo UserRepository) DeleteUser(ctx context.Context, userID string) error 
 	}
 	return nil
 }
-func (repo UserRepository) Get(ctx context.Context, req users.GetUsersRequest) ([]models.User, error) {
+func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersRequest) (ucontracts.GetUsersResponse, error) {
 	var res []models.User
 	db := repo.db.WithContext(ctx)
 	if req.Name != "" {
@@ -100,7 +100,12 @@ func (repo UserRepository) Get(ctx context.Context, req users.GetUsersRequest) (
 	}
 
 	result := db.Scopes(database.Paginate(res, &req.Pagination, db)).Find(&res)
-	return res, result.Error
+	if result.Error != nil {
+		repo.logger.Error("Unable to get users with pagination", zap.Error(result.Error), zap.Any("request", req))
+		return ucontracts.GetUsersResponse{}, result.Error
+	}
+
+	return ucontracts.GetUsersResponse{Users: res, Pagination: req.Pagination}, nil
 }
 
 func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (models.User, error) {

@@ -11,7 +11,7 @@ func (s *Server) InitRoutes() {
 	adminRouter := baseRouter.Group("/admin")
 
 	s.InitUserRoutes(userRouter)
-	s.InitAdminroutes(adminRouter)
+	s.InitAdminRoutes(adminRouter)
 
 }
 
@@ -42,7 +42,7 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 
 }
 
-func (s *Server) InitAdminroutes(router *gin.RouterGroup) {
+func (s *Server) InitAdminRoutes(router *gin.RouterGroup) {
 	router.POST("/register", middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.adminRegister.Handle(),
 	}))

@@ -11,7 +11,7 @@ import (
 
 type UserGetter interface {
 	GetUserByID(ctx context.Context, uid string) (models.User, error)
-	GetUsers(ctx context.Context, req users.GetUsersRequest) ([]models.User, error)
+	GetUsers(ctx context.Context, req users.GetUsersRequest) (users.GetUsersResponse, error)
 	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
 }
 
@@ -32,6 +32,6 @@ func (uc *UserGetterImpl) GetUserByNickname(ctx context.Context, nickname string
 	return uc.users.GetByNickname(ctx, nickname)
 }
 
-func (uc *UserGetterImpl) GetUsers(ctx context.Context, req users.GetUsersRequest) ([]models.User, error) {
+func (uc *UserGetterImpl) GetUsers(ctx context.Context, req users.GetUsersRequest) (users.GetUsersResponse, error) {
 	return uc.users.Get(ctx, req)
 }
