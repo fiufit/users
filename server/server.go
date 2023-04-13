@@ -27,7 +27,7 @@ type Server struct {
 	adminRegister     handlers.AdminRegister
 	adminLogin        handlers.AdminLogin
 	getUserByID       handlers.GetUserByID
-	getUserByNickname handlers.GetUserByNickname
+	getUserByNickname handlers.GetUsers
 	updateUser        handlers.UpdateUser
 	deleteUser        handlers.DeleteUser
 }
@@ -100,7 +100,7 @@ func NewServer() *Server {
 	adminLogin := handlers.NewAdminLogin(&adminRegisterUc, logger)
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
-	getUserByNickname := handlers.NewGetUserByNickname(&getUserUc, logger)
+	getUserByNickname := handlers.NewGetUsers(&getUserUc, logger)
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 

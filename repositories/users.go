@@ -3,9 +3,12 @@ package repositories
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
+	"github.com/fiufit/users/contracts/users"
+	"github.com/fiufit/users/database"
 	"github.com/fiufit/users/models"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -14,6 +17,7 @@ import (
 type Users interface {
 	GetByID(ctx context.Context, userID string) (models.User, error)
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)
+	Get(ctx context.Context, req users.GetUsersRequest) ([]models.User, error)
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
@@ -79,6 +83,24 @@ func (repo UserRepository) DeleteUser(ctx context.Context, userID string) error 
 		return err
 	}
 	return nil
+}
+func (repo UserRepository) Get(ctx context.Context, req users.GetUsersRequest) ([]models.User, error) {
+	var res []models.User
+	db := repo.db.WithContext(ctx)
+	if req.Name != "" {
+		likeName := fmt.Sprintf("%%%v%%", req.Name)
+		db = db.Where("LOWER(display_name) LIKE LOWER(?) OR LOWER(nickname) LIKE LOWER(?)", likeName, likeName)
+	}
+	if req.Location != "" {
+		likeLocation := fmt.Sprintf("%%%v%%", req.Location)
+		db = db.Where("LOWER(main_location) LIKE LOWER(?)", likeLocation)
+	}
+	if req.IsVerified != nil {
+		db = db.Where("is_verified_trainer = ?", *req.IsVerified)
+	}
+
+	result := db.Scopes(database.Paginate(res, &req.Pagination, db)).Find(&res)
+	return res, result.Error
 }
 
 func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (models.User, error) {

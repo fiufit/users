@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 
+	"github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
 	"go.uber.org/zap"
@@ -10,6 +11,7 @@ import (
 
 type UserGetter interface {
 	GetUserByID(ctx context.Context, uid string) (models.User, error)
+	GetUsers(ctx context.Context, req users.GetUsersRequest) ([]models.User, error)
 	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
 }
 
@@ -23,17 +25,13 @@ func NewUserGetterImpl(users repositories.Users, logger *zap.Logger) UserGetterI
 }
 
 func (uc *UserGetterImpl) GetUserByID(ctx context.Context, uid string) (models.User, error) {
-	user, err := uc.users.GetByID(ctx, uid)
-	if err != nil {
-		return models.User{}, err
-	}
-	return user, nil
+	return uc.users.GetByID(ctx, uid)
 }
 
 func (uc *UserGetterImpl) GetUserByNickname(ctx context.Context, nickname string) (models.User, error) {
-	user, err := uc.users.GetByNickname(ctx, nickname)
-	if err != nil {
-		return models.User{}, err
-	}
-	return user, nil
+	return uc.users.GetByNickname(ctx, nickname)
+}
+
+func (uc *UserGetterImpl) GetUsers(ctx context.Context, req users.GetUsersRequest) ([]models.User, error) {
+	return uc.users.Get(ctx, req)
 }
