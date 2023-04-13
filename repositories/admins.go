@@ -28,7 +28,10 @@ func (repo AdminRepository) Create(ctx context.Context, admin models.Administrat
 	db := repo.db.WithContext(ctx)
 	result := db.Create(&admin)
 	if result.Error != nil {
-		// TODO: check if this is error resulted from being a duplicate user in the database.
+		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
+			return models.Administrator{}, contracts.ErrUserAlreadyExists
+		}
+		repo.logger.Error("unable to create administrator", zap.Error(result.Error), zap.Any("admin", admin))
 		return models.Administrator{}, errors.New("unable to create user")
 	}
 	return admin, nil

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -30,6 +31,11 @@ func (h AdminRegister) Handle() gin.HandlerFunc {
 
 		res, err := h.admins.Register(ctx, req)
 		if err != nil {
+			if errors.Is(err, contracts.ErrUserAlreadyExists) {
+				ctx.JSON(http.StatusConflict, contracts.FormatErrResponse(err))
+				return
+			}
+
 			h.logger.Error("unable to register new administrator", zap.Error(err), zap.Any("request", req))
 			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
 			return
