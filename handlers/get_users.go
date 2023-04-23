@@ -43,6 +43,7 @@ func (h GetUsers) Handle() gin.HandlerFunc {
 			return
 		}
 
+		req.Pagination.Validate()
 		resUsers, err := h.users.GetUsers(ctx, req)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
