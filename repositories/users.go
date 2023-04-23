@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
@@ -87,16 +88,18 @@ func (repo UserRepository) DeleteUser(ctx context.Context, userID string) error 
 func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersRequest) (ucontracts.GetUsersResponse, error) {
 	var res []models.User
 	db := repo.db.WithContext(ctx)
-	if req.Name != "" {
-		likeName := fmt.Sprintf("%%%v%%", req.Name)
-		db = db.Where("LOWER(display_name) LIKE LOWER(?) OR LOWER(nickname) LIKE LOWER(?)", likeName, likeName)
-	}
+
 	if req.Location != "" {
 		likeLocation := fmt.Sprintf("%%%v%%", req.Location)
 		db = db.Where("LOWER(main_location) LIKE LOWER(?)", likeLocation)
 	}
 	if req.IsVerified != nil {
 		db = db.Where("is_verified_trainer = ?", *req.IsVerified)
+	}
+
+	if req.Name != "" {
+		likeName := fmt.Sprintf("%v%%", strings.ToLower(req.Name))
+		db = db.Where("LOWER(display_name) LIKE ? OR LOWER(nickname) LIKE ?", likeName, likeName)
 	}
 
 	result := db.Scopes(database.Paginate(res, &req.Pagination, db)).Find(&res)
