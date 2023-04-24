@@ -2,6 +2,7 @@ package accounts
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"firebase.google.com/go/v4/auth"
@@ -29,7 +30,8 @@ func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth *auth.Cl
 
 func (uc *RegistererImpl) Register(ctx context.Context, req accounts.RegisterRequest) (accounts.RegisterResponse, error) {
 
-	user, err := uc.auth.GetUserByEmail(ctx, req.Email)
+	email := strings.ToLower(req.Email)
+	user, err := uc.auth.GetUserByEmail(ctx, email)
 	if err == nil && user != nil {
 		if user.EmailVerified {
 			return accounts.RegisterResponse{}, contracts.ErrUserAlreadyExists
@@ -43,7 +45,7 @@ func (uc *RegistererImpl) Register(ctx context.Context, req accounts.RegisterReq
 		return accounts.RegisterResponse{UserID: updatedUser.UID}, nil
 	}
 
-	params := (&auth.UserToCreate{}).Email(req.Email).Password(req.Password).EmailVerified(false)
+	params := (&auth.UserToCreate{}).Email(email).Password(req.Password).EmailVerified(false)
 	newUser, err := uc.auth.CreateUser(ctx, params)
 	if err != nil {
 		return accounts.RegisterResponse{}, err
