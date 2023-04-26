@@ -83,11 +83,12 @@ func NewServer() *Server {
 	}
 
 	// REPOSITORIES
-	userRepo := repositories.NewUserRepository(db, logger, auth)
+	firebaseRepo := repositories.NewFirebaseRepository(logger, auth)
+	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo)
 	adminRepo := repositories.NewAdminRepository(db, logger)
 
 	// USECASES
-	registerUc := accounts.NewRegisterImpl(userRepo, logger, auth)
+	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 	getUserUc := users.NewUserGetterImpl(userRepo, logger)
 	updateUserUc := users.NewUserUpdaterImpl(userRepo)
