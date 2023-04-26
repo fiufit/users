@@ -1,7 +1,6 @@
 name: codecov
 
 on: [push, pull_request]
-
 jobs:
   test:
     ## We want to define a strategy for our job
@@ -24,11 +23,15 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
 
+    ## checks out our code locally, so we can work with the files
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     ## runs go test with coverage and generates a coverage report in XML format
     - name: Test with coverage
       run: |
-        go get github.com/axw/gocov/gocov
-        go get github.com/AlekSi/gocov-xml
+        go install github.com/axw/gocov/gocov
+        go install github.com/AlekSi/gocov-xml
         go test -v -coverprofile=coverage.out ./...
         gocov convert coverage.out | gocov-xml > coverage.xml
 
