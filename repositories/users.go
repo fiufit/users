@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockery --name Users
 type Users interface {
 	GetByID(ctx context.Context, userID string) (models.User, error)
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)

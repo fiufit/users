@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockery --name Admins
 type Admins interface {
 	GetByEmail(ctx context.Context, email string) (models.Administrator, error)
 	Create(ctx context.Context, admin models.Administrator) (models.Administrator, error)
