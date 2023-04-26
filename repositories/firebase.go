@@ -10,9 +10,6 @@ import (
 
 type Firebase interface {
 	Register(ctx context.Context, email string, pw string) (*auth.UserRecord, error)
-	CreateUser(ctx context.Context, params *auth.UserToCreate) (*auth.UserRecord, error)
-	UpdateUser(ctx context.Context, uid string, updateUserParams *auth.UserToUpdate) (*auth.UserRecord, error)
-	GetUserByEmail(ctx context.Context, email string) (*auth.UserRecord, error)
 	DeleteUser(ctx context.Context, userID string) error
 }
 
@@ -27,18 +24,6 @@ func NewFirebaseRepository(logger *zap.Logger, auth *auth.Client) FirebaseReposi
 
 func (repo FirebaseRepository) DeleteUser(ctx context.Context, userID string) error {
 	return repo.auth.DeleteUser(ctx, userID)
-}
-
-func (repo FirebaseRepository) GetUserByEmail(ctx context.Context, email string) (*auth.UserRecord, error) {
-	return repo.auth.GetUserByEmail(ctx, email)
-}
-
-func (repo FirebaseRepository) UpdateUser(ctx context.Context, uid string, updateUserParams *auth.UserToUpdate) (*auth.UserRecord, error) {
-	return repo.auth.UpdateUser(ctx, uid, updateUserParams)
-}
-
-func (repo FirebaseRepository) CreateUser(ctx context.Context, params *auth.UserToCreate) (*auth.UserRecord, error) {
-	return repo.auth.CreateUser(ctx, params)
 }
 
 func (repo FirebaseRepository) Register(ctx context.Context, email string, pw string) (*auth.UserRecord, error) {
