@@ -21,7 +21,7 @@ type AdminRegisterer interface {
 type AdminRegistererImpl struct {
 	admins repositories.Admins
 	logger *zap.Logger
-	toker  utils.JwtToker
+	toker  utils.Toker
 }
 
 func NewAdminRegistererImpl(admins repositories.Admins, logger *zap.Logger, toker utils.JwtToker) AdminRegistererImpl {
