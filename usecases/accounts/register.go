@@ -21,7 +21,7 @@ type RegistererImpl struct {
 	auth   repositories.Firebase
 }
 
-func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth repositories.FirebaseRepository) RegistererImpl {
+func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth repositories.Firebase) RegistererImpl {
 	return RegistererImpl{users: users, logger: logger, auth: auth}
 }
 
