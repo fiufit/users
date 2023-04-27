@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//go:generate mockery --name Firebase
 type Firebase interface {
 	Register(ctx context.Context, req accounts.RegisterRequest) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
