@@ -35,7 +35,7 @@ func (uc *RegistererImpl) Register(ctx context.Context, req accounts.RegisterReq
 		return accounts.RegisterResponse{}, err
 	}
 
-	return accounts.RegisterResponse{UserID: newUser.UID}, nil
+	return accounts.RegisterResponse{UserID: newUser}, nil
 }
 
 func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.FinishRegisterRequest) (accounts.FinishRegisterResponse, error) {

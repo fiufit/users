@@ -9,7 +9,7 @@ import (
 )
 
 type Firebase interface {
-	Register(ctx context.Context, email string, pw string) (*auth.UserRecord, error)
+	Register(ctx context.Context, email string, pw string) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
 }
 
@@ -26,21 +26,25 @@ func (repo FirebaseRepository) DeleteUser(ctx context.Context, userID string) er
 	return repo.auth.DeleteUser(ctx, userID)
 }
 
-func (repo FirebaseRepository) Register(ctx context.Context, email string, pw string) (*auth.UserRecord, error) {
+func (repo FirebaseRepository) Register(ctx context.Context, email string, pw string) (string, error) {
 	user, err := repo.auth.GetUserByEmail(ctx, email)
 	if err == nil && user != nil {
 		if user.EmailVerified {
-			return nil, contracts.ErrUserAlreadyExists
+			return "", contracts.ErrUserAlreadyExists
 		}
 
 		updateUserParams := (&auth.UserToUpdate{}).Password(pw)
 		updatedUser, err := repo.auth.UpdateUser(ctx, user.UID, updateUserParams)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
-		return updatedUser, nil
+		return updatedUser.UID, nil
 	}
 
 	params := (&auth.UserToCreate{}).Email(email).Password(pw).EmailVerified(false)
-	return repo.auth.CreateUser(ctx, params)
+	newUser, err := repo.auth.CreateUser(ctx, params)
+	if err != nil {
+		return "", err
+	}
+	return newUser.UID, nil
 }
