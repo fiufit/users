@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
 	ucontracts "github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/database"
@@ -27,10 +26,10 @@ type Users interface {
 type UserRepository struct {
 	db     *gorm.DB
 	logger *zap.Logger
-	auth   *auth.Client
+	auth   Firebase
 }
 
-func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth *auth.Client) UserRepository {
+func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth Firebase) UserRepository {
 	return UserRepository{db: db, logger: logger, auth: auth}
 }
 
