@@ -40,7 +40,7 @@ func TestNewJwtTokerPrivKeyError(t *testing.T) {
 }
 
 func TestNewJwtTokerPubKeyError(t *testing.T) {
-	_, err := NewJwtToker(getTestingPublicRSAKey(), []byte("wrong token"))
+	_, err := NewJwtToker(getTestingPrivateRSAKey(), []byte("wrong token"))
 	assert.Error(t, err)
 }
 
