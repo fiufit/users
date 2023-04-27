@@ -24,7 +24,7 @@ type AdminRegistererImpl struct {
 	toker  utils.Toker
 }
 
-func NewAdminRegistererImpl(admins repositories.Admins, logger *zap.Logger, toker utils.JwtToker) AdminRegistererImpl {
+func NewAdminRegistererImpl(admins repositories.Admins, logger *zap.Logger, toker utils.Toker) AdminRegistererImpl {
 	return AdminRegistererImpl{admins: admins, logger: logger, toker: toker}
 }
 
