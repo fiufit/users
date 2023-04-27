@@ -10,8 +10,10 @@ import (
 	"github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories/mocks"
+	"github.com/fiufit/users/utils"
 	utilMocks "github.com/fiufit/users/utils/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/undefinedlabs/go-mpatch"
 	"go.uber.org/zap/zaptest"
 	"gorm.io/gorm"
 )
@@ -112,15 +114,7 @@ func TestAdminRegisterPasswordTooLongError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-/* TODO: find a way to make this test pass. As of now, if fails because the internal call to utils.HashPassword() is
-non-deterministic (because we use bcrypt as hashing algorithm). In consequence, we can't mock adminRepo.Create() because
-we don know the argument's hash field.
-We could maybe convert utils.HashPassword() to a struct method, and mock an interface that that struct implements...
-
-Until then, any tests involving Register() that reach the internal Create() call, will fail.
-*/
 func TestAdminRegisterRepoError(t *testing.T) {
-	t.Skip("Read the TODO comment :(")
 	adminRepo := new(mocks.Admins)
 	toker := new(utilMocks.Toker)
 	req := accounts.AdminRegisterRequest{
@@ -131,8 +125,12 @@ func TestAdminRegisterRepoError(t *testing.T) {
 	admin := models.Administrator{
 		Model:    gorm.Model{},
 		Email:    req.Email,
-		Password: "$2a$10$gvDo.G4yR2T.Xdh.ZR9nouGnzXc4SjTbnFT3NBoJIFKxwBWoENXqa",
+		Password: "passwordHash",
 	}
+
+	mpatch.PatchMethod(utils.HashPassword, func(string) (string, error) {
+		return "passwordHash", nil
+	})
 
 	adminUc := NewAdminRegistererImpl(adminRepo, zaptest.NewLogger(t), toker)
 	adminRepo.On("Create", ctx, admin).Return(models.Administrator{}, errors.New("repo error"))
