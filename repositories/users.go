@@ -26,10 +26,10 @@ type Users interface {
 type UserRepository struct {
 	db     *gorm.DB
 	logger *zap.Logger
-	auth   FirebaseRepository
+	auth   Firebase
 }
 
-func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth FirebaseRepository) UserRepository {
+func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth Firebase) UserRepository {
 	return UserRepository{db: db, logger: logger, auth: auth}
 }
 

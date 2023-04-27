@@ -2,14 +2,16 @@ package repositories
 
 import (
 	"context"
+	"strings"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
+	"github.com/fiufit/users/contracts/accounts"
 	"go.uber.org/zap"
 )
 
 type Firebase interface {
-	Register(ctx context.Context, email string, pw string) (string, error)
+	Register(ctx context.Context, req accounts.RegisterRequest) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
 }
 
@@ -26,7 +28,9 @@ func (repo FirebaseRepository) DeleteUser(ctx context.Context, userID string) er
 	return repo.auth.DeleteUser(ctx, userID)
 }
 
-func (repo FirebaseRepository) Register(ctx context.Context, email string, pw string) (string, error) {
+func (repo FirebaseRepository) Register(ctx context.Context, req accounts.RegisterRequest) (string, error) {
+	email := strings.ToLower(req.Email)
+	pw := req.Password
 	user, err := repo.auth.GetUserByEmail(ctx, email)
 	if err == nil && user != nil {
 		if user.EmailVerified {

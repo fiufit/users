@@ -2,7 +2,6 @@ package accounts
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/fiufit/users/contracts/accounts"
@@ -19,7 +18,7 @@ type Registerer interface {
 type RegistererImpl struct {
 	users  repositories.Users
 	logger *zap.Logger
-	auth   repositories.FirebaseRepository
+	auth   repositories.Firebase
 }
 
 func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth repositories.FirebaseRepository) RegistererImpl {
@@ -27,15 +26,12 @@ func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth reposito
 }
 
 func (uc *RegistererImpl) Register(ctx context.Context, req accounts.RegisterRequest) (accounts.RegisterResponse, error) {
-
-	email := strings.ToLower(req.Email)
-	pw := req.Password
-	newUser, err := uc.auth.Register(ctx, email, pw)
+	newUserID, err := uc.auth.Register(ctx, req)
 	if err != nil {
 		return accounts.RegisterResponse{}, err
 	}
 
-	return accounts.RegisterResponse{UserID: newUser}, nil
+	return accounts.RegisterResponse{UserID: newUserID}, nil
 }
 
 func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.FinishRegisterRequest) (accounts.FinishRegisterResponse, error) {
