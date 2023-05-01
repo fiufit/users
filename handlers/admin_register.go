@@ -27,8 +27,7 @@ func NewAdminRegister(admins accounts.AdminRegisterer, logger *zap.Logger) Admin
 // @Accept       json
 // @Produce      json
 // @Param        version   path      string  true  "API Version"
-// @Param        email   body      string  true  "Admin Email"
-// @Param        password   body      string  true  "Admin Password"
+// @Param        payload   body      ucontracts.AdminRegisterRequest  true  "Body params"
 // @Success      200  {object} 	accounts.AdminRegisterResponse "Important Note: OK responses are wrapped in {"data": ... }"
 // @Failure      400  {object} 	contracts.ErrResponse
 // @Failure      409  {object}  contracts.ErrResponse

@@ -20,6 +20,19 @@ func NewFinishRegister(users accounts.Registerer, logger *zap.Logger) FinishRegi
 	return FinishRegister{users: users, logger: logger}
 }
 
+// User Register godoc
+// @Summary      Register a new user.
+// @Description	 Register a new User. Mandatory to be called after /users/register to complete additional profile info
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        version   path      string  true  "API Version"
+// @Param        payload   body      ucontracts.FinishRegisterRequest  true  "Body params"
+// @Success      200  {object} 	ucontracts.FinishRegisterResponse "Important Note: OK responses are wrapped in {"data": ... }"
+// @Failure      400  {object} 	contracts.ErrResponse
+// @Failure      409  {object}  contracts.ErrResponse
+// @Failure      500  {object}  contracts.ErrResponse
+// @Router       /{version}/users/finish-register 	[post]
 func (h FinishRegister) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.FinishRegisterRequest

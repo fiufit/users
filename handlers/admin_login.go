@@ -21,7 +21,7 @@ func NewAdminLogin(admins accounts.AdminRegisterer, logger *zap.Logger) AdminLog
 }
 
 // Admin Login godoc
-// @Summary      Lo gin as administrator
+// @Summary      Log in as administrator
 // @Description  Log in as administrator. Administrators and their credentials are created by other administrators
 // @Tags         accounts
 // @Accept       json

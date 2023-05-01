@@ -20,6 +20,21 @@ func NewUpdateUser(users users.UserUpdater, logger *zap.Logger) UpdateUser {
 	return UpdateUser{users: users, logger: logger}
 }
 
+// Update User godoc
+// @Summary      Updates a user.
+// @Description	 Updates a user profile info.
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        version   path      string  true  "API Version"
+// @Param        userID   path      string  true  "User ID"
+// @Param        payload   body      ucontracts.UpdateUserRequest  true  "Body params, all of them optional, ID is ignored and taken from path param"
+// @Success      200  {object} 	string "Important Note: OK responses are wrapped in {"data": ... }"
+// @Failure      400  {object} 	contracts.ErrResponse
+// @Failure      404  {object} 	contracts.ErrResponse
+// @Failure      409  {object} 	contracts.ErrResponse
+// @Failure      500  {object}  contracts.ErrResponse
+// @Router       /{version}/users/{userID}	[patch]
 func (h UpdateUser) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.UpdateUserRequest
