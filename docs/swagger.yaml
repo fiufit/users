@@ -1,0 +1,513 @@
+basePath: /
+definitions:
+  accounts.AdminLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  accounts.AdminLoginResponse:
+    properties:
+      jwt:
+        type: string
+    type: object
+  accounts.AdminRegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  accounts.AdminRegisterResponse:
+    properties:
+      admin:
+        $ref: '#/definitions/models.Administrator'
+    type: object
+  accounts.FinishRegisterRequest:
+    properties:
+      birth_date:
+        type: string
+      display_name:
+        type: string
+      height:
+        type: integer
+      is_male:
+        type: boolean
+      main_location:
+        type: string
+      nickname:
+        type: string
+      userID:
+        type: string
+      weight:
+        type: integer
+    required:
+    - birth_date
+    - display_name
+    - height
+    - is_male
+    - main_location
+    - nickname
+    - weight
+    type: object
+  accounts.FinishRegisterResponse:
+    properties:
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  accounts.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  accounts.RegisterResponse:
+    properties:
+      userID:
+        type: string
+    type: object
+  contracts.ErrPayload:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+    type: object
+  contracts.ErrResponse:
+    properties:
+      error:
+        $ref: '#/definitions/contracts.ErrPayload'
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.Administrator:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.User:
+    properties:
+      bornAt:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      displayName:
+        type: string
+      height:
+        type: integer
+      id:
+        type: string
+      interests:
+        items:
+          type: string
+        type: array
+      isMale:
+        type: boolean
+      isVerifiedTrainer:
+        type: boolean
+      mainLocation:
+        type: string
+      nickname:
+        type: string
+      weight:
+        type: integer
+    type: object
+  users.UpdateUserRequest:
+    properties:
+      birth_date:
+        type: string
+      display_name:
+        type: string
+      height:
+        type: integer
+      id:
+        type: string
+      is_male:
+        type: boolean
+      main_location:
+        type: string
+      nickname:
+        type: string
+      weight:
+        type: integer
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: fiufit-users.fly.dev
+info:
+  contact: {}
+  description: Fiufit's Users service documentation. This service manages accounts,
+    profiles, admin authentication, etc.
+  title: Fiufit Users API
+  version: dev
+paths:
+  /{version}/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in as administrator. Administrators and their credentials are
+        created by other administrators
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: Body params
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.AdminLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/accounts.AdminLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Log in as administrator
+      tags:
+      - accounts
+  /{version}/admin/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new admin. This endpoint should only be called after
+        a gateway processed the corresponding authorization
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: Body params
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.AdminRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/accounts.AdminRegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Register an administrator
+      tags:
+      - accounts
+  /{version}/users/:
+    get:
+      consumes:
+      - application/json
+      description: Gets users by their name, nickname, location or verification status.
+        If nickname has a value, other parameters are ignored.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: User Nickname
+        in: query
+        name: nickname
+        type: string
+      - description: Substring that can be contained in either the User's Display
+          Name or Nickname
+        in: query
+        name: name
+        type: string
+      - description: User Location
+        in: query
+        name: location
+        type: string
+      - description: User verification status
+        in: query
+        name: is_verified
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Gets users by different query params with pagination.
+      tags:
+      - accounts
+  /{version}/users/{userID}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user by their ID. This should endpoint should only be
+        called by admins or the same user. Authorization is the gateway's responsibility.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Deletes a user by their ID.
+      tags:
+      - accounts
+    get:
+      consumes:
+      - application/json
+      description: Gets a user by their ID.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Gets a user by their ID.
+      tags:
+      - accounts
+    patch:
+      consumes:
+      - application/json
+      description: Updates a user profile info.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: Body params, all of them optional, ID is ignored and taken from
+          path param
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/users.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Updates a user.
+      tags:
+      - accounts
+  /{version}/users/finish-register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new User. Mandatory to be called after /users/register
+        to complete additional profile info
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: Body params
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.FinishRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/accounts.FinishRegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Register a new user.
+      tags:
+      - accounts
+  /{version}/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new User.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: Body params
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/accounts.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Register a new user.
+      tags:
+      - accounts
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

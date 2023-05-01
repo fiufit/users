@@ -1,0 +1,761 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Fiufit's Users service documentation. This service manages accounts, profiles, admin authentication, etc.",
+        "title": "Fiufit Users API",
+        "contact": {},
+        "version": "dev"
+    },
+    "host": "fiufit-users.fly.dev",
+    "basePath": "/",
+    "paths": {
+        "/{version}/admin/login": {
+            "post": {
+                "description": "Log in as administrator. Administrators and their credentials are created by other administrators",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Log in as administrator",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body params",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AdminLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AdminLoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/admin/register": {
+            "post": {
+                "description": "Register a new admin. This endpoint should only be called after a gateway processed the corresponding authorization",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Register an administrator",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body params",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AdminRegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AdminRegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/": {
+            "get": {
+                "description": "Gets users by their name, nickname, location or verification status. If nickname has a value, other parameters are ignored.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Gets users by different query params with pagination.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Nickname",
+                        "name": "nickname",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Substring that can be contained in either the User's Display Name or Nickname",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Location",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "User verification status",
+                        "name": "is_verified",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/finish-register": {
+            "post": {
+                "description": "Register a new User. Mandatory to be called after /users/register to complete additional profile info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Register a new user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body params",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.FinishRegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "$ref": "#/definitions/accounts.FinishRegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/register": {
+            "post": {
+                "description": "Register a new User.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Register a new user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body params",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "$ref": "#/definitions/accounts.RegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/{userID}": {
+            "get": {
+                "description": "Gets a user by their ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Gets a user by their ID.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a user by their ID. This should endpoint should only be called by admins or the same user. Authorization is the gateway's responsibility.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Deletes a user by their ID.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates a user profile info.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Updates a user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Body params, all of them optional, ID is ignored and taken from path param",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "accounts.AdminLoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "accounts.AdminLoginResponse": {
+            "type": "object",
+            "properties": {
+                "jwt": {
+                    "type": "string"
+                }
+            }
+        },
+        "accounts.AdminRegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "accounts.AdminRegisterResponse": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "$ref": "#/definitions/models.Administrator"
+                }
+            }
+        },
+        "accounts.FinishRegisterRequest": {
+            "type": "object",
+            "required": [
+                "birth_date",
+                "display_name",
+                "height",
+                "is_male",
+                "main_location",
+                "nickname",
+                "weight"
+            ],
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "display_name": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "is_male": {
+                    "type": "boolean"
+                },
+                "main_location": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "accounts.FinishRegisterResponse": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "accounts.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "accounts.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "contracts.ErrPayload": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "contracts.ErrResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/contracts.ErrPayload"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.Administrator": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "bornAt": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interests": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "isMale": {
+                    "type": "boolean"
+                },
+                "isVerifiedTrainer": {
+                    "type": "boolean"
+                },
+                "mainLocation": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "display_name": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_male": {
+                    "type": "boolean"
+                },
+                "main_location": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}
