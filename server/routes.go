@@ -20,7 +20,7 @@ func (s *Server) InitRoutes() {
 }
 
 func (s *Server) InitDocRoutes(router *gin.RouterGroup) {
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/docs", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
 func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
