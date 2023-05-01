@@ -1,0 +1,160 @@
+basePath: /
+definitions:
+  accounts.AdminLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  accounts.AdminLoginResponse:
+    properties:
+      jwt:
+        type: string
+    type: object
+  accounts.AdminRegisterResponse:
+    properties:
+      admin:
+        $ref: '#/definitions/models.Administrator'
+    type: object
+  contracts.ErrPayload:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+    type: object
+  contracts.ErrResponse:
+    properties:
+      error:
+        $ref: '#/definitions/contracts.ErrPayload'
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.Administrator:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: fiufit-users.fly.dev
+info:
+  contact: {}
+  description: Fiufit's Users service documentation. This service manages accounts,
+    profiles, admin authentication, etc.
+  title: Fiufit Users API
+  version: dev
+paths:
+  /{version}/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in as administrator. Administrators and their credentials are
+        created by other administrators
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: Body params
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.AdminLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/accounts.AdminLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Lo gin as administrator
+      tags:
+      - accounts
+  /{version}/admin/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new admin. This endpoint should only be called after
+        a gateway processed the corresponding authorization
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: Admin Email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: Admin Password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/accounts.AdminRegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Register an administrator
+      tags:
+      - accounts
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
