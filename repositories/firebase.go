@@ -4,10 +4,13 @@ import (
 	"context"
 	"strings"
 
+	"cloud.google.com/go/storage"
+	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
 	"github.com/fiufit/users/contracts/accounts"
 	"go.uber.org/zap"
+	"google.golang.org/api/option"
 )
 
 type Firebase interface {
@@ -16,12 +19,35 @@ type Firebase interface {
 }
 
 type FirebaseRepository struct {
-	logger *zap.Logger
-	auth   *auth.Client
+	logger        *zap.Logger
+	app           *firebase.App
+	auth          *auth.Client
+	storageBucket *storage.BucketHandle
 }
 
-func NewFirebaseRepository(logger *zap.Logger, auth *auth.Client) FirebaseRepository {
-	return FirebaseRepository{logger: logger, auth: auth}
+func NewFirebaseRepository(logger *zap.Logger, sdkJson []byte, storageBucketName string) (FirebaseRepository, error) {
+	opt := option.WithCredentialsJSON(sdkJson)
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	auth, err := app.Auth(context.Background())
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	storageClient, err := app.Storage(context.Background())
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	storageBucket, err := storageClient.Bucket(storageBucketName)
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	return FirebaseRepository{logger: logger, app: app, auth: auth, storageBucket: storageBucket}, nil
 }
 
 func (repo FirebaseRepository) DeleteUser(ctx context.Context, userID string) error {

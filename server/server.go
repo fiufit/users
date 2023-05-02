@@ -1,12 +1,10 @@
 package server
 
 import (
-	"context"
 	"encoding/base64"
 	"fmt"
 	"os"
 
-	firebase "firebase.google.com/go/v4"
 	"github.com/fiufit/users/database"
 	"github.com/fiufit/users/handlers"
 	"github.com/fiufit/users/models"
@@ -16,7 +14,6 @@ import (
 	"github.com/fiufit/users/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"google.golang.org/api/option"
 )
 
 type Server struct {
@@ -57,17 +54,6 @@ func NewServer() *Server {
 		panic(err)
 	}
 
-	opt := option.WithCredentialsJSON(sdkJson)
-	app, err := firebase.NewApp(context.Background(), nil, opt)
-	if err != nil {
-		panic(err)
-	}
-
-	auth, err := app.Auth(context.Background())
-	if err != nil {
-		panic(err)
-	}
-
 	pubJwtKey, err := base64.StdEncoding.DecodeString(os.Getenv("PUB_RSA_B64"))
 	if err != nil {
 		panic(err)
@@ -83,7 +69,10 @@ func NewServer() *Server {
 	}
 
 	// REPOSITORIES
-	firebaseRepo := repositories.NewFirebaseRepository(logger, auth)
+	firebaseRepo, err := repositories.NewFirebaseRepository(logger, sdkJson, os.Getenv("FIREBASE_BUCKET_NAME"))
+	if err != nil {
+		panic(err)
+	}
 	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo)
 	adminRepo := repositories.NewAdminRepository(db, logger)
 
