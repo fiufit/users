@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	"cloud.google.com/go/storage"
@@ -16,13 +18,15 @@ import (
 type Firebase interface {
 	Register(ctx context.Context, req accounts.RegisterRequest) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
+	GetUserPictureUrl(ctx context.Context, userID string) string
 }
 
 type FirebaseRepository struct {
-	logger        *zap.Logger
-	app           *firebase.App
-	auth          *auth.Client
-	storageBucket *storage.BucketHandle
+	logger            *zap.Logger
+	app               *firebase.App
+	auth              *auth.Client
+	storageBucketName string
+	storageBucket     *storage.BucketHandle
 }
 
 func NewFirebaseRepository(logger *zap.Logger, sdkJson []byte, storageBucketName string) (FirebaseRepository, error) {
@@ -47,7 +51,15 @@ func NewFirebaseRepository(logger *zap.Logger, sdkJson []byte, storageBucketName
 		return FirebaseRepository{}, err
 	}
 
-	return FirebaseRepository{logger: logger, app: app, auth: auth, storageBucket: storageBucket}, nil
+	repo := FirebaseRepository{
+		logger:            logger,
+		app:               app,
+		auth:              auth,
+		storageBucketName: storageBucketName,
+		storageBucket:     storageBucket,
+	}
+
+	return repo, nil
 }
 
 func (repo FirebaseRepository) DeleteUser(ctx context.Context, userID string) error {
@@ -77,4 +89,17 @@ func (repo FirebaseRepository) Register(ctx context.Context, req accounts.Regist
 		return "", err
 	}
 	return newUser.UID, nil
+}
+
+func (repo FirebaseRepository) GetUserPictureUrl(ctx context.Context, userID string) string {
+	pictureHandle := repo.storageBucket.Object("profile_pictures/" + userID + "/profile.png")
+	pictureData, err := pictureHandle.Attrs(ctx)
+	if err != nil {
+		if !errors.Is(err, storage.ErrObjectNotExist) {
+			repo.logger.Error("Unable to retrieve User picture from firebase storage", zap.String("userID", userID))
+		}
+		return fmt.Sprintf("https://storage.cloud.google.com/%v/profile_pictures/default.png", repo.storageBucketName)
+
+	}
+	return pictureData.MediaLink
 }

@@ -79,7 +79,7 @@ func NewServer() *Server {
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
-	getUserUc := users.NewUserGetterImpl(userRepo, logger)
+	getUserUc := users.NewUserGetterImpl(userRepo, firebaseRepo, logger)
 	updateUserUc := users.NewUserUpdaterImpl(userRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 
