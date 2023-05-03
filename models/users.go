@@ -19,6 +19,7 @@ type User struct {
 	IsVerifiedTrainer bool      `gorm:"not null;default:false"`
 	MainLocation      string    `gorm:"not null"`
 	Interests         []string  `gorm:"-"`
+	PictureUrl        string    `gorm:"-"`
 }
 
 func (u User) ToPublicView() map[string]interface{} {
