@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/storage"
 	firebase "firebase.google.com/go/v4"
@@ -92,14 +93,26 @@ func (repo FirebaseRepository) Register(ctx context.Context, req accounts.Regist
 }
 
 func (repo FirebaseRepository) GetUserPictureUrl(ctx context.Context, userID string) string {
-	pictureHandle := repo.storageBucket.Object("profile_pictures/" + userID + "/profile.png")
-	pictureData, err := pictureHandle.Attrs(ctx)
+	defaultPictureUrl := fmt.Sprintf("https://storage.cloud.google.com/%v/profile_pictures/default.png", repo.storageBucketName)
+	userPicturePath := "profile_pictures/" + userID + "/profile.png"
+
+	pictureHandle := repo.storageBucket.Object(userPicturePath)
+	_, err := pictureHandle.Attrs(ctx)
 	if err != nil {
 		if !errors.Is(err, storage.ErrObjectNotExist) {
 			repo.logger.Error("Unable to retrieve User picture from firebase storage", zap.String("userID", userID))
 		}
-		return fmt.Sprintf("https://storage.cloud.google.com/%v/profile_pictures/default.png", repo.storageBucketName)
-
+		return defaultPictureUrl
 	}
-	return pictureData.MediaLink
+
+	opts := storage.SignedURLOptions{
+		Method:  "GET",
+		Expires: time.Now().Add(time.Hour * 24),
+	}
+	pictureUrl, err := repo.storageBucket.SignedURL(userPicturePath, &opts)
+	if err != nil {
+		pictureUrl = defaultPictureUrl
+		repo.logger.Error("Unable to Sign user picture from firebase storage", zap.String("userID", userID))
+	}
+	return pictureUrl
 }
