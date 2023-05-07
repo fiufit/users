@@ -14,7 +14,7 @@ import (
 )
 
 type TestSuite struct {
-	db       *gorm.DB
+	DB       *gorm.DB
 	pool     *dockertest.Pool
 	resource *dockertest.Resource
 	models   []interface{}
@@ -33,7 +33,7 @@ func NewTestSuite(models ...interface{}) TestSuite {
 
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "postgres",
-		Tag:        "14",
+		Tag:        "11",
 		Env: []string{
 			"POSTGRES_PASSWORD=testpgpassword",
 			"POSTGRES_USER=testpguser",
@@ -73,7 +73,7 @@ func NewTestSuite(models ...interface{}) TestSuite {
 	}
 
 	suite := TestSuite{
-		db:       gormDB,
+		DB:       gormDB,
 		pool:     pool,
 		resource: resource,
 		models:   models,
@@ -84,7 +84,7 @@ func NewTestSuite(models ...interface{}) TestSuite {
 }
 
 func (ts TestSuite) setUpModels() {
-	if err := ts.db.AutoMigrate(ts.models...); err != nil {
+	if err := ts.DB.AutoMigrate(ts.models...); err != nil {
 		log.Fatalf("Could not migrate test models: %s", err)
 	}
 }
@@ -97,7 +97,7 @@ func (ts TestSuite) TearDown() {
 
 func (ts TestSuite) TruncateModels() {
 	for _, model := range ts.models {
-		truncateStatement := &gorm.Statement{DB: ts.db}
+		truncateStatement := &gorm.Statement{DB: ts.DB}
 		err := truncateStatement.Parse(model)
 
 		if err != nil {
@@ -105,7 +105,7 @@ func (ts TestSuite) TruncateModels() {
 		}
 		tableName := truncateStatement.Schema.Table
 		query := fmt.Sprintf("TRUNCATE TABLE %s", tableName)
-		err = ts.db.Exec(query).Error
+		err = ts.DB.Exec(query).Error
 		if err != nil {
 			panic(err)
 		}
