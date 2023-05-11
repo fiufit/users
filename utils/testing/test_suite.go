@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"gorm.io/driver/postgres"
@@ -57,7 +57,7 @@ func NewTestSuite(models ...interface{}) TestSuite {
 	pool.MaxWait = 120 * time.Second
 	var sqlDB *sql.DB
 	if err = pool.Retry(func() error {
-		sqlDB, err = sql.Open("postgres", databaseUrl)
+		sqlDB, err = sql.Open("pgx", databaseUrl)
 		if err != nil {
 			return err
 		}
