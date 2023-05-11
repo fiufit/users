@@ -21,7 +21,7 @@ func TestGetUserByIdError(t *testing.T) {
 
 	//when
 	userRepo.On("GetByID", ctx, userID).Return(models.User{}, errors.New("repo error"))
-	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
 	_, err := userUc.GetUserByID(ctx, userID)
 
 	//then
@@ -37,7 +37,7 @@ func TestGetUserByIdOk(t *testing.T) {
 
 	//when
 	userRepo.On("GetByID", ctx, userID).Return(user, nil)
-	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
 	res, err := userUc.GetUserByID(ctx, userID)
 
 	//then
@@ -53,7 +53,7 @@ func TestGetUserByNicknameError(t *testing.T) {
 
 	//when
 	userRepo.On("GetByNickname", ctx, username).Return(models.User{}, errors.New("repo error"))
-	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
 	_, err := userUc.GetUserByNickname(ctx, username)
 
 	//then
@@ -69,7 +69,7 @@ func TestGetUserByNicknameOk(t *testing.T) {
 
 	//when
 	userRepo.On("GetByNickname", ctx, username).Return(user, nil)
-	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
 	res, err := userUc.GetUserByNickname(ctx, username)
 
 	//then
@@ -87,7 +87,7 @@ func TestGetUsersError(t *testing.T) {
 
 	//when
 	userRepo.On("Get", ctx, req).Return(users.GetUsersResponse{}, errors.New("repo error"))
-	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
 	_, err := userUc.GetUsers(ctx, req)
 
 	//then
@@ -108,7 +108,7 @@ func TestGetUsersOk(t *testing.T) {
 
 	//when
 	userRepo.On("Get", ctx, req).Return(res, nil)
-	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
 	_, err := userUc.GetUsers(ctx, req)
 
 	//then

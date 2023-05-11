@@ -29,6 +29,20 @@ func (_m *Firebase) DeleteUser(ctx context.Context, userID string) error {
 	return r0
 }
 
+// GetUserPictureUrl provides a mock function with given fields: ctx, userID
+func (_m *Firebase) GetUserPictureUrl(ctx context.Context, userID string) string {
+	ret := _m.Called(ctx, userID)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // Register provides a mock function with given fields: ctx, req
 func (_m *Firebase) Register(ctx context.Context, req accounts.RegisterRequest) (string, error) {
 	ret := _m.Called(ctx, req)
