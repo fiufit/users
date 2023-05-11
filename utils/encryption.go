@@ -9,6 +9,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//go:generate mockery --name Toker
+type Toker interface {
+	CreateToken(userID string, isAdmin bool) (string, error)
+}
+
 type JwtToker struct {
 	privKey *rsa.PrivateKey
 	pubKey  *rsa.PublicKey
