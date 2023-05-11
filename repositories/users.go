@@ -22,6 +22,9 @@ type Users interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
+	FollowUser(ctx context.Context, followedUserID string, followerUserID string) error
+	UnfollowUser(ctx context.Context, followedUserID string, followerUserID string) error
+	GetFollowers(ctx context.Context, request ucontracts.GetUserFollowersRequest) (ucontracts.GetUserFollowersResponse, error)
 }
 
 type UserRepository struct {
@@ -135,4 +138,57 @@ func (repo UserRepository) Update(ctx context.Context, user models.User) (models
 		return models.User{}, result.Error
 	}
 	return user, nil
+}
+
+func (repo UserRepository) FollowUser(ctx context.Context, followedUserID string, followerUserID string) error {
+	followedUser, err := repo.GetByID(ctx, followedUserID)
+	if err != nil {
+		return err
+	}
+
+	followerUser, err := repo.GetByID(ctx, followerUserID)
+	if err != nil {
+		return err
+	}
+	db := repo.db.WithContext(ctx)
+
+	return db.Model(&followedUser).Association("Followers").Append(&followerUser)
+}
+
+func (repo UserRepository) UnfollowUser(ctx context.Context, followedUserID string, followerUserID string) error {
+	followedUser, err := repo.GetByID(ctx, followedUserID)
+	if err != nil {
+		return err
+	}
+
+	followerUser, err := repo.GetByID(ctx, followerUserID)
+	if err != nil {
+		return err
+	}
+	db := repo.db.WithContext(ctx)
+
+	return db.Model(&followedUser).Association("Followers").Delete(&followerUser)
+}
+
+func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetUserFollowersRequest) (ucontracts.GetUserFollowersResponse, error) {
+	db := repo.db.WithContext(ctx)
+	var user models.User
+	var followers []models.User
+	result := db.Preload("Followers", database.Paginate(&followers, &req.Pagination, db)).First(&user, "users.id = ?", req.UserID)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return ucontracts.GetUserFollowersResponse{}, contracts.ErrUserNotFound
+		}
+
+		repo.logger.Error("unable to get user followers", zap.Error(result.Error), zap.String("userID", req.UserID))
+		return ucontracts.GetUserFollowersResponse{}, result.Error
+	}
+
+	response := ucontracts.GetUserFollowersResponse{
+		Pagination: req.Pagination,
+		Followers:  followers,
+	}
+
+	return response, nil
 }

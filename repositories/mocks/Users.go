@@ -51,6 +51,20 @@ func (_m *Users) DeleteUser(ctx context.Context, userID string) error {
 	return r0
 }
 
+// FollowUser provides a mock function with given fields: ctx, followedUserID, followerUserID
+func (_m *Users) FollowUser(ctx context.Context, followedUserID string, followerUserID string) error {
+	ret := _m.Called(ctx, followedUserID, followerUserID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, followedUserID, followerUserID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Get provides a mock function with given fields: ctx, req
 func (_m *Users) Get(ctx context.Context, req users.GetUsersRequest) (users.GetUsersResponse, error) {
 	ret := _m.Called(ctx, req)
@@ -112,6 +126,41 @@ func (_m *Users) GetByNickname(ctx context.Context, nickname string) (models.Use
 	}
 
 	return r0, r1
+}
+
+// GetFollowers provides a mock function with given fields: ctx, request
+func (_m *Users) GetFollowers(ctx context.Context, request users.GetUserFollowersRequest) (users.GetUserFollowersResponse, error) {
+	ret := _m.Called(ctx, request)
+
+	var r0 users.GetUserFollowersResponse
+	if rf, ok := ret.Get(0).(func(context.Context, users.GetUserFollowersRequest) users.GetUserFollowersResponse); ok {
+		r0 = rf(ctx, request)
+	} else {
+		r0 = ret.Get(0).(users.GetUserFollowersResponse)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, users.GetUserFollowersRequest) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UnfollowUser provides a mock function with given fields: ctx, followedUserID, followerUserID
+func (_m *Users) UnfollowUser(ctx context.Context, followedUserID string, followerUserID string) error {
+	ret := _m.Called(ctx, followedUserID, followerUserID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, followedUserID, followerUserID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // Update provides a mock function with given fields: ctx, user

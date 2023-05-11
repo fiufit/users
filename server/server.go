@@ -27,6 +27,8 @@ type Server struct {
 	getUsers       handlers.GetUsers
 	updateUser     handlers.UpdateUser
 	deleteUser     handlers.DeleteUser
+	followUser     handlers.FollowUser
+	unfollowUser   handlers.UnfollowUser
 }
 
 func (s *Server) Run() {
@@ -82,6 +84,7 @@ func NewServer() *Server {
 	getUserUc := users.NewUserGetterImpl(userRepo, firebaseRepo, logger)
 	updateUserUc := users.NewUserUpdaterImpl(userRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
+	followUserUc := users.NewUserFollowerImpl(userRepo)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -94,6 +97,9 @@ func NewServer() *Server {
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 
+	followUser := handlers.NewFollowUser(followUserUc, logger)
+	unfollowUser := handlers.NewUnfollowUser(followUserUc, logger)
+
 	return &Server{
 		router:         gin.Default(),
 		register:       register,
@@ -104,5 +110,7 @@ func NewServer() *Server {
 		getUsers:       getUsers,
 		updateUser:     updateUser,
 		deleteUser:     deleteUser,
+		followUser:     followUser,
+		unfollowUser:   unfollowUser,
 	}
 }
