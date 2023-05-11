@@ -128,7 +128,7 @@ func TestAdminRegisterRepoError(t *testing.T) {
 		Password: "passwordHash",
 	}
 
-	mpatch.PatchMethod(utils.HashPassword, func(string) (string, error) {
+	_, _ = mpatch.PatchMethod(utils.HashPassword, func(string) (string, error) {
 		return "passwordHash", nil
 	})
 

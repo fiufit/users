@@ -89,7 +89,7 @@ func TestFinishRegisterOk(t *testing.T) {
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
 
-	mpatch.PatchMethod(time.Now, func() time.Time {
+	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
 	})
 	userRepo.On("CreateUser", ctx, usr).Return(usr, nil)
@@ -133,7 +133,7 @@ func TestFinishRegisterError(t *testing.T) {
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
 
-	mpatch.PatchMethod(time.Now, func() time.Time {
+	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
 	})
 
