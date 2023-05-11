@@ -16,22 +16,45 @@ type UserGetter interface {
 }
 
 type UserGetterImpl struct {
-	users  repositories.Users
-	logger *zap.Logger
+	users    repositories.Users
+	firebase repositories.Firebase
+	logger   *zap.Logger
 }
 
-func NewUserGetterImpl(users repositories.Users, logger *zap.Logger) UserGetterImpl {
-	return UserGetterImpl{users: users, logger: logger}
+func NewUserGetterImpl(users repositories.Users, firebase repositories.Firebase, logger *zap.Logger) UserGetterImpl {
+	return UserGetterImpl{users: users, firebase: firebase, logger: logger}
 }
 
 func (uc *UserGetterImpl) GetUserByID(ctx context.Context, uid string) (models.User, error) {
-	return uc.users.GetByID(ctx, uid)
+	user, err := uc.users.GetByID(ctx, uid)
+	if err != nil {
+		return user, err
+	}
+	uc.fillUserPicture(ctx, &user)
+	return user, nil
 }
 
 func (uc *UserGetterImpl) GetUserByNickname(ctx context.Context, nickname string) (models.User, error) {
-	return uc.users.GetByNickname(ctx, nickname)
+	user, err := uc.users.GetByNickname(ctx, nickname)
+	if err != nil {
+		return user, err
+	}
+	uc.fillUserPicture(ctx, &user)
+	return user, nil
 }
 
 func (uc *UserGetterImpl) GetUsers(ctx context.Context, req users.GetUsersRequest) (users.GetUsersResponse, error) {
-	return uc.users.Get(ctx, req)
+	res, err := uc.users.Get(ctx, req)
+	if err != nil {
+		return res, err
+	}
+	for i := range res.Users {
+		uc.fillUserPicture(ctx, &res.Users[i])
+	}
+	return res, nil
+}
+
+func (uc *UserGetterImpl) fillUserPicture(ctx context.Context, user *models.User) {
+	userPictureUrl := uc.firebase.GetUserPictureUrl(ctx, user.ID)
+	(*user).PictureUrl = userPictureUrl
 }

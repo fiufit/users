@@ -1,8 +1,11 @@
 package server
 
 import (
+	_ "github.com/fiufit/users/docs"
 	"github.com/fiufit/users/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 func (s *Server) InitRoutes() {
@@ -10,9 +13,14 @@ func (s *Server) InitRoutes() {
 	userRouter := baseRouter.Group("/users")
 	adminRouter := baseRouter.Group("/admin")
 
+	s.InitDocRoutes(baseRouter)
 	s.InitUserRoutes(userRouter)
 	s.InitAdminRoutes(adminRouter)
 
+}
+
+func (s *Server) InitDocRoutes(router *gin.RouterGroup) {
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
 func (s *Server) InitUserRoutes(router *gin.RouterGroup) {

@@ -2,27 +2,66 @@ package repositories
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
+	"time"
 
+	"cloud.google.com/go/storage"
+	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 	"github.com/fiufit/users/contracts"
 	"github.com/fiufit/users/contracts/accounts"
 	"go.uber.org/zap"
+	"google.golang.org/api/option"
 )
 
 //go:generate mockery --name Firebase
 type Firebase interface {
 	Register(ctx context.Context, req accounts.RegisterRequest) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
+	GetUserPictureUrl(ctx context.Context, userID string) string
 }
 
 type FirebaseRepository struct {
-	logger *zap.Logger
-	auth   *auth.Client
+	logger            *zap.Logger
+	app               *firebase.App
+	auth              *auth.Client
+	storageBucketName string
+	storageBucket     *storage.BucketHandle
 }
 
-func NewFirebaseRepository(logger *zap.Logger, auth *auth.Client) FirebaseRepository {
-	return FirebaseRepository{logger: logger, auth: auth}
+func NewFirebaseRepository(logger *zap.Logger, sdkJson []byte, storageBucketName string) (FirebaseRepository, error) {
+	opt := option.WithCredentialsJSON(sdkJson)
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	auth, err := app.Auth(context.Background())
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	storageClient, err := app.Storage(context.Background())
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	storageBucket, err := storageClient.Bucket(storageBucketName)
+	if err != nil {
+		return FirebaseRepository{}, err
+	}
+
+	repo := FirebaseRepository{
+		logger:            logger,
+		app:               app,
+		auth:              auth,
+		storageBucketName: storageBucketName,
+		storageBucket:     storageBucket,
+	}
+
+	return repo, nil
 }
 
 func (repo FirebaseRepository) DeleteUser(ctx context.Context, userID string) error {
@@ -52,4 +91,29 @@ func (repo FirebaseRepository) Register(ctx context.Context, req accounts.Regist
 		return "", err
 	}
 	return newUser.UID, nil
+}
+
+func (repo FirebaseRepository) GetUserPictureUrl(ctx context.Context, userID string) string {
+	defaultPictureUrl := fmt.Sprintf("https://storage.cloud.google.com/%v/profile_pictures/default.png", repo.storageBucketName)
+	userPicturePath := "profile_pictures/" + userID + "/profile.png"
+
+	pictureHandle := repo.storageBucket.Object(userPicturePath)
+	_, err := pictureHandle.Attrs(ctx)
+	if err != nil {
+		if !errors.Is(err, storage.ErrObjectNotExist) {
+			repo.logger.Error("Unable to retrieve User picture from firebase storage", zap.String("userID", userID))
+		}
+		return defaultPictureUrl
+	}
+
+	opts := storage.SignedURLOptions{
+		Method:  "GET",
+		Expires: time.Now().Add(time.Hour * 24),
+	}
+	pictureUrl, err := repo.storageBucket.SignedURL(userPicturePath, &opts)
+	if err != nil {
+		pictureUrl = defaultPictureUrl
+		repo.logger.Error("Unable to Sign user picture from firebase storage", zap.String("userID", userID))
+	}
+	return pictureUrl
 }

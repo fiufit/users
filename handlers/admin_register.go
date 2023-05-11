@@ -20,6 +20,19 @@ func NewAdminRegister(admins accounts.AdminRegisterer, logger *zap.Logger) Admin
 	return AdminRegister{admins: admins, logger: logger}
 }
 
+// Admin Register godoc
+// @Summary      Register an administrator
+// @Description	 Register a new admin. This endpoint should only be called after a gateway processed the corresponding authorization
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        version   path      string  true  "API Version"
+// @Param        payload   body      ucontracts.AdminRegisterRequest  true  "Body params"
+// @Success      200  {object} 	accounts.AdminRegisterResponse "Important Note: OK responses are wrapped in {"data": ... }"
+// @Failure      400  {object} 	contracts.ErrResponse
+// @Failure      409  {object}  contracts.ErrResponse
+// @Failure      500  {object}  contracts.ErrResponse
+// @Router       /{version}/admin/register 	[post]
 func (h AdminRegister) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.AdminRegisterRequest
