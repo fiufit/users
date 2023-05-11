@@ -11,6 +11,7 @@ import (
 	"github.com/fiufit/users/repositories/mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
+	"gorm.io/gorm"
 )
 
 func TestUserRepository_CreateUser_DBError(t *testing.T) {
@@ -164,6 +165,69 @@ func TestUserRepository_Update_OK(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, updatedUser.ID, testUser.ID)
 	assert.Equal(t, updatedUser.Nickname, patchedUser.Nickname)
+}
+
+func TestUserRepository_DeleteUser_DBError(t *testing.T) {
+	defer testSuite.TruncateModels()
+	ctx := context.Background()
+	db := testSuite.DB
+	fireBaseMock := new(mocks.Firebase)
+	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock)
+	testUser := models.User{ID: "testUserID"}
+
+	_ = db.Create(&testUser)
+	_ = db.AddError(errors.New("test error"))
+	err := repo.DeleteUser(ctx, testUser.ID)
+
+	assert.Error(t, err)
+	assert.Equal(t, err.Error(), "test error")
+	db.Error = nil //overwrite the db Error so that TruncateModels() doesn't panic
+
+	var existingUser models.User
+	res := db.Where("id = ?", testUser.ID).First(&existingUser)
+	assert.NoError(t, res.Error)
+	assert.Equal(t, existingUser.ID, testUser.ID)
+}
+
+func TestUserRepository_DeleteUser_FirebaseError(t *testing.T) {
+	defer testSuite.TruncateModels()
+	ctx := context.Background()
+	db := testSuite.DB
+	fireBaseMock := new(mocks.Firebase)
+	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock)
+	testUser := models.User{ID: "testUserID"}
+
+	fireBaseMock.On("DeleteUser", ctx, testUser.ID).Return(errors.New("test error"))
+	_ = db.Create(&testUser)
+	err := repo.DeleteUser(ctx, testUser.ID)
+
+	assert.Error(t, err)
+	assert.Equal(t, err.Error(), "test error")
+	db.Error = nil //overwrite the db Error so that TruncateModels() doesn't panic
+
+	var existingUser models.User
+	res := db.Where("id = ?", testUser.ID).First(&existingUser)
+	assert.NoError(t, res.Error)
+	assert.Equal(t, existingUser.ID, testUser.ID)
+}
+
+func TestUserRepository_DeleteUser_OK(t *testing.T) {
+	defer testSuite.TruncateModels()
+	ctx := context.Background()
+	db := testSuite.DB
+	fireBaseMock := new(mocks.Firebase)
+	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock)
+	testUser := models.User{ID: "testID"}
+
+	_ = db.Create(&testUser)
+	fireBaseMock.On("DeleteUser", ctx, testUser.ID).Return(nil)
+	err := repo.DeleteUser(ctx, testUser.ID)
+
+	assert.NoError(t, err)
+	var existingUser models.User
+	result := db.First(&existingUser)
+	assert.Error(t, result.Error)
+	assert.ErrorIs(t, result.Error, gorm.ErrRecordNotFound)
 }
 
 func TestUserRepository_Get_DBError(t *testing.T) {
