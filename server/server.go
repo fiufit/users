@@ -19,16 +19,17 @@ import (
 type Server struct {
 	router *gin.Engine
 
-	register       handlers.Register
-	finishRegister handlers.FinishRegister
-	adminRegister  handlers.AdminRegister
-	adminLogin     handlers.AdminLogin
-	getUserByID    handlers.GetUserByID
-	getUsers       handlers.GetUsers
-	updateUser     handlers.UpdateUser
-	deleteUser     handlers.DeleteUser
-	followUser     handlers.FollowUser
-	unfollowUser   handlers.UnfollowUser
+	register         handlers.Register
+	finishRegister   handlers.FinishRegister
+	adminRegister    handlers.AdminRegister
+	adminLogin       handlers.AdminLogin
+	getUserByID      handlers.GetUserByID
+	getUsers         handlers.GetUsers
+	updateUser       handlers.UpdateUser
+	deleteUser       handlers.DeleteUser
+	followUser       handlers.FollowUser
+	unfollowUser     handlers.UnfollowUser
+	getUserFollowers handlers.GetUserFollowers
 }
 
 func (s *Server) Run() {
@@ -97,20 +98,22 @@ func NewServer() *Server {
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 
-	followUser := handlers.NewFollowUser(followUserUc, logger)
-	unfollowUser := handlers.NewUnfollowUser(followUserUc, logger)
+	followUser := handlers.NewFollowUser(&followUserUc, logger)
+	unfollowUser := handlers.NewUnfollowUser(&followUserUc, logger)
+	getUserFollowers := handlers.NewGetUserFollowers(&getUserUc, logger)
 
 	return &Server{
-		router:         gin.Default(),
-		register:       register,
-		finishRegister: finishRegister,
-		adminRegister:  adminRegister,
-		adminLogin:     adminLogin,
-		getUserByID:    getUserByID,
-		getUsers:       getUsers,
-		updateUser:     updateUser,
-		deleteUser:     deleteUser,
-		followUser:     followUser,
-		unfollowUser:   unfollowUser,
+		router:           gin.Default(),
+		register:         register,
+		finishRegister:   finishRegister,
+		adminRegister:    adminRegister,
+		adminLogin:       adminLogin,
+		getUserByID:      getUserByID,
+		getUsers:         getUsers,
+		updateUser:       updateUser,
+		deleteUser:       deleteUser,
+		followUser:       followUser,
+		unfollowUser:     unfollowUser,
+		getUserFollowers: getUserFollowers,
 	}
 }

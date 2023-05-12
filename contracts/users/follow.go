@@ -16,7 +16,7 @@ type UnfollowUserRequest struct {
 }
 
 type GetUserFollowersRequest struct {
-	UserID string
+	UserID string `form:"-"`
 	contracts.Pagination
 }
 

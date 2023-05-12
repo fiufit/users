@@ -173,8 +173,7 @@ func (repo UserRepository) UnfollowUser(ctx context.Context, followedUserID stri
 func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetUserFollowersRequest) (ucontracts.GetUserFollowersResponse, error) {
 	db := repo.db.WithContext(ctx)
 	var user models.User
-	var followers []models.User
-	result := db.Preload("Followers", database.Paginate(&followers, &req.Pagination, db)).First(&user, "users.id = ?", req.UserID)
+	result := db.Preload("Followers", database.Paginate(&user.Followers, &req.Pagination, db)).First(&user, "users.id = ?", req.UserID)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -185,9 +184,14 @@ func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetU
 		return ucontracts.GetUserFollowersResponse{}, result.Error
 	}
 
+	// TODO: figure out how to do this properly inside database.Paginate(). We have to overwrite the totalrows with
+	// the following count(), because otherwise the total user count is set.
+
+	req.Pagination.TotalRows = db.Model(&user).Association("Followers").Count()
+
 	response := ucontracts.GetUserFollowersResponse{
 		Pagination: req.Pagination,
-		Followers:  followers,
+		Followers:  user.Followers,
 	}
 
 	return response, nil

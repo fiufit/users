@@ -13,6 +13,7 @@ type UserGetter interface {
 	GetUserByID(ctx context.Context, uid string) (models.User, error)
 	GetUsers(ctx context.Context, req users.GetUsersRequest) (users.GetUsersResponse, error)
 	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
+	GetUserFollowers(ctx context.Context, req users.GetUserFollowersRequest) (users.GetUserFollowersResponse, error)
 }
 
 type UserGetterImpl struct {
@@ -23,6 +24,11 @@ type UserGetterImpl struct {
 
 func NewUserGetterImpl(users repositories.Users, firebase repositories.Firebase, logger *zap.Logger) UserGetterImpl {
 	return UserGetterImpl{users: users, firebase: firebase, logger: logger}
+}
+
+func (uc *UserGetterImpl) fillUserPicture(ctx context.Context, user *models.User) {
+	userPictureUrl := uc.firebase.GetUserPictureUrl(ctx, user.ID)
+	(*user).PictureUrl = userPictureUrl
 }
 
 func (uc *UserGetterImpl) GetUserByID(ctx context.Context, uid string) (models.User, error) {
@@ -48,13 +54,21 @@ func (uc *UserGetterImpl) GetUsers(ctx context.Context, req users.GetUsersReques
 	if err != nil {
 		return res, err
 	}
+
 	for i := range res.Users {
 		uc.fillUserPicture(ctx, &res.Users[i])
 	}
 	return res, nil
 }
 
-func (uc *UserGetterImpl) fillUserPicture(ctx context.Context, user *models.User) {
-	userPictureUrl := uc.firebase.GetUserPictureUrl(ctx, user.ID)
-	(*user).PictureUrl = userPictureUrl
+func (uc *UserGetterImpl) GetUserFollowers(ctx context.Context, req users.GetUserFollowersRequest) (users.GetUserFollowersResponse, error) {
+	res, err := uc.users.GetFollowers(ctx, req)
+	if err != nil {
+		return res, err
+	}
+
+	for i := range res.Followers {
+		uc.fillUserPicture(ctx, &res.Followers[i])
+	}
+	return res, nil
 }

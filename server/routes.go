@@ -55,6 +55,10 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.DELETE("/:userID/followers/:followerID", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.unfollowUser.Handle(),
 	}))
+
+	router.GET("/:userID/followers", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getUserFollowers.Handle(),
+	}))
 }
 
 func (s *Server) InitAdminRoutes(router *gin.RouterGroup) {
