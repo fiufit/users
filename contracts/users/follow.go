@@ -20,7 +20,14 @@ type GetUserFollowersRequest struct {
 	contracts.Pagination
 }
 
+type GetFollowedUsersRequest GetUserFollowersRequest
+
 type GetUserFollowersResponse struct {
 	contracts.Pagination
 	Followers []models.User `json:"followers"`
+}
+
+type GetFollowedUsersResponse struct {
+	contracts.Pagination
+	Followed []models.User `json:"followed"`
 }

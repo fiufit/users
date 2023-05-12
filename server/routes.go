@@ -59,6 +59,10 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.GET("/:userID/followers", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.getUserFollowers.Handle(),
 	}))
+
+	router.GET("/:userID/followed", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getFollowedUsers.Handle(),
+	}))
 }
 
 func (s *Server) InitAdminRoutes(router *gin.RouterGroup) {

@@ -128,6 +128,27 @@ func (_m *Users) GetByNickname(ctx context.Context, nickname string) (models.Use
 	return r0, r1
 }
 
+// GetFollowed provides a mock function with given fields: ctx, req
+func (_m *Users) GetFollowed(ctx context.Context, req users.GetFollowedUsersRequest) (users.GetFollowedUsersResponse, error) {
+	ret := _m.Called(ctx, req)
+
+	var r0 users.GetFollowedUsersResponse
+	if rf, ok := ret.Get(0).(func(context.Context, users.GetFollowedUsersRequest) users.GetFollowedUsersResponse); ok {
+		r0 = rf(ctx, req)
+	} else {
+		r0 = ret.Get(0).(users.GetFollowedUsersResponse)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, users.GetFollowedUsersRequest) error); ok {
+		r1 = rf(ctx, req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetFollowers provides a mock function with given fields: ctx, request
 func (_m *Users) GetFollowers(ctx context.Context, request users.GetUserFollowersRequest) (users.GetUserFollowersResponse, error) {
 	ret := _m.Called(ctx, request)

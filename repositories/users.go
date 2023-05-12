@@ -25,6 +25,7 @@ type Users interface {
 	FollowUser(ctx context.Context, followedUserID string, followerUserID string) error
 	UnfollowUser(ctx context.Context, followedUserID string, followerUserID string) error
 	GetFollowers(ctx context.Context, request ucontracts.GetUserFollowersRequest) (ucontracts.GetUserFollowersResponse, error)
+	GetFollowed(ctx context.Context, req ucontracts.GetFollowedUsersRequest) (ucontracts.GetFollowedUsersResponse, error)
 }
 
 type UserRepository struct {
@@ -184,14 +185,38 @@ func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetU
 		return ucontracts.GetUserFollowersResponse{}, result.Error
 	}
 
-	// TODO: figure out how to do this properly inside database.Paginate(). We have to overwrite the totalrows with
-	// the following count(), because otherwise the total user count is set.
+	// TODO: figure out how to do this properly inside database.Paginate(). We have to overwrite the totalRows with
+	// the following count(), because otherwise the total user count is set. Maybe use db.Scopes() ?
 
 	req.Pagination.TotalRows = db.Model(&user).Association("Followers").Count()
 
 	response := ucontracts.GetUserFollowersResponse{
 		Pagination: req.Pagination,
 		Followers:  user.Followers,
+	}
+
+	return response, nil
+}
+
+func (repo UserRepository) GetFollowed(ctx context.Context, req ucontracts.GetFollowedUsersRequest) (ucontracts.GetFollowedUsersResponse, error) {
+	db := repo.db.WithContext(ctx)
+	var followedUsers []models.User
+
+	db = db.Model(&followedUsers).Joins("LEFT JOIN user_followers ON user_followers.user_id = users.id").Where("user_followers.follower_id = ?", req.UserID)
+	result := db.Scopes(database.Paginate(followedUsers, &req.Pagination, db)).Find(&followedUsers)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return ucontracts.GetFollowedUsersResponse{}, contracts.ErrUserNotFound
+		}
+
+		repo.logger.Error("unable to get user followers", zap.Error(result.Error), zap.String("userID", req.UserID))
+		return ucontracts.GetFollowedUsersResponse{}, result.Error
+	}
+
+	response := ucontracts.GetFollowedUsersResponse{
+		Pagination: req.Pagination,
+		Followed:   followedUsers,
 	}
 
 	return response, nil

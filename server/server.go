@@ -30,6 +30,7 @@ type Server struct {
 	followUser       handlers.FollowUser
 	unfollowUser     handlers.UnfollowUser
 	getUserFollowers handlers.GetUserFollowers
+	getFollowedUsers handlers.GetFollowedUsers
 }
 
 func (s *Server) Run() {
@@ -101,6 +102,7 @@ func NewServer() *Server {
 	followUser := handlers.NewFollowUser(&followUserUc, logger)
 	unfollowUser := handlers.NewUnfollowUser(&followUserUc, logger)
 	getUserFollowers := handlers.NewGetUserFollowers(&getUserUc, logger)
+	getFollowedUsers := handlers.NewGetFollowedUsers(&getUserUc, logger)
 
 	return &Server{
 		router:           gin.Default(),
@@ -115,5 +117,6 @@ func NewServer() *Server {
 		followUser:       followUser,
 		unfollowUser:     unfollowUser,
 		getUserFollowers: getUserFollowers,
+		getFollowedUsers: getFollowedUsers,
 	}
 }

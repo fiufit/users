@@ -14,6 +14,7 @@ type UserGetter interface {
 	GetUsers(ctx context.Context, req users.GetUsersRequest) (users.GetUsersResponse, error)
 	GetUserByNickname(ctx context.Context, nickname string) (models.User, error)
 	GetUserFollowers(ctx context.Context, req users.GetUserFollowersRequest) (users.GetUserFollowersResponse, error)
+	GetUserFollowed(ctx context.Context, req users.GetFollowedUsersRequest) (users.GetFollowedUsersResponse, error)
 }
 
 type UserGetterImpl struct {
@@ -69,6 +70,18 @@ func (uc *UserGetterImpl) GetUserFollowers(ctx context.Context, req users.GetUse
 
 	for i := range res.Followers {
 		uc.fillUserPicture(ctx, &res.Followers[i])
+	}
+	return res, nil
+}
+
+func (uc *UserGetterImpl) GetUserFollowed(ctx context.Context, req users.GetFollowedUsersRequest) (users.GetFollowedUsersResponse, error) {
+	res, err := uc.users.GetFollowed(ctx, req)
+	if err != nil {
+		return res, err
+	}
+
+	for i := range res.Followed {
+		uc.fillUserPicture(ctx, &res.Followed[i])
 	}
 	return res, nil
 }
