@@ -7,7 +7,7 @@ import (
 
 type FollowUserRequest struct {
 	FollowedUserID string
-	FollowerUserID string `form:"followerID" binding:"required"`
+	FollowerUserID string `form:"follower_id" binding:"required"`
 }
 
 type UnfollowUserRequest struct {
