@@ -16,6 +16,7 @@ import (
 func TestUpdateUserDoesNotExistError(t *testing.T) {
 	//given
 	userRepo := new(mocks.Users)
+
 	ctx := context.Background()
 	userID := "h0l4"
 
@@ -26,7 +27,7 @@ func TestUpdateUserDoesNotExistError(t *testing.T) {
 
 	//when
 	userRepo.On("GetByID", ctx, userID).Return(models.User{}, contracts.ErrUserNotFound)
-	userUc := NewUserUpdaterImpl(userRepo)
+	userUc := NewUserUpdaterImpl(userRepo, new(mocks.Firebase))
 	_, err := userUc.UpdateUser(ctx, req)
 	assert.Error(t, err)
 }
@@ -55,7 +56,7 @@ func TestUpdateUserPatchModelError(t *testing.T) {
 	//when
 	userRepo.On("GetByID", ctx, userID).Return(outdatedUser, nil)
 	userRepo.On("GetByNickname", ctx, req.Nickname).Return(otherUser, nil)
-	userUc := NewUserUpdaterImpl(userRepo)
+	userUc := NewUserUpdaterImpl(userRepo, new(mocks.Firebase))
 	_, err := userUc.UpdateUser(ctx, req)
 
 	//then
@@ -81,7 +82,7 @@ func TestUpdateUserRepoError(t *testing.T) {
 	//when
 	userRepo.On("GetByID", ctx, userID).Return(outdatedUser, nil)
 	userRepo.On("GetByNickname", ctx, req.Nickname).Return(models.User{}, contracts.ErrUserNotFound)
-	userUc := NewUserUpdaterImpl(userRepo)
+	userUc := NewUserUpdaterImpl(userRepo, new(mocks.Firebase))
 	patchedUser, _ := userUc.patchUserModel(ctx, outdatedUser, req)
 	userRepo.On("Update", ctx, patchedUser).Return(models.User{}, errors.New("repo error"))
 	_, err := userUc.UpdateUser(ctx, req)
@@ -109,7 +110,7 @@ func TestUpdateUserOk(t *testing.T) {
 	//when
 	userRepo.On("GetByID", ctx, userID).Return(outdatedUser, nil)
 	userRepo.On("GetByNickname", ctx, req.Nickname).Return(models.User{}, contracts.ErrUserNotFound)
-	userUc := NewUserUpdaterImpl(userRepo)
+	userUc := NewUserUpdaterImpl(userRepo, new(mocks.Firebase))
 	patchedUser, _ := userUc.patchUserModel(ctx, outdatedUser, req)
 	userRepo.On("Update", ctx, patchedUser).Return(models.User{}, nil)
 	_, err := userUc.UpdateUser(ctx, req)
@@ -149,7 +150,7 @@ func TestPatchUserModelOk(t *testing.T) {
 	}
 
 	userRepo.On("GetByNickname", ctx, req.Nickname).Return(models.User{}, contracts.ErrUserNotFound)
-	userUc := NewUserUpdaterImpl(userRepo)
+	userUc := NewUserUpdaterImpl(userRepo, new(mocks.Firebase))
 	updatedUser, err := userUc.patchUserModel(ctx, outdatedUser, req)
 
 	assert.NoError(t, err)
@@ -178,7 +179,7 @@ func TestPatchUserModelRepoError(t *testing.T) {
 	}
 
 	userRepo.On("GetByNickname", ctx, req.Nickname).Return(models.User{}, errors.New("repo error"))
-	userUc := NewUserUpdaterImpl(userRepo)
+	userUc := NewUserUpdaterImpl(userRepo, new(mocks.Firebase))
 	_, err := userUc.patchUserModel(ctx, outdatedUser, req)
 
 	assert.Error(t, err)
