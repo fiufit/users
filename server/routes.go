@@ -48,6 +48,21 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 		"v1": s.getUsers.Handle(),
 	}))
 
+	router.POST("/:userID/followers", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.followUser.Handle(),
+	}))
+
+	router.DELETE("/:userID/followers/:followerID", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.unfollowUser.Handle(),
+	}))
+
+	router.GET("/:userID/followers", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getUserFollowers.Handle(),
+	}))
+
+	router.GET("/:userID/followed", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getFollowedUsers.Handle(),
+	}))
 }
 
 func (s *Server) InitAdminRoutes(router *gin.RouterGroup) {

@@ -19,14 +19,18 @@ import (
 type Server struct {
 	router *gin.Engine
 
-	register       handlers.Register
-	finishRegister handlers.FinishRegister
-	adminRegister  handlers.AdminRegister
-	adminLogin     handlers.AdminLogin
-	getUserByID    handlers.GetUserByID
-	getUsers       handlers.GetUsers
-	updateUser     handlers.UpdateUser
-	deleteUser     handlers.DeleteUser
+	register         handlers.Register
+	finishRegister   handlers.FinishRegister
+	adminRegister    handlers.AdminRegister
+	adminLogin       handlers.AdminLogin
+	getUserByID      handlers.GetUserByID
+	getUsers         handlers.GetUsers
+	updateUser       handlers.UpdateUser
+	deleteUser       handlers.DeleteUser
+	followUser       handlers.FollowUser
+	unfollowUser     handlers.UnfollowUser
+	getUserFollowers handlers.GetUserFollowers
+	getFollowedUsers handlers.GetFollowedUsers
 }
 
 func (s *Server) Run() {
@@ -82,6 +86,7 @@ func NewServer() *Server {
 	getUserUc := users.NewUserGetterImpl(userRepo, firebaseRepo, logger)
 	updateUserUc := users.NewUserUpdaterImpl(userRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
+	followUserUc := users.NewUserFollowerImpl(userRepo)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -94,15 +99,24 @@ func NewServer() *Server {
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 
+	followUser := handlers.NewFollowUser(&followUserUc, logger)
+	unfollowUser := handlers.NewUnfollowUser(&followUserUc, logger)
+	getUserFollowers := handlers.NewGetUserFollowers(&getUserUc, logger)
+	getFollowedUsers := handlers.NewGetFollowedUsers(&getUserUc, logger)
+
 	return &Server{
-		router:         gin.Default(),
-		register:       register,
-		finishRegister: finishRegister,
-		adminRegister:  adminRegister,
-		adminLogin:     adminLogin,
-		getUserByID:    getUserByID,
-		getUsers:       getUsers,
-		updateUser:     updateUser,
-		deleteUser:     deleteUser,
+		router:           gin.Default(),
+		register:         register,
+		finishRegister:   finishRegister,
+		adminRegister:    adminRegister,
+		adminLogin:       adminLogin,
+		getUserByID:      getUserByID,
+		getUsers:         getUsers,
+		updateUser:       updateUser,
+		deleteUser:       deleteUser,
+		followUser:       followUser,
+		unfollowUser:     unfollowUser,
+		getUserFollowers: getUserFollowers,
+		getFollowedUsers: getFollowedUsers,
 	}
 }

@@ -17,6 +17,7 @@ type User struct {
 	Height            uint      `gorm:"not null"`
 	Weight            uint      `gorm:"not null"`
 	IsVerifiedTrainer bool      `gorm:"not null;default:false"`
+	Followers         []User    `gorm:"many2many:user_followers"`
 	MainLocation      string    `gorm:"not null"`
 	Interests         []string  `gorm:"-"`
 	PictureUrl        string    `gorm:"-"`

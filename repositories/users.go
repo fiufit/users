@@ -22,6 +22,10 @@ type Users interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
+	FollowUser(ctx context.Context, followedUserID string, followerUserID string) error
+	UnfollowUser(ctx context.Context, followedUserID string, followerUserID string) error
+	GetFollowers(ctx context.Context, request ucontracts.GetUserFollowersRequest) (ucontracts.GetUserFollowersResponse, error)
+	GetFollowed(ctx context.Context, req ucontracts.GetFollowedUsersRequest) (ucontracts.GetFollowedUsersResponse, error)
 }
 
 type UserRepository struct {
@@ -135,4 +139,85 @@ func (repo UserRepository) Update(ctx context.Context, user models.User) (models
 		return models.User{}, result.Error
 	}
 	return user, nil
+}
+
+func (repo UserRepository) FollowUser(ctx context.Context, followedUserID string, followerUserID string) error {
+	followedUser, err := repo.GetByID(ctx, followedUserID)
+	if err != nil {
+		return err
+	}
+
+	followerUser, err := repo.GetByID(ctx, followerUserID)
+	if err != nil {
+		return err
+	}
+	db := repo.db.WithContext(ctx)
+
+	return db.Model(&followedUser).Association("Followers").Append(&followerUser)
+}
+
+func (repo UserRepository) UnfollowUser(ctx context.Context, followedUserID string, followerUserID string) error {
+	followedUser, err := repo.GetByID(ctx, followedUserID)
+	if err != nil {
+		return err
+	}
+
+	followerUser, err := repo.GetByID(ctx, followerUserID)
+	if err != nil {
+		return err
+	}
+	db := repo.db.WithContext(ctx)
+
+	return db.Model(&followedUser).Association("Followers").Delete(&followerUser)
+}
+
+func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetUserFollowersRequest) (ucontracts.GetUserFollowersResponse, error) {
+	db := repo.db.WithContext(ctx)
+	var user models.User
+	result := db.Preload("Followers", database.Paginate(&user.Followers, &req.Pagination, db)).First(&user, "users.id = ?", req.UserID)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return ucontracts.GetUserFollowersResponse{}, contracts.ErrUserNotFound
+		}
+
+		repo.logger.Error("unable to get user followers", zap.Error(result.Error), zap.String("userID", req.UserID))
+		return ucontracts.GetUserFollowersResponse{}, result.Error
+	}
+
+	// TODO: figure out how to do this properly inside database.Paginate(). We have to overwrite the totalRows with
+	// the following count(), because otherwise the total user count is set. Maybe use db.Scopes() ?
+
+	req.Pagination.TotalRows = db.Model(&user).Association("Followers").Count()
+
+	response := ucontracts.GetUserFollowersResponse{
+		Pagination: req.Pagination,
+		Followers:  user.Followers,
+	}
+
+	return response, nil
+}
+
+func (repo UserRepository) GetFollowed(ctx context.Context, req ucontracts.GetFollowedUsersRequest) (ucontracts.GetFollowedUsersResponse, error) {
+	db := repo.db.WithContext(ctx)
+	var followedUsers []models.User
+
+	db = db.Model(&followedUsers).Joins("LEFT JOIN user_followers ON user_followers.user_id = users.id").Where("user_followers.follower_id = ?", req.UserID)
+	result := db.Scopes(database.Paginate(followedUsers, &req.Pagination, db)).Find(&followedUsers)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return ucontracts.GetFollowedUsersResponse{}, contracts.ErrUserNotFound
+		}
+
+		repo.logger.Error("unable to get user followers", zap.Error(result.Error), zap.String("userID", req.UserID))
+		return ucontracts.GetFollowedUsersResponse{}, result.Error
+	}
+
+	response := ucontracts.GetFollowedUsersResponse{
+		Pagination: req.Pagination,
+		Followed:   followedUsers,
+	}
+
+	return response, nil
 }

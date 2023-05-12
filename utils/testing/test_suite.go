@@ -104,7 +104,7 @@ func (ts TestSuite) TruncateModels() {
 			panic(err)
 		}
 		tableName := truncateStatement.Schema.Table
-		query := fmt.Sprintf("TRUNCATE TABLE %s", tableName)
+		query := fmt.Sprintf("TRUNCATE TABLE %s CASCADE", tableName)
 		err = ts.DB.Exec(query).Error
 		if err != nil {
 			panic(err)
