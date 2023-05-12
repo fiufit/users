@@ -20,7 +20,7 @@ type UserUpdaterImpl struct {
 }
 
 func NewUserUpdaterImpl(users repositories.Users, firebase repositories.Firebase) UserUpdaterImpl {
-	return UserUpdaterImpl{users: users}
+	return UserUpdaterImpl{users: users, firebase: firebase}
 }
 
 func (uc *UserUpdaterImpl) UpdateUser(ctx context.Context, req ucontracts.UpdateUserRequest) (models.User, error) {
