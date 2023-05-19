@@ -1,0 +1,17 @@
+#RENAME THIS TO .env and remove this comment after changing the values for your execution.
+
+SERVICE_PORT=8888
+DB_HOST=localhost
+DB_NAME=postgres
+DB_PASSWORD=postgres
+DB_PORT=5432
+DB_USER=postgres
+SMTP_HOST=your-smtp-server.com
+SMTP_NAME=your-smpt-name
+SMTP_PASSWORD=your-smpt-password
+SMTP_PORT=587
+SMTP_USER=yoursmtpuser@mail.com
+FIREBASE_BUCKET_NAME=yourproject.appspot.com
+FIREBASE_B64_SDK_JSON=b64encodedFirebaseJsonSDKCredentials
+PRIV_RSA_B64=b64encodedPrivateRSAKey
+PUB_RSA_B64=b64encodedPublicRSAKey
