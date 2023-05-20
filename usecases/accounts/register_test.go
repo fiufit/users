@@ -70,7 +70,7 @@ func TestFinishRegisterOk(t *testing.T) {
 		Height:       180,
 		Weight:       80,
 		MainLocation: "Testland",
-		Interests:    []string{"Testing"},
+		Interests:    []models.Interest{},
 	}
 	creationDate := time.Now()
 	usr := models.User{
@@ -84,7 +84,7 @@ func TestFinishRegisterOk(t *testing.T) {
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
 		MainLocation:      req.MainLocation,
-		Interests:         nil,
+		Interests:         req.Interests,
 	}
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
@@ -113,7 +113,7 @@ func TestFinishRegisterError(t *testing.T) {
 		Height:       180,
 		Weight:       80,
 		MainLocation: "Testland",
-		Interests:    []string{"Testing"},
+		Interests:    []models.Interest{},
 	}
 	creationDate := time.Now()
 	usr := models.User{
@@ -127,7 +127,7 @@ func TestFinishRegisterError(t *testing.T) {
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
 		MainLocation:      req.MainLocation,
-		Interests:         nil,
+		Interests:         req.Interests,
 	}
 
 	firebaseRepo := new(mocks.Firebase)

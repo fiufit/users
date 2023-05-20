@@ -14,6 +14,7 @@ func TestMain(m *testing.M) {
 	testSuite = testingUtils.NewTestSuite(
 		models.Administrator{},
 		models.User{},
+		models.Interest{},
 	)
 
 	testResult := m.Run()
