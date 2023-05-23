@@ -47,7 +47,7 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.Finis
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
 		MainLocation:      req.MainLocation,
-		Interests:         nil,
+		Interests:         req.Interests,
 	}
 	createdUser, err := uc.users.CreateUser(ctx, usr)
 	return accounts.FinishRegisterResponse{User: createdUser}, err

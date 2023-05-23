@@ -8,4 +8,5 @@ var (
 	ErrUserNotFound      = errors.New("user not found")
 	ErrUserAlreadyExists = errors.New("user already exist, attempting to re-register same user")
 	ErrInvalidPassword   = errors.New("invalid password")
+	ErrInvalidInterest   = errors.New("invalid interest")
 )

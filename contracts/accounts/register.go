@@ -16,15 +16,25 @@ type RegisterResponse struct {
 }
 
 type FinishRegisterRequest struct {
-	UserID       string
-	Nickname     string    `json:"nickname" binding:"required"`
-	DisplayName  string    `json:"display_name" binding:"required"`
-	IsMale       *bool     `json:"is_male" binding:"required"`
-	BirthDate    time.Time `json:"birth_date" binding:"required"`
-	Height       uint      `json:"height" binding:"required"`
-	Weight       uint      `json:"weight" binding:"required"`
-	MainLocation string    `json:"main_location" binding:"required"`
-	Interests    []string  `json:"-"`
+	UserID          string
+	Nickname        string            `json:"nickname" binding:"required"`
+	DisplayName     string            `json:"display_name" binding:"required"`
+	IsMale          *bool             `json:"is_male" binding:"required"`
+	BirthDate       time.Time         `json:"birth_date" binding:"required"`
+	Height          uint              `json:"height" binding:"required"`
+	Weight          uint              `json:"weight" binding:"required"`
+	MainLocation    string            `json:"main_location" binding:"required"`
+	InterestStrings []string          `json:"interests"`
+	Interests       []models.Interest `json:"-"`
+}
+
+func (req *FinishRegisterRequest) Validate() error {
+	interests, err := models.ValidateInterests(req.InterestStrings...)
+	if err != nil {
+		return err
+	}
+	req.Interests = interests
+	return nil
 }
 
 type FinishRegisterResponse struct {

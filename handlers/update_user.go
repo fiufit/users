@@ -39,7 +39,8 @@ func (h UpdateUser) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.UpdateUserRequest
 		err := ctx.ShouldBindJSON(&req)
-		if err != nil {
+		validateErr := req.Validate()
+		if err != nil || validateErr != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
 			return
 		}

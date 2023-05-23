@@ -133,6 +133,13 @@ func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (
 
 func (repo UserRepository) Update(ctx context.Context, user models.User) (models.User, error) {
 	db := repo.db.WithContext(ctx)
+
+	err := db.Model(&user).Association("Interests").Replace(user.Interests)
+	if err != nil {
+		repo.logger.Error("Unable to update user interests", zap.Error(err), zap.Any("user", user))
+		return models.User{}, err
+	}
+
 	result := db.Save(&user)
 	if result.Error != nil {
 		repo.logger.Error("Unable to update user", zap.Error(result.Error), zap.Any("user", user))

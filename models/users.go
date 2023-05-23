@@ -13,14 +13,14 @@ type User struct {
 	IsMale            bool      `gorm:"not null"`
 	CreatedAt         time.Time `gorm:"not null"`
 	DeletedAt         gorm.DeletedAt
-	BornAt            time.Time `gorm:"not null"`
-	Height            uint      `gorm:"not null"`
-	Weight            uint      `gorm:"not null"`
-	IsVerifiedTrainer bool      `gorm:"not null;default:false"`
-	Followers         []User    `gorm:"many2many:user_followers"`
-	MainLocation      string    `gorm:"not null"`
-	Interests         []string  `gorm:"-"`
-	PictureUrl        string    `gorm:"-"`
+	BornAt            time.Time  `gorm:"not null"`
+	Height            uint       `gorm:"not null"`
+	Weight            uint       `gorm:"not null"`
+	IsVerifiedTrainer bool       `gorm:"not null;default:false"`
+	Followers         []User     `gorm:"many2many:user_followers"`
+	MainLocation      string     `gorm:"not null"`
+	Interests         []Interest `gorm:"many2many:user_interests"`
+	PictureUrl        string     `gorm:"-"`
 }
 
 func (u User) ToPublicView() map[string]interface{} {
