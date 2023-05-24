@@ -79,10 +79,7 @@ func (repo FirebaseRepository) DisableUser(ctx context.Context, userID string) e
 	}
 	updateUserParams := (&auth.UserToUpdate{}).Disabled(true)
 	_, err = repo.auth.UpdateUser(ctx, userID, updateUserParams)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (repo FirebaseRepository) EnableUser(ctx context.Context, userID string) error {
@@ -95,10 +92,7 @@ func (repo FirebaseRepository) EnableUser(ctx context.Context, userID string) er
 	}
 	updateUserParams := (&auth.UserToUpdate{}).Disabled(false)
 	_, err = repo.auth.UpdateUser(ctx, userID, updateUserParams)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (repo FirebaseRepository) Register(ctx context.Context, req accounts.RegisterRequest) (string, error) {
