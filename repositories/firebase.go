@@ -74,7 +74,7 @@ func (repo FirebaseRepository) DisableUser(ctx context.Context, userID string) e
 	if err != nil {
 		return err
 	}
-	if usr.Disabled == true {
+	if usr.Disabled {
 		return contracts.ErrUserAlreadyDisabled
 	}
 	updateUserParams := (&auth.UserToUpdate{}).Disabled(true)
@@ -90,7 +90,7 @@ func (repo FirebaseRepository) EnableUser(ctx context.Context, userID string) er
 	if err != nil {
 		return err
 	}
-	if usr.Disabled == false {
+	if !usr.Disabled {
 		return contracts.ErrUserNotDisabled
 	}
 	updateUserParams := (&auth.UserToUpdate{}).Disabled(false)

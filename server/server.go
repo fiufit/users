@@ -89,7 +89,7 @@ func NewServer() *Server {
 	updateUserUc := users.NewUserUpdaterImpl(userRepo, firebaseRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 	followUserUc := users.NewUserFollowerImpl(userRepo)
-	enableUserUc := users.NewUserEnablerImpl(firebaseRepo, logger)
+	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)

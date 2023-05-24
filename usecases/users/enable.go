@@ -13,18 +13,27 @@ type UserEnabler interface {
 }
 
 type UserEnablerImpl struct {
+	users    repositories.Users
 	firebase repositories.Firebase
 	logger   *zap.Logger
 }
 
-func NewUserEnablerImpl(firebase repositories.Firebase, logger *zap.Logger) UserEnablerImpl {
-	return UserEnablerImpl{firebase: firebase, logger: logger}
+func NewUserEnablerImpl(users repositories.Users, firebase repositories.Firebase, logger *zap.Logger) UserEnablerImpl {
+	return UserEnablerImpl{users: users, firebase: firebase, logger: logger}
 }
 
 func (uc UserEnablerImpl) EnableUser(ctx context.Context, userID string) error {
+	_, err := uc.users.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
 	return uc.firebase.EnableUser(ctx, userID)
 }
 
 func (uc UserEnablerImpl) DisableUser(ctx context.Context, userID string) error {
+	_, err := uc.users.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
 	return uc.firebase.DisableUser(ctx, userID)
 }

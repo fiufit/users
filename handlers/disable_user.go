@@ -27,11 +27,13 @@ func (h DisableUser) Handle() gin.HandlerFunc {
 			if errors.Is(err, contracts.ErrUserNotFound) {
 				ctx.JSON(http.StatusNotFound, contracts.FormatErrResponse(err))
 				return
-
-			} else {
-				ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
+			}
+			if errors.Is(err, contracts.ErrUserAlreadyDisabled) {
+				ctx.JSON(http.StatusConflict, contracts.FormatErrResponse(err))
 				return
 			}
+			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
+			return
 		}
 		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(""))
 	}
