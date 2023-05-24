@@ -1,11 +1,13 @@
 package contracts
 
 var errCodes = map[error]string{
-	ErrInternal:          "U0",
-	ErrBadRequest:        "U1",
-	ErrUserNotFound:      "U2",
-	ErrUserAlreadyExists: "U3",
-	ErrInvalidPassword:   "U4",
+	ErrInternal:            "U0",
+	ErrBadRequest:          "U1",
+	ErrUserNotFound:        "U2",
+	ErrUserAlreadyExists:   "U3",
+	ErrInvalidPassword:     "U4",
+	ErrUserAlreadyDisabled: "U5",
+	ErrUserNotDisabled:     "U6",
 }
 
 type OkResponse struct {

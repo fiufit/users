@@ -4,8 +4,8 @@ import (
 	_ "github.com/fiufit/users/docs"
 	"github.com/fiufit/users/middleware"
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/files"
-	"github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func (s *Server) InitRoutes() {
@@ -62,6 +62,14 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 
 	router.GET("/:userID/followed", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.getFollowedUsers.Handle(),
+	}))
+
+	router.POST("/:userID/enable", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.enableUser.Handle(),
+	}))
+
+	router.DELETE("/:userID/disable", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.disableUser.Handle(),
 	}))
 }
 

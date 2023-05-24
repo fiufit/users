@@ -20,6 +20,8 @@ type Firebase interface {
 	Register(ctx context.Context, req accounts.RegisterRequest) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
 	GetUserPictureUrl(ctx context.Context, userID string) string
+	EnableUser(ctx context.Context, userID string) error
+	DisableUser(ctx context.Context, userID string) error
 }
 
 type FirebaseRepository struct {
@@ -65,6 +67,38 @@ func NewFirebaseRepository(logger *zap.Logger, sdkJson []byte, storageBucketName
 
 func (repo FirebaseRepository) DeleteUser(ctx context.Context, userID string) error {
 	return repo.auth.DeleteUser(ctx, userID)
+}
+
+func (repo FirebaseRepository) DisableUser(ctx context.Context, userID string) error {
+	usr, err := repo.auth.GetUser(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if usr.Disabled == true {
+		return contracts.ErrUserAlreadyDisabled
+	}
+	updateUserParams := (&auth.UserToUpdate{}).Disabled(true)
+	_, err = repo.auth.UpdateUser(ctx, userID, updateUserParams)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo FirebaseRepository) EnableUser(ctx context.Context, userID string) error {
+	usr, err := repo.auth.GetUser(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if usr.Disabled == false {
+		return contracts.ErrUserNotDisabled
+	}
+	updateUserParams := (&auth.UserToUpdate{}).Disabled(false)
+	_, err = repo.auth.UpdateUser(ctx, userID, updateUserParams)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (repo FirebaseRepository) Register(ctx context.Context, req accounts.RegisterRequest) (string, error) {
