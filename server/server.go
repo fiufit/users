@@ -31,6 +31,8 @@ type Server struct {
 	unfollowUser     handlers.UnfollowUser
 	getUserFollowers handlers.GetUserFollowers
 	getFollowedUsers handlers.GetFollowedUsers
+	enableUser       handlers.EnableUser
+	disableUser      handlers.DisableUser
 }
 
 func (s *Server) Run() {
@@ -87,6 +89,7 @@ func NewServer() *Server {
 	updateUserUc := users.NewUserUpdaterImpl(userRepo, firebaseRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 	followUserUc := users.NewUserFollowerImpl(userRepo)
+	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -103,6 +106,8 @@ func NewServer() *Server {
 	unfollowUser := handlers.NewUnfollowUser(&followUserUc, logger)
 	getUserFollowers := handlers.NewGetUserFollowers(&getUserUc, logger)
 	getFollowedUsers := handlers.NewGetFollowedUsers(&getUserUc, logger)
+	enableUser := handlers.NewEnableUser(&enableUserUc, logger)
+	disableUser := handlers.NewDisableUser(&enableUserUc, logger)
 
 	return &Server{
 		router:           gin.Default(),
@@ -118,5 +123,7 @@ func NewServer() *Server {
 		unfollowUser:     unfollowUser,
 		getUserFollowers: getUserFollowers,
 		getFollowedUsers: getFollowedUsers,
+		enableUser:       enableUser,
+		disableUser:      disableUser,
 	}
 }
