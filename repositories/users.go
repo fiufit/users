@@ -54,7 +54,7 @@ func (repo UserRepository) CreateUser(ctx context.Context, user models.User) (mo
 func (repo UserRepository) GetByID(ctx context.Context, userID string) (models.User, error) {
 	db := repo.db.WithContext(ctx)
 	var usr models.User
-	result := db.First(&usr, "id = ?", userID)
+	result := db.Preload("Interests").First(&usr, "id = ?", userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return models.User{}, contracts.ErrUserNotFound
@@ -106,7 +106,7 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 		db = db.Where("LOWER(display_name) LIKE ? OR LOWER(nickname) LIKE ?", likeName, likeName)
 	}
 
-	result := db.Scopes(database.Paginate(res, &req.Pagination, db)).Find(&res)
+	result := db.Scopes(database.Paginate(res, &req.Pagination, db)).Preload("Interests").Find(&res)
 	if result.Error != nil {
 		repo.logger.Error("Unable to get users with pagination", zap.Error(result.Error), zap.Any("request", req))
 		return ucontracts.GetUsersResponse{}, result.Error
@@ -118,7 +118,7 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (models.User, error) {
 	db := repo.db.WithContext(ctx)
 	var usr models.User
-	result := db.Where("nickname = ?", nickname).First(&usr)
+	result := db.Where("nickname = ?", nickname).Preload("Interests").First(&usr)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
