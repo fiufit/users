@@ -33,6 +33,9 @@ func (uc UserEnablerImpl) EnableUser(ctx context.Context, userID string) error {
 	}
 	usr.Disabled = false
 	_, err = uc.users.Update(ctx, usr)
+	if err != nil {
+		uc.logger.Error("Unable to fully enable user", zap.Error(err), zap.Any("user", userID))
+	}
 	return err
 }
 
@@ -47,5 +50,8 @@ func (uc UserEnablerImpl) DisableUser(ctx context.Context, userID string) error 
 	}
 	usr.Disabled = true
 	_, err = uc.users.Update(ctx, usr)
+	if err != nil {
+		uc.logger.Error("Unable to fully disable user", zap.Error(err), zap.Any("user", userID))
+	}
 	return err
 }
