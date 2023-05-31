@@ -23,17 +23,29 @@ func NewUserEnablerImpl(users repositories.Users, firebase repositories.Firebase
 }
 
 func (uc UserEnablerImpl) EnableUser(ctx context.Context, userID string) error {
-	_, err := uc.users.GetByID(ctx, userID)
+	usr, err := uc.users.GetByID(ctx, userID)
 	if err != nil {
 		return err
 	}
-	return uc.firebase.EnableUser(ctx, userID)
+	err = uc.firebase.EnableUser(ctx, userID)
+	if err != nil {
+		return err
+	}
+	usr.Disabled = false
+	_, err = uc.users.Update(ctx, usr)
+	return err
 }
 
 func (uc UserEnablerImpl) DisableUser(ctx context.Context, userID string) error {
-	_, err := uc.users.GetByID(ctx, userID)
+	usr, err := uc.users.GetByID(ctx, userID)
 	if err != nil {
 		return err
 	}
-	return uc.firebase.DisableUser(ctx, userID)
+	err = uc.firebase.DisableUser(ctx, userID)
+	if err != nil {
+		return err
+	}
+	usr.Disabled = true
+	_, err = uc.users.Update(ctx, usr)
+	return err
 }

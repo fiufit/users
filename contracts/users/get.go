@@ -10,6 +10,7 @@ type GetUsersRequest struct {
 	Nickname   string `form:"nickname"`
 	Location   string `form:"location"`
 	IsVerified *bool  `form:"is_verified"`
+	Disabled   *bool  `form:"disabled"`
 	contracts.Pagination
 }
 

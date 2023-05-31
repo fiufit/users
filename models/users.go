@@ -20,6 +20,7 @@ type User struct {
 	Followers         []User     `gorm:"many2many:user_followers"`
 	MainLocation      string     `gorm:"not null"`
 	Interests         []Interest `gorm:"many2many:user_interests"`
+	Disabled          bool       `gorm:"not null"`
 	PictureUrl        string     `gorm:"-"`
 }
 

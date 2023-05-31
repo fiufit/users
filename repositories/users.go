@@ -100,7 +100,9 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 	if req.IsVerified != nil {
 		db = db.Where("is_verified_trainer = ?", *req.IsVerified)
 	}
-
+	if req.Disabled != nil {
+		db = db.Where("disabled = ?", *req.Disabled)
+	}
 	if req.Name != "" {
 		likeName := fmt.Sprintf("%v%%", strings.ToLower(req.Name))
 		db = db.Where("LOWER(display_name) LIKE ? OR LOWER(nickname) LIKE ?", likeName, likeName)
