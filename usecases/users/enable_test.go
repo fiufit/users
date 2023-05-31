@@ -21,6 +21,8 @@ func TestEnableUserOk(t *testing.T) {
 
 	firebaseRepo.On("EnableUser", ctx, uid).Return(nil)
 	userRepo.On("GetByID", ctx, uid).Return(user, nil)
+	user.Disabled = false
+	userRepo.On("Update", ctx, user).Return(user, nil)
 	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
 	err := enableUserUc.EnableUser(ctx, uid)
 
@@ -67,6 +69,8 @@ func TestDisableUserOk(t *testing.T) {
 
 	firebaseRepo.On("DisableUser", ctx, uid).Return(nil)
 	userRepo.On("GetByID", ctx, uid).Return(user, nil)
+	user.Disabled = true
+	userRepo.On("Update", ctx, user).Return(user, nil)
 	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
 	err := enableUserUc.DisableUser(ctx, uid)
 
