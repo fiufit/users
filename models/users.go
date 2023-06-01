@@ -18,8 +18,8 @@ type User struct {
 	Weight            uint       `gorm:"not null"`
 	IsVerifiedTrainer bool       `gorm:"not null;default:false"`
 	Followers         []User     `gorm:"many2many:user_followers"`
-	Latitude          float32    `gorm:"not null"`
-	Longitude         float32    `gorm:"not null"`
+	Latitude          float64    `gorm:"not null"`
+	Longitude         float64    `gorm:"not null"`
 	Interests         []Interest `gorm:"many2many:user_interests"`
 	Disabled          bool       `gorm:"not null"`
 	PictureUrl        string     `gorm:"-"`

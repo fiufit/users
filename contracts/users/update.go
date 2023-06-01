@@ -14,8 +14,8 @@ type UpdateUserRequest struct {
 	BirthDate       time.Time         `json:"birth_date" `
 	Height          uint              `json:"height" `
 	Weight          uint              `json:"weight" `
-	Latitude        float32           `json:"latitude"`
-	Longitude       float32           `json:"longitude"`
+	Latitude        float64           `json:"latitude"`
+	Longitude       float64           `json:"longitude"`
 	InterestStrings []string          `json:"interests"`
 	Interests       []models.Interest `json:"-"`
 }

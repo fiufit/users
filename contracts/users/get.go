@@ -15,8 +15,8 @@ type GetUsersRequest struct {
 
 type GetClosestUsersRequest struct {
 	UserID    string
-	Latitude  float32
-	Longitude float32
+	Latitude  float64
+	Longitude float64
 	Distance  uint `form:"distance" binding:"required"`
 	contracts.Pagination
 }
