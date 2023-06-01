@@ -140,6 +140,30 @@ func (_m *Users) GetByNickname(ctx context.Context, nickname string) (models.Use
 	return r0, r1
 }
 
+// GetClosest provides a mock function with given fields: ctx, req
+func (_m *Users) GetClosest(ctx context.Context, req users.GetClosestUsersRequest) (users.GetUsersResponse, error) {
+	ret := _m.Called(ctx, req)
+
+	var r0 users.GetUsersResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, users.GetClosestUsersRequest) (users.GetUsersResponse, error)); ok {
+		return rf(ctx, req)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, users.GetClosestUsersRequest) users.GetUsersResponse); ok {
+		r0 = rf(ctx, req)
+	} else {
+		r0 = ret.Get(0).(users.GetUsersResponse)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, users.GetClosestUsersRequest) error); ok {
+		r1 = rf(ctx, req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetFollowed provides a mock function with given fields: ctx, req
 func (_m *Users) GetFollowed(ctx context.Context, req users.GetFollowedUsersRequest) (users.GetFollowedUsersResponse, error) {
 	ret := _m.Called(ctx, req)

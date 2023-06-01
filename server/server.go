@@ -33,6 +33,7 @@ type Server struct {
 	getFollowedUsers handlers.GetFollowedUsers
 	enableUser       handlers.EnableUser
 	disableUser      handlers.DisableUser
+	getClosestUsers  handlers.GetClosestUsers
 }
 
 func (s *Server) Run() {
@@ -99,6 +100,7 @@ func NewServer() *Server {
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
 	getUsers := handlers.NewGetUsers(&getUserUc, logger)
+	getClosestUsers := handlers.NewGetClosestUsers(&getUserUc, logger)
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 
@@ -125,5 +127,6 @@ func NewServer() *Server {
 		getFollowedUsers: getFollowedUsers,
 		enableUser:       enableUser,
 		disableUser:      disableUser,
+		getClosestUsers:  getClosestUsers,
 	}
 }

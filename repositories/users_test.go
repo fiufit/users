@@ -252,9 +252,9 @@ func TestUserRepository_Get_OK(t *testing.T) {
 	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
 
 	testUsers := [7]models.User{
-		models.User{ID: "a", Nickname: "Guille", MainLocation: "Argentina"},
-		models.User{ID: "b", Nickname: "Goye", DisplayName: "Arnie", MainLocation: "Argelia"},
-		models.User{ID: "c", Nickname: "Guillermo", MainLocation: "Argelia"},
+		models.User{ID: "a", Nickname: "Guille"},
+		models.User{ID: "b", Nickname: "Goye", DisplayName: "Arnie"},
+		models.User{ID: "c", Nickname: "Guillermo"},
 		models.User{ID: "d", Nickname: "Bob"},
 		models.User{ID: "e", Nickname: "Arnold", IsVerifiedTrainer: true},
 		models.User{ID: "f", Nickname: "Arnolda"},
@@ -273,11 +273,6 @@ func TestUserRepository_Get_OK(t *testing.T) {
 	auxFalse := false //lol, we have to do this to mock a request with a pointer to bool
 
 	for _, tcase := range []testCase{
-		{
-			description: "GetWithLocationLikeArg",
-			expectedIDs: []string{"a", "b", "c"},
-			req:         users.GetUsersRequest{Location: "Arg"},
-		},
 		{
 			description: "GetWithVerifiedTrue",
 			expectedIDs: []string{"e", "g"},

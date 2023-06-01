@@ -18,7 +18,8 @@ type User struct {
 	Weight            uint       `gorm:"not null"`
 	IsVerifiedTrainer bool       `gorm:"not null;default:false"`
 	Followers         []User     `gorm:"many2many:user_followers"`
-	MainLocation      string     `gorm:"not null"`
+	Latitude          float32    `gorm:"not null"`
+	Longitude         float32    `gorm:"not null"`
 	Interests         []Interest `gorm:"many2many:user_interests"`
 	Disabled          bool       `gorm:"not null"`
 	PictureUrl        string     `gorm:"-"`
@@ -26,12 +27,11 @@ type User struct {
 
 func (u User) ToPublicView() map[string]interface{} {
 	return map[string]interface{}{
-		"id":            u.ID,
-		"nickname":      u.Nickname,
-		"display_name":  u.DisplayName,
-		"is_male":       u.IsMale,
-		"is_verified":   u.IsVerifiedTrainer,
-		"main_location": u.MainLocation,
+		"id":           u.ID,
+		"nickname":     u.Nickname,
+		"display_name": u.DisplayName,
+		"is_male":      u.IsMale,
+		"is_verified":  u.IsVerifiedTrainer,
 	}
 }
 

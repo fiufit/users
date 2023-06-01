@@ -46,7 +46,8 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.Finis
 		Height:            req.Height,
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
-		MainLocation:      req.MainLocation,
+		Latitude:          req.Latitude,
+		Longitude:         req.Longitude,
 		Interests:         req.Interests,
 	}
 	createdUser, err := uc.users.CreateUser(ctx, usr)

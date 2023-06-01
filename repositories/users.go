@@ -19,6 +19,7 @@ type Users interface {
 	GetByID(ctx context.Context, userID string) (models.User, error)
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)
 	Get(ctx context.Context, req ucontracts.GetUsersRequest) (ucontracts.GetUsersResponse, error)
+	GetClosest(ctx context.Context, req ucontracts.GetClosestUsersRequest) (ucontracts.GetUsersResponse, error)
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
@@ -93,10 +94,6 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 	var res []models.User
 	db := repo.db.WithContext(ctx)
 
-	if req.Location != "" {
-		likeLocation := fmt.Sprintf("%%%v%%", req.Location)
-		db = db.Where("LOWER(main_location) LIKE LOWER(?)", likeLocation)
-	}
 	if req.IsVerified != nil {
 		db = db.Where("is_verified_trainer = ?", *req.IsVerified)
 	}
@@ -131,6 +128,24 @@ func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (
 	}
 
 	return usr, nil
+}
+
+func (repo UserRepository) GetClosest(ctx context.Context, req ucontracts.GetClosestUsersRequest) (ucontracts.GetUsersResponse, error) {
+	db := repo.db.WithContext(ctx)
+	var closestUsers []models.User
+	result := db.
+		Scopes(database.Paginate(closestUsers, &req.Pagination, db)).
+		Where("earth_distance(ll_to_earth(?, ?), ll_to_earth(users.latitude, users.longitude)) <= ?", req.Latitude, req.Longitude, req.Distance*1000).
+		Preload("Interests").
+		Find(&closestUsers)
+
+	if result.Error != nil {
+		repo.logger.Error("Unable to get closest users with pagination", zap.Error(result.Error), zap.Any("request", req))
+		return ucontracts.GetUsersResponse{}, result.Error
+	}
+
+	return ucontracts.GetUsersResponse{Users: closestUsers, Pagination: req.Pagination}, nil
+
 }
 
 func (repo UserRepository) Update(ctx context.Context, user models.User) (models.User, error) {

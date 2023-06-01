@@ -142,20 +142,18 @@ func TestPatchUserModelOk(t *testing.T) {
 		Height:            100,
 		Weight:            100,
 		IsVerifiedTrainer: false,
-		MainLocation:      "Argentina",
 		Interests:         nil,
 	}
 
 	isMale := false
 	req := users.UpdateUserRequest{
-		ID:           userID,
-		Nickname:     "Arnold2",
-		DisplayName:  "Arnie",
-		IsMale:       &isMale,
-		BirthDate:    time.Now().Add(1),
-		Weight:       200,
-		Height:       200,
-		MainLocation: "USA",
+		ID:          userID,
+		Nickname:    "Arnold2",
+		DisplayName: "Arnie",
+		IsMale:      &isMale,
+		BirthDate:   time.Now().Add(1),
+		Weight:      200,
+		Height:      200,
 	}
 
 	firebaseRepo.On("GetUserPictureUrl", ctx, userID).Return("aHR0cHM6Ly9zaG9ydHVybC5hdC9mcHRXNg==")
@@ -170,7 +168,6 @@ func TestPatchUserModelOk(t *testing.T) {
 	assert.Equal(t, updatedUser.BornAt, req.BirthDate)
 	assert.Equal(t, updatedUser.Weight, req.Weight)
 	assert.Equal(t, updatedUser.Height, req.Height)
-	assert.Equal(t, updatedUser.MainLocation, req.MainLocation)
 }
 
 func TestPatchUserModelRepoError(t *testing.T) {

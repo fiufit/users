@@ -80,8 +80,12 @@ func (uc *UserUpdaterImpl) patchUserModel(ctx context.Context, user models.User,
 		user.Height = req.Height
 	}
 
-	if req.MainLocation != "" {
-		user.MainLocation = req.MainLocation
+	if req.Latitude != 0 {
+		user.Latitude = req.Latitude
+	}
+
+	if req.Longitude != 0 {
+		user.Longitude = req.Longitude
 	}
 
 	return user, nil
