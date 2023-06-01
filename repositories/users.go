@@ -135,7 +135,7 @@ func (repo UserRepository) GetClosest(ctx context.Context, req ucontracts.GetClo
 	var closestUsers []models.User
 	result := db.
 		Scopes(database.Paginate(closestUsers, &req.Pagination, db)).
-		Where("earth_distance(ll_to_earth(?, ?), ll_to_earth(users.latitude, users.longitude)) <= ?", req.Latitude, req.Longitude, req.Distance*1000).
+		Where("earth_distance(ll_to_earth(?, ?), ll_to_earth(users.latitude, users.longitude)) <= ? AND users.ID != ?", req.Latitude, req.Longitude, req.Distance*1000, req.UserID).
 		Preload("Interests").
 		Find(&closestUsers)
 
