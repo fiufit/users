@@ -11,6 +11,7 @@ SMTP_NAME=your-smpt-name
 SMTP_PASSWORD=your-smpt-password
 SMTP_PORT=587
 SMTP_USER=yoursmtpuser@mail.com
+METRICS_SERVICE_URL=yourmetricsservice.com
 FIREBASE_BUCKET_NAME=yourproject.appspot.com
 FIREBASE_B64_SDK_JSON=b64encodedFirebaseJsonSDKCredentials
 PRIV_RSA_B64=b64encodedPrivateRSAKey
