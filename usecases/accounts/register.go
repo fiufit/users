@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/fiufit/users/contracts/accounts"
+	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
 	"go.uber.org/zap"
@@ -16,13 +17,14 @@ type Registerer interface {
 }
 
 type RegistererImpl struct {
-	users  repositories.Users
-	logger *zap.Logger
-	auth   repositories.Firebase
+	users   repositories.Users
+	metrics repositories.Metrics
+	logger  *zap.Logger
+	auth    repositories.Firebase
 }
 
-func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth repositories.Firebase) RegistererImpl {
-	return RegistererImpl{users: users, logger: logger, auth: auth}
+func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth repositories.Firebase, metrics repositories.Metrics) RegistererImpl {
+	return RegistererImpl{users: users, metrics: metrics, logger: logger, auth: auth}
 }
 
 func (uc *RegistererImpl) Register(ctx context.Context, req accounts.RegisterRequest) (accounts.RegisterResponse, error) {
@@ -50,5 +52,15 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.Finis
 		Interests:         req.Interests,
 	}
 	createdUser, err := uc.users.CreateUser(ctx, usr)
-	return accounts.FinishRegisterResponse{User: createdUser}, err
+	if err != nil {
+		return accounts.FinishRegisterResponse{}, err
+	}
+
+	metricReq := metrics.CreateMetricRequest{
+		MetricType: "register",
+		SubType:    req.Method,
+	}
+	uc.metrics.Create(ctx, metricReq)
+
+	return accounts.FinishRegisterResponse{User: createdUser}, nil
 }
