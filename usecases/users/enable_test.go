@@ -23,7 +23,7 @@ func TestEnableUserOk(t *testing.T) {
 	userRepo.On("GetByID", ctx, uid).Return(user, nil)
 	user.Disabled = false
 	userRepo.On("Update", ctx, user).Return(user, nil)
-	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
+	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, new(mocks.Metrics), zaptest.NewLogger(t))
 	err := enableUserUc.EnableUser(ctx, uid)
 
 	assert.NoError(t, err)
@@ -39,7 +39,7 @@ func TestEnableUserError(t *testing.T) {
 
 	firebaseRepo.On("EnableUser", ctx, uid).Return(contracts.ErrUserNotDisabled)
 	userRepo.On("GetByID", ctx, uid).Return(user, nil)
-	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
+	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, new(mocks.Metrics), zaptest.NewLogger(t))
 	err := enableUserUc.EnableUser(ctx, uid)
 
 	assert.Error(t, err)
@@ -53,7 +53,7 @@ func TestEnableUserNotFoundError(t *testing.T) {
 	firebaseRepo := new(mocks.Firebase)
 
 	userRepo.On("GetByID", ctx, uid).Return(models.User{}, contracts.ErrUserNotFound)
-	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
+	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, new(mocks.Metrics), zaptest.NewLogger(t))
 	err := enableUserUc.EnableUser(ctx, uid)
 
 	assert.Error(t, err)
@@ -71,7 +71,7 @@ func TestDisableUserOk(t *testing.T) {
 	userRepo.On("GetByID", ctx, uid).Return(user, nil)
 	user.Disabled = true
 	userRepo.On("Update", ctx, user).Return(user, nil)
-	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
+	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, new(mocks.Metrics), zaptest.NewLogger(t))
 	err := enableUserUc.DisableUser(ctx, uid)
 
 	assert.NoError(t, err)
@@ -87,7 +87,7 @@ func TestDisableUserError(t *testing.T) {
 
 	firebaseRepo.On("DisableUser", ctx, uid).Return(contracts.ErrUserAlreadyDisabled)
 	userRepo.On("GetByID", ctx, uid).Return(user, nil)
-	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
+	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, new(mocks.Metrics), zaptest.NewLogger(t))
 	err := enableUserUc.DisableUser(ctx, uid)
 
 	assert.Error(t, err)
@@ -101,7 +101,7 @@ func TestDisableUserNotFoundError(t *testing.T) {
 	firebaseRepo := new(mocks.Firebase)
 
 	userRepo.On("GetByID", ctx, uid).Return(models.User{}, contracts.ErrUserNotFound)
-	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, zaptest.NewLogger(t))
+	enableUserUc := NewUserEnablerImpl(userRepo, firebaseRepo, new(mocks.Metrics), zaptest.NewLogger(t))
 	err := enableUserUc.DisableUser(ctx, uid)
 
 	assert.Error(t, err)

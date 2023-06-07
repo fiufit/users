@@ -26,7 +26,7 @@ func TestRegisterOk(t *testing.T) {
 	userRepo := new(mocks.Users)
 
 	firebaseRepo.On("Register", ctx, req).Return(uid, nil)
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, new(mocks.Metrics))
 	res, err := registerUc.Register(ctx, req)
 
 	assert.NoError(t, err)
@@ -45,7 +45,7 @@ func TestRegisterError(t *testing.T) {
 
 	firebaseRepo.On("Register", ctx, req).Return("", errors.New("repo error"))
 
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, new(mocks.Metrics))
 	res, err := registerUc.Register(ctx, req)
 
 	assert.Equal(t, res.UserID, "")
@@ -93,7 +93,7 @@ func TestFinishRegisterOk(t *testing.T) {
 		return creationDate
 	})
 	userRepo.On("CreateUser", ctx, usr).Return(usr, nil)
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, new(mocks.Metrics))
 	res, err := registerUc.FinishRegister(ctx, req)
 
 	assert.NoError(t, err)
@@ -138,7 +138,7 @@ func TestFinishRegisterError(t *testing.T) {
 	})
 
 	userRepo.On("CreateUser", ctx, usr).Return(models.User{}, errors.New("repo error"))
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, new(mocks.Metrics))
 	res, err := registerUc.FinishRegister(ctx, req)
 
 	assert.Equal(t, res.User, models.User{})
