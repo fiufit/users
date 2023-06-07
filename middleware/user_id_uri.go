@@ -17,7 +17,7 @@ func BindUserIDFromUri() gin.HandlerFunc {
 		err := ctx.ShouldBindUri(&u)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
-			return
+			ctx.Abort()
 		}
 		ctx.Set("userID", u.UserID)
 	}
