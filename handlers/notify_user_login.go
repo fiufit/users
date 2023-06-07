@@ -22,7 +22,8 @@ func (h NotifyUserLogin) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req accounts.NotifyLoginMethodRequest
 		err := ctx.ShouldBindQuery(&req)
-		if err != nil {
+		validateErr := accounts.ValidateMethod(req.Method)
+		if err != nil || validateErr != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
 			return
 		}
