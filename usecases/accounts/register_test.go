@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/fiufit/users/contracts/accounts"
+	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories/mocks"
 	"github.com/stretchr/testify/assert"
@@ -24,9 +25,10 @@ func TestRegisterOk(t *testing.T) {
 	}
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
+	metricsRepo := new(mocks.Metrics)
 
 	firebaseRepo.On("Register", ctx, req).Return(uid, nil)
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
 	res, err := registerUc.Register(ctx, req)
 
 	assert.NoError(t, err)
@@ -42,10 +44,11 @@ func TestRegisterError(t *testing.T) {
 	}
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
+	metricsRepo := new(mocks.Metrics)
 
 	firebaseRepo.On("Register", ctx, req).Return("", errors.New("repo error"))
 
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
 	res, err := registerUc.Register(ctx, req)
 
 	assert.Equal(t, res.UserID, "")
@@ -88,12 +91,18 @@ func TestFinishRegisterOk(t *testing.T) {
 	}
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
+	metricsRepo := new(mocks.Metrics)
+	metricsReq := metrics.CreateMetricRequest{
+		MetricType: "register",
+		SubType:    req.Method,
+	}
+	metricsRepo.On("Create", ctx, metricsReq)
 
 	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
 	})
 	userRepo.On("CreateUser", ctx, usr).Return(usr, nil)
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
 	res, err := registerUc.FinishRegister(ctx, req)
 
 	assert.NoError(t, err)
@@ -132,13 +141,14 @@ func TestFinishRegisterError(t *testing.T) {
 
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
+	metricsRepo := new(mocks.Metrics)
 
 	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
 	})
 
 	userRepo.On("CreateUser", ctx, usr).Return(models.User{}, errors.New("repo error"))
-	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo)
+	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
 	res, err := registerUc.FinishRegister(ctx, req)
 
 	assert.Equal(t, res.User, models.User{})

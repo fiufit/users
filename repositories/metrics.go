@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//go:generate mockery --name Metrics
 type Metrics interface {
 	Create(ctx context.Context, req metrics.CreateMetricRequest)
 }
