@@ -27,6 +27,7 @@ type FinishRegisterRequest struct {
 	Longitude       float64           `json:"longitude" binding:"required"`
 	InterestStrings []string          `json:"interests"`
 	Interests       []models.Interest `json:"-"`
+	Method          string            `json:"method"`
 }
 
 func (req *FinishRegisterRequest) Validate() error {
@@ -34,6 +35,11 @@ func (req *FinishRegisterRequest) Validate() error {
 	if err != nil {
 		return err
 	}
+	err = ValidateMethod(req.Method)
+	if err != nil {
+		return err
+	}
+
 	req.Interests = interests
 	return nil
 }

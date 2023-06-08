@@ -17,23 +17,24 @@ import (
 )
 
 type Server struct {
-	router *gin.Engine
-
-	register         handlers.Register
-	finishRegister   handlers.FinishRegister
-	adminRegister    handlers.AdminRegister
-	adminLogin       handlers.AdminLogin
-	getUserByID      handlers.GetUserByID
-	getUsers         handlers.GetUsers
-	updateUser       handlers.UpdateUser
-	deleteUser       handlers.DeleteUser
-	followUser       handlers.FollowUser
-	unfollowUser     handlers.UnfollowUser
-	getUserFollowers handlers.GetUserFollowers
-	getFollowedUsers handlers.GetFollowedUsers
-	enableUser       handlers.EnableUser
-	disableUser      handlers.DisableUser
-	getClosestUsers  handlers.GetClosestUsers
+	router                *gin.Engine
+	register              handlers.Register
+	finishRegister        handlers.FinishRegister
+	adminRegister         handlers.AdminRegister
+	adminLogin            handlers.AdminLogin
+	getUserByID           handlers.GetUserByID
+	getUsers              handlers.GetUsers
+	updateUser            handlers.UpdateUser
+	deleteUser            handlers.DeleteUser
+	followUser            handlers.FollowUser
+	unfollowUser          handlers.UnfollowUser
+	getUserFollowers      handlers.GetUserFollowers
+	getFollowedUsers      handlers.GetFollowedUsers
+	enableUser            handlers.EnableUser
+	disableUser           handlers.DisableUser
+	notifyUserLogin       handlers.NotifyUserLogin
+	notifyPasswordRecover handlers.NotifyPasswordRecover
+	getClosestUsers       handlers.GetClosestUsers
 }
 
 func (s *Server) Run() {
@@ -76,6 +77,7 @@ func NewServer() *Server {
 	}
 
 	reverseLocator, _ := utils.NewReverseLocator()
+	metricsUrl := os.Getenv("METRICS_SERVICE_URL")
 
 	// REPOSITORIES
 	firebaseRepo, err := repositories.NewFirebaseRepository(logger, sdkJson, os.Getenv("FIREBASE_BUCKET_NAME"))
@@ -84,15 +86,16 @@ func NewServer() *Server {
 	}
 	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo, reverseLocator)
 	adminRepo := repositories.NewAdminRepository(db, logger)
+	metricsRepo := repositories.NewMetricsRepository(metricsUrl, "v1", logger)
 
 	// USECASES
-	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo)
+	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo, metricsRepo)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 	getUserUc := users.NewUserGetterImpl(userRepo, firebaseRepo, logger)
 	updateUserUc := users.NewUserUpdaterImpl(userRepo, firebaseRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 	followUserUc := users.NewUserFollowerImpl(userRepo)
-	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, logger)
+	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, metricsRepo, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -112,23 +115,27 @@ func NewServer() *Server {
 	getFollowedUsers := handlers.NewGetFollowedUsers(&getUserUc, logger)
 	enableUser := handlers.NewEnableUser(&enableUserUc, logger)
 	disableUser := handlers.NewDisableUser(&enableUserUc, logger)
+	notifyPasswordRecover := handlers.NewNotifyPasswordRecover(metricsRepo)
+	notifyUserLogin := handlers.NewNotifyUserLogin(metricsRepo)
 
 	return &Server{
-		router:           gin.Default(),
-		register:         register,
-		finishRegister:   finishRegister,
-		adminRegister:    adminRegister,
-		adminLogin:       adminLogin,
-		getUserByID:      getUserByID,
-		getUsers:         getUsers,
-		updateUser:       updateUser,
-		deleteUser:       deleteUser,
-		followUser:       followUser,
-		unfollowUser:     unfollowUser,
-		getUserFollowers: getUserFollowers,
-		getFollowedUsers: getFollowedUsers,
-		enableUser:       enableUser,
-		disableUser:      disableUser,
-		getClosestUsers:  getClosestUsers,
+		router:                gin.Default(),
+		register:              register,
+		finishRegister:        finishRegister,
+		adminRegister:         adminRegister,
+		adminLogin:            adminLogin,
+		getUserByID:           getUserByID,
+		getUsers:              getUsers,
+		updateUser:            updateUser,
+		deleteUser:            deleteUser,
+		followUser:            followUser,
+		unfollowUser:          unfollowUser,
+		getUserFollowers:      getUserFollowers,
+		getFollowedUsers:      getFollowedUsers,
+		enableUser:            enableUser,
+		disableUser:           disableUser,
+		getClosestUsers:       getClosestUsers,
+		notifyUserLogin:       notifyUserLogin,
+		notifyPasswordRecover: notifyPasswordRecover,
 	}
 }

@@ -75,6 +75,14 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.DELETE("/:userID/disable", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.disableUser.Handle(),
 	}))
+
+	router.POST("/password-recover", middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.notifyPasswordRecover.Handle(),
+	}))
+
+	router.POST("/login", middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.notifyUserLogin.Handle(),
+	}))
 }
 
 func (s *Server) InitAdminRoutes(router *gin.RouterGroup) {
