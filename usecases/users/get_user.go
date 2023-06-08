@@ -71,7 +71,7 @@ func (uc *UserGetterImpl) GetClosestUsers(ctx context.Context, req users.GetClos
 	req.Latitude = usr.Latitude
 	req.Longitude = usr.Longitude
 
-	res, err := uc.users.GetClosest(ctx, req)
+	res, err := uc.users.GetByDistance(ctx, req)
 	if err != nil {
 		return res, err
 	}

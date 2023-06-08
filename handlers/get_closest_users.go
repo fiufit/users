@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
-	users2 "github.com/fiufit/users/contracts/users"
+	uContracts "github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/usecases/users"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -22,7 +22,7 @@ func NewGetClosestUsers(users users.UserGetter, logger *zap.Logger) GetClosestUs
 
 func (h GetClosestUsers) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req users2.GetClosestUsersRequest
+		var req uContracts.GetClosestUsersRequest
 		err := ctx.ShouldBindQuery(&req)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))

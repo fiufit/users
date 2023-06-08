@@ -75,12 +75,14 @@ func NewServer() *Server {
 		panic(err)
 	}
 
+	reverseLocator, _ := utils.NewReverseLocator()
+
 	// REPOSITORIES
 	firebaseRepo, err := repositories.NewFirebaseRepository(logger, sdkJson, os.Getenv("FIREBASE_BUCKET_NAME"))
 	if err != nil {
 		panic(err)
 	}
-	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo)
+	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo, reverseLocator)
 	adminRepo := repositories.NewAdminRepository(db, logger)
 
 	// USECASES
