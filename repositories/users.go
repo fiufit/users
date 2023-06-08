@@ -141,6 +141,8 @@ func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (
 func (repo UserRepository) GetByDistance(ctx context.Context, req ucontracts.GetClosestUsersRequest) (ucontracts.GetUsersResponse, error) {
 	db := repo.db.WithContext(ctx)
 	var closestUsers []models.User
+
+	// TODO: Find out how to order by earthdistance too using gorm
 	result := db.
 		Scopes(database.Paginate(closestUsers, &req.Pagination, db)).
 		Where("earth_distance(ll_to_earth(?, ?), ll_to_earth(users.latitude, users.longitude)) <= ? AND users.ID != ?", req.Latitude, req.Longitude, req.Distance*1000, req.UserID).
