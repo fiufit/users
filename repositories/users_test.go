@@ -9,6 +9,7 @@ import (
 	"github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories/mocks"
+	"github.com/fiufit/users/utils"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
 	"gorm.io/gorm"
@@ -18,7 +19,8 @@ func TestUserRepository_CreateUser_DBError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{}
 
 	_ = repo.db.AddError(errors.New("test error"))
@@ -32,7 +34,8 @@ func TestUserRepository_CreateUser_DuplicatedError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test"}
 
 	db.Create(&testUser)
@@ -46,7 +49,8 @@ func TestUserRepository_CreateUser_Ok(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test"}
 
 	_, err := repo.CreateUser(ctx, testUser)
@@ -61,7 +65,8 @@ func TestUserRepository_GetByID_DBError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test"}
 	_ = db.AddError(errors.New("test error"))
 
@@ -75,7 +80,8 @@ func TestUserRepository_GetByID_NotFoundError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test"}
 
 	_, err := repo.GetByID(ctx, testUser.ID)
@@ -87,7 +93,8 @@ func TestUserRepository_GetByID_OK(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test"}
 
 	db.Create(&testUser)
@@ -101,7 +108,8 @@ func TestUserRepository_GetByNickname_DBError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test", Nickname: "Arnold"}
 	_ = db.AddError(errors.New("test error"))
 
@@ -115,7 +123,8 @@ func TestUserRepository_GetByNickname_NotFoundError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test", Nickname: "Arnold"}
 
 	_, err := repo.GetByNickname(ctx, testUser.Nickname)
@@ -127,7 +136,8 @@ func TestUserRepository_GetByNickname_OK(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test", Nickname: "Arnold"}
 
 	db.Create(&testUser)
@@ -141,7 +151,8 @@ func TestUserRepository_Update_DBError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test", Nickname: "Arnold"}
 	_ = db.AddError(errors.New("test error"))
 
@@ -155,7 +166,8 @@ func TestUserRepository_Update_OK(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 	testUser := models.User{ID: "test", Nickname: "Arnold"}
 
 	db.Create(&testUser)
@@ -172,7 +184,8 @@ func TestUserRepository_DeleteUser_DBError(t *testing.T) {
 	ctx := context.Background()
 	db := testSuite.DB
 	fireBaseMock := new(mocks.Firebase)
-	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock)
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock, reverseLocator)
 	testUser := models.User{ID: "testUserID"}
 
 	_ = db.Create(&testUser)
@@ -194,7 +207,8 @@ func TestUserRepository_DeleteUser_FirebaseError(t *testing.T) {
 	ctx := context.Background()
 	db := testSuite.DB
 	fireBaseMock := new(mocks.Firebase)
-	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock)
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock, reverseLocator)
 	testUser := models.User{ID: "testUserID"}
 
 	fireBaseMock.On("DeleteUser", ctx, testUser.ID).Return(errors.New("test error"))
@@ -216,7 +230,8 @@ func TestUserRepository_DeleteUser_OK(t *testing.T) {
 	ctx := context.Background()
 	db := testSuite.DB
 	fireBaseMock := new(mocks.Firebase)
-	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock)
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), fireBaseMock, reverseLocator)
 	testUser := models.User{ID: "testID"}
 
 	_ = db.Create(&testUser)
@@ -234,7 +249,8 @@ func TestUserRepository_Get_DBError(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 
 	_ = db.AddError(errors.New("test error"))
 	testReq := users.GetUsersRequest{}
@@ -249,12 +265,13 @@ func TestUserRepository_Get_OK(t *testing.T) {
 	defer testSuite.TruncateModels()
 	ctx := context.Background()
 	db := testSuite.DB
-	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase))
+	reverseLocator, _ := utils.NewReverseLocator()
+	repo := NewUserRepository(db, zaptest.NewLogger(t), new(mocks.Firebase), reverseLocator)
 
 	testUsers := [7]models.User{
-		models.User{ID: "a", Nickname: "Guille", MainLocation: "Argentina"},
-		models.User{ID: "b", Nickname: "Goye", DisplayName: "Arnie", MainLocation: "Argelia"},
-		models.User{ID: "c", Nickname: "Guillermo", MainLocation: "Argelia"},
+		models.User{ID: "a", Nickname: "Guille"},
+		models.User{ID: "b", Nickname: "Goye", DisplayName: "Arnie"},
+		models.User{ID: "c", Nickname: "Guillermo"},
 		models.User{ID: "d", Nickname: "Bob"},
 		models.User{ID: "e", Nickname: "Arnold", IsVerifiedTrainer: true},
 		models.User{ID: "f", Nickname: "Arnolda"},
@@ -273,11 +290,6 @@ func TestUserRepository_Get_OK(t *testing.T) {
 	auxFalse := false //lol, we have to do this to mock a request with a pointer to bool
 
 	for _, tcase := range []testCase{
-		{
-			description: "GetWithLocationLikeArg",
-			expectedIDs: []string{"a", "b", "c"},
-			req:         users.GetUsersRequest{Location: "Arg"},
-		},
 		{
 			description: "GetWithVerifiedTrue",
 			expectedIDs: []string{"e", "g"},

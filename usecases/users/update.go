@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/fiufit/users/contracts"
+	"github.com/fiufit/users/contracts/metrics"
 	ucontracts "github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
@@ -16,11 +17,12 @@ type UserUpdater interface {
 
 type UserUpdaterImpl struct {
 	users    repositories.Users
+	metrics  repositories.Metrics
 	firebase repositories.Firebase
 }
 
-func NewUserUpdaterImpl(users repositories.Users, firebase repositories.Firebase) UserUpdaterImpl {
-	return UserUpdaterImpl{users: users, firebase: firebase}
+func NewUserUpdaterImpl(users repositories.Users, metrics repositories.Metrics, firebase repositories.Firebase) UserUpdaterImpl {
+	return UserUpdaterImpl{users: users, metrics: metrics, firebase: firebase}
 }
 
 func (uc *UserUpdaterImpl) UpdateUser(ctx context.Context, req ucontracts.UpdateUserRequest) (models.User, error) {
@@ -38,6 +40,14 @@ func (uc *UserUpdaterImpl) UpdateUser(ctx context.Context, req ucontracts.Update
 
 	if err != nil {
 		return models.User{}, err
+	}
+
+	if updatedUser.MainLocation != user.MainLocation {
+		locationMetricReq := metrics.CreateMetricRequest{
+			MetricType: "location",
+			SubType:    updatedUser.MainLocation,
+		}
+		uc.metrics.Create(ctx, locationMetricReq)
 	}
 
 	userPictureUrl := uc.firebase.GetUserPictureUrl(ctx, user.ID)
@@ -80,8 +90,9 @@ func (uc *UserUpdaterImpl) patchUserModel(ctx context.Context, user models.User,
 		user.Height = req.Height
 	}
 
-	if req.MainLocation != "" {
-		user.MainLocation = req.MainLocation
+	if req.Latitude != nil && req.Longitude != nil {
+		user.Latitude = *req.Latitude
+		user.Longitude = *req.Longitude
 	}
 
 	return user, nil

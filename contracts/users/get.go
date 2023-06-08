@@ -8,9 +8,16 @@ import (
 type GetUsersRequest struct {
 	Name       string `form:"name"`
 	Nickname   string `form:"nickname"`
-	Location   string `form:"location"`
 	IsVerified *bool  `form:"is_verified"`
 	Disabled   *bool  `form:"disabled"`
+	contracts.Pagination
+}
+
+type GetClosestUsersRequest struct {
+	UserID    string
+	Latitude  float64
+	Longitude float64
+	Distance  uint `form:"distance" binding:"required"`
 	contracts.Pagination
 }
 

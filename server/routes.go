@@ -64,6 +64,10 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 		"v1": s.getFollowedUsers.Handle(),
 	}))
 
+	router.GET("/:userID/closest", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getClosestUsers.Handle(),
+	}))
+
 	router.POST("/:userID/enable", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.enableUser.Handle(),
 	}))

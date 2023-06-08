@@ -65,15 +65,16 @@ func TestFinishRegisterOk(t *testing.T) {
 	ctx := context.Background()
 	birthDate := time.Now()
 	req := accounts.FinishRegisterRequest{
-		UserID:       "123456789",
-		Nickname:     "Nick Test",
-		DisplayName:  "Name Test",
-		IsMale:       newTrue(),
-		BirthDate:    birthDate,
-		Height:       180,
-		Weight:       80,
-		MainLocation: "Testland",
-		Interests:    []models.Interest{},
+		UserID:      "123456789",
+		Nickname:    "Nick Test",
+		DisplayName: "Name Test",
+		IsMale:      newTrue(),
+		BirthDate:   birthDate,
+		Height:      180,
+		Weight:      80,
+		Latitude:    50,
+		Longitude:   40,
+		Interests:   []models.Interest{},
 	}
 	creationDate := time.Now()
 	usr := models.User{
@@ -86,17 +87,25 @@ func TestFinishRegisterOk(t *testing.T) {
 		Height:            req.Height,
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
-		MainLocation:      req.MainLocation,
+		Latitude:          50,
+		Longitude:         40,
 		Interests:         req.Interests,
 	}
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
 	metricsRepo := new(mocks.Metrics)
-	metricsReq := metrics.CreateMetricRequest{
+
+	registerMetricReq := metrics.CreateMetricRequest{
 		MetricType: "register",
 		SubType:    req.Method,
 	}
-	metricsRepo.On("Create", ctx, metricsReq)
+	metricsRepo.On("Create", ctx, registerMetricReq)
+
+	locationMetricsReq := metrics.CreateMetricRequest{
+		MetricType: "location",
+		SubType:    usr.MainLocation,
+	}
+	metricsRepo.On("Create", ctx, locationMetricsReq)
 
 	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
@@ -114,15 +123,16 @@ func TestFinishRegisterError(t *testing.T) {
 	ctx := context.Background()
 	birthDate := time.Now()
 	req := accounts.FinishRegisterRequest{
-		UserID:       "123456789",
-		Nickname:     "Nick Test",
-		DisplayName:  "Name Test",
-		IsMale:       newTrue(),
-		BirthDate:    birthDate,
-		Height:       180,
-		Weight:       80,
-		MainLocation: "Testland",
-		Interests:    []models.Interest{},
+		UserID:      "123456789",
+		Nickname:    "Nick Test",
+		DisplayName: "Name Test",
+		IsMale:      newTrue(),
+		BirthDate:   birthDate,
+		Height:      180,
+		Weight:      80,
+		Latitude:    50,
+		Longitude:   40,
+		Interests:   []models.Interest{},
 	}
 	creationDate := time.Now()
 	usr := models.User{
@@ -135,7 +145,8 @@ func TestFinishRegisterError(t *testing.T) {
 		Height:            req.Height,
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
-		MainLocation:      req.MainLocation,
+		Latitude:          50,
+		Longitude:         40,
 		Interests:         req.Interests,
 	}
 

@@ -17,8 +17,7 @@ import (
 )
 
 type Server struct {
-	router *gin.Engine
-
+	router                *gin.Engine
 	register              handlers.Register
 	finishRegister        handlers.FinishRegister
 	adminRegister         handlers.AdminRegister
@@ -35,6 +34,7 @@ type Server struct {
 	disableUser           handlers.DisableUser
 	notifyUserLogin       handlers.NotifyUserLogin
 	notifyPasswordRecover handlers.NotifyPasswordRecover
+	getClosestUsers       handlers.GetClosestUsers
 }
 
 func (s *Server) Run() {
@@ -76,6 +76,7 @@ func NewServer() *Server {
 		panic(err)
 	}
 
+	reverseLocator, _ := utils.NewReverseLocator()
 	metricsUrl := os.Getenv("METRICS_SERVICE_URL")
 
 	// REPOSITORIES
@@ -83,7 +84,7 @@ func NewServer() *Server {
 	if err != nil {
 		panic(err)
 	}
-	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo)
+	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo, reverseLocator)
 	adminRepo := repositories.NewAdminRepository(db, logger)
 	metricsRepo := repositories.NewMetricsRepository(metricsUrl, "v1", logger)
 
@@ -91,7 +92,7 @@ func NewServer() *Server {
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo, metricsRepo)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
 	getUserUc := users.NewUserGetterImpl(userRepo, firebaseRepo, logger)
-	updateUserUc := users.NewUserUpdaterImpl(userRepo, firebaseRepo)
+	updateUserUc := users.NewUserUpdaterImpl(userRepo, metricsRepo, firebaseRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 	followUserUc := users.NewUserFollowerImpl(userRepo)
 	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, metricsRepo, logger)
@@ -104,6 +105,7 @@ func NewServer() *Server {
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
 	getUsers := handlers.NewGetUsers(&getUserUc, logger)
+	getClosestUsers := handlers.NewGetClosestUsers(&getUserUc, logger)
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
 
@@ -132,6 +134,7 @@ func NewServer() *Server {
 		getFollowedUsers:      getFollowedUsers,
 		enableUser:            enableUser,
 		disableUser:           disableUser,
+		getClosestUsers:       getClosestUsers,
 		notifyUserLogin:       notifyUserLogin,
 		notifyPasswordRecover: notifyPasswordRecover,
 	}

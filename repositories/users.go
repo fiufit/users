@@ -10,6 +10,7 @@ import (
 	ucontracts "github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/database"
 	"github.com/fiufit/users/models"
+	"github.com/fiufit/users/utils"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -19,6 +20,7 @@ type Users interface {
 	GetByID(ctx context.Context, userID string) (models.User, error)
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)
 	Get(ctx context.Context, req ucontracts.GetUsersRequest) (ucontracts.GetUsersResponse, error)
+	GetByDistance(ctx context.Context, req ucontracts.GetClosestUsersRequest) (ucontracts.GetUsersResponse, error)
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
@@ -29,13 +31,14 @@ type Users interface {
 }
 
 type UserRepository struct {
-	db     *gorm.DB
-	logger *zap.Logger
-	auth   Firebase
+	db             *gorm.DB
+	logger         *zap.Logger
+	auth           Firebase
+	reverseLocator *utils.ReverseLocator
 }
 
-func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth Firebase) UserRepository {
-	return UserRepository{db: db, logger: logger, auth: auth}
+func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth Firebase, reverseLocator *utils.ReverseLocator) UserRepository {
+	return UserRepository{db: db, logger: logger, auth: auth, reverseLocator: reverseLocator}
 }
 
 func (repo UserRepository) CreateUser(ctx context.Context, user models.User) (models.User, error) {
@@ -48,6 +51,7 @@ func (repo UserRepository) CreateUser(ctx context.Context, user models.User) (mo
 		repo.logger.Error("Unable to create user", zap.Error(result.Error), zap.Any("user", user))
 		return models.User{}, result.Error
 	}
+	repo.fillUserLocation(&user)
 	return user, nil
 }
 
@@ -63,6 +67,7 @@ func (repo UserRepository) GetByID(ctx context.Context, userID string) (models.U
 		return models.User{}, result.Error
 	}
 
+	repo.fillUserLocation(&usr)
 	return usr, nil
 }
 
@@ -93,10 +98,6 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 	var res []models.User
 	db := repo.db.WithContext(ctx)
 
-	if req.Location != "" {
-		likeLocation := fmt.Sprintf("%%%v%%", req.Location)
-		db = db.Where("LOWER(main_location) LIKE LOWER(?)", likeLocation)
-	}
 	if req.IsVerified != nil {
 		db = db.Where("is_verified_trainer = ?", *req.IsVerified)
 	}
@@ -112,6 +113,9 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 	if result.Error != nil {
 		repo.logger.Error("Unable to get users with pagination", zap.Error(result.Error), zap.Any("request", req))
 		return ucontracts.GetUsersResponse{}, result.Error
+	}
+	for i := range res {
+		repo.fillUserLocation(&res[i])
 	}
 
 	return ucontracts.GetUsersResponse{Users: res, Pagination: req.Pagination}, nil
@@ -130,7 +134,31 @@ func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (
 		return models.User{}, result.Error
 	}
 
+	repo.fillUserLocation(&usr)
 	return usr, nil
+}
+
+func (repo UserRepository) GetByDistance(ctx context.Context, req ucontracts.GetClosestUsersRequest) (ucontracts.GetUsersResponse, error) {
+	db := repo.db.WithContext(ctx)
+	var closestUsers []models.User
+
+	// TODO: Find out how to order by earthdistance too using gorm
+	result := db.
+		Scopes(database.Paginate(closestUsers, &req.Pagination, db)).
+		Where("earth_distance(ll_to_earth(?, ?), ll_to_earth(users.latitude, users.longitude)) <= ? AND users.ID != ?", req.Latitude, req.Longitude, req.Distance*1000, req.UserID).
+		Preload("Interests").
+		Find(&closestUsers)
+
+	if result.Error != nil {
+		repo.logger.Error("Unable to get closest users with pagination", zap.Error(result.Error), zap.Any("request", req))
+		return ucontracts.GetUsersResponse{}, result.Error
+	}
+
+	for i := range closestUsers {
+		repo.fillUserLocation(&closestUsers[i])
+	}
+
+	return ucontracts.GetUsersResponse{Users: closestUsers, Pagination: req.Pagination}, nil
 }
 
 func (repo UserRepository) Update(ctx context.Context, user models.User) (models.User, error) {
@@ -147,6 +175,7 @@ func (repo UserRepository) Update(ctx context.Context, user models.User) (models
 		repo.logger.Error("Unable to update user", zap.Error(result.Error), zap.Any("user", user))
 		return models.User{}, result.Error
 	}
+	repo.fillUserLocation(&user)
 	return user, nil
 }
 
@@ -199,6 +228,10 @@ func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetU
 
 	req.Pagination.TotalRows = db.Model(&user).Association("Followers").Count()
 
+	for i := range user.Followers {
+		repo.fillUserLocation(&user.Followers[i])
+	}
+
 	response := ucontracts.GetUserFollowersResponse{
 		Pagination: req.Pagination,
 		Followers:  user.Followers,
@@ -223,10 +256,23 @@ func (repo UserRepository) GetFollowed(ctx context.Context, req ucontracts.GetFo
 		return ucontracts.GetFollowedUsersResponse{}, result.Error
 	}
 
+	for i := range followedUsers {
+		repo.fillUserLocation(&followedUsers[i])
+	}
+
 	response := ucontracts.GetFollowedUsersResponse{
 		Pagination: req.Pagination,
 		Followed:   followedUsers,
 	}
 
 	return response, nil
+}
+
+func (repo UserRepository) fillUserLocation(user *models.User) {
+	usrLocation, err := repo.reverseLocator.GetLocationFromCoordinates(user.Latitude, user.Longitude)
+	if err != nil {
+		repo.logger.Error("Unable to reverse geolocate user's coordinates")
+		return
+	}
+	user.MainLocation = usrLocation
 }
