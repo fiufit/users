@@ -94,11 +94,18 @@ func TestFinishRegisterOk(t *testing.T) {
 	firebaseRepo := new(mocks.Firebase)
 	userRepo := new(mocks.Users)
 	metricsRepo := new(mocks.Metrics)
-	metricsReq := metrics.CreateMetricRequest{
+
+	registerMetricReq := metrics.CreateMetricRequest{
 		MetricType: "register",
 		SubType:    req.Method,
 	}
-	metricsRepo.On("Create", ctx, metricsReq)
+	metricsRepo.On("Create", ctx, registerMetricReq)
+
+	locationMetricsReq := metrics.CreateMetricRequest{
+		MetricType: "location",
+		SubType:    usr.MainLocation,
+	}
+	metricsRepo.On("Create", ctx, locationMetricsReq)
 
 	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
