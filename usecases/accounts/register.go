@@ -57,11 +57,17 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.Finis
 		return accounts.FinishRegisterResponse{}, err
 	}
 
-	metricReq := metrics.CreateMetricRequest{
+	registerMetricReq := metrics.CreateMetricRequest{
 		MetricType: "register",
 		SubType:    req.Method,
 	}
-	uc.metrics.Create(ctx, metricReq)
+	uc.metrics.Create(ctx, registerMetricReq)
+
+	locationMetricReq := metrics.CreateMetricRequest{
+		MetricType: "location",
+		SubType:    usr.MainLocation,
+	}
+	uc.metrics.Create(ctx, locationMetricReq)
 
 	return accounts.FinishRegisterResponse{User: createdUser}, nil
 }

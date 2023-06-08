@@ -114,7 +114,7 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 		repo.logger.Error("Unable to get users with pagination", zap.Error(result.Error), zap.Any("request", req))
 		return ucontracts.GetUsersResponse{}, result.Error
 	}
-	for i, _ := range res {
+	for i := range res {
 		repo.fillUserLocation(&res[i])
 	}
 
@@ -152,7 +152,7 @@ func (repo UserRepository) GetByDistance(ctx context.Context, req ucontracts.Get
 		return ucontracts.GetUsersResponse{}, result.Error
 	}
 
-	for i, _ := range closestUsers {
+	for i := range closestUsers {
 		repo.fillUserLocation(&closestUsers[i])
 	}
 
@@ -173,6 +173,7 @@ func (repo UserRepository) Update(ctx context.Context, user models.User) (models
 		repo.logger.Error("Unable to update user", zap.Error(result.Error), zap.Any("user", user))
 		return models.User{}, result.Error
 	}
+	repo.fillUserLocation(&user)
 	return user, nil
 }
 
@@ -225,7 +226,7 @@ func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetU
 
 	req.Pagination.TotalRows = db.Model(&user).Association("Followers").Count()
 
-	for i, _ := range user.Followers {
+	for i := range user.Followers {
 		repo.fillUserLocation(&user.Followers[i])
 	}
 
@@ -253,7 +254,7 @@ func (repo UserRepository) GetFollowed(ctx context.Context, req ucontracts.GetFo
 		return ucontracts.GetFollowedUsersResponse{}, result.Error
 	}
 
-	for i, _ := range followedUsers {
+	for i := range followedUsers {
 		repo.fillUserLocation(&followedUsers[i])
 	}
 
