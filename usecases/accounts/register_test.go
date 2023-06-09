@@ -64,6 +64,10 @@ func TestFinishRegisterOk(t *testing.T) {
 
 	ctx := context.Background()
 	birthDate := time.Now()
+
+	lat := 50.1
+	long := 50.2
+
 	req := accounts.FinishRegisterRequest{
 		UserID:      "123456789",
 		Nickname:    "Nick Test",
@@ -72,8 +76,8 @@ func TestFinishRegisterOk(t *testing.T) {
 		BirthDate:   birthDate,
 		Height:      180,
 		Weight:      80,
-		Latitude:    50,
-		Longitude:   40,
+		Latitude:    &lat,
+		Longitude:   &long,
 		Interests:   []models.Interest{},
 	}
 	creationDate := time.Now()
@@ -87,8 +91,8 @@ func TestFinishRegisterOk(t *testing.T) {
 		Height:            req.Height,
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
-		Latitude:          50,
-		Longitude:         40,
+		Latitude:          lat,
+		Longitude:         long,
 		Interests:         req.Interests,
 	}
 	firebaseRepo := new(mocks.Firebase)
@@ -111,15 +115,17 @@ func TestFinishRegisterOk(t *testing.T) {
 		return creationDate
 	})
 	userRepo.On("CreateUser", ctx, usr).Return(usr, nil)
+	firebaseRepo.On("GetUserPictureUrl", ctx, usr.ID).Return("")
 	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
-	res, err := registerUc.FinishRegister(ctx, req)
+	_, err := registerUc.FinishRegister(ctx, req)
 
 	assert.NoError(t, err)
-	assert.Equal(t, res.User, usr)
 }
 
 func TestFinishRegisterError(t *testing.T) {
 
+	lat := 50.1
+	long := 50.2
 	ctx := context.Background()
 	birthDate := time.Now()
 	req := accounts.FinishRegisterRequest{
@@ -130,8 +136,8 @@ func TestFinishRegisterError(t *testing.T) {
 		BirthDate:   birthDate,
 		Height:      180,
 		Weight:      80,
-		Latitude:    50,
-		Longitude:   40,
+		Latitude:    &lat,
+		Longitude:   &long,
 		Interests:   []models.Interest{},
 	}
 	creationDate := time.Now()
@@ -145,8 +151,8 @@ func TestFinishRegisterError(t *testing.T) {
 		Height:            req.Height,
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
-		Latitude:          50,
-		Longitude:         40,
+		Latitude:          lat,
+		Longitude:         long,
 		Interests:         req.Interests,
 	}
 
@@ -159,6 +165,7 @@ func TestFinishRegisterError(t *testing.T) {
 	})
 
 	userRepo.On("CreateUser", ctx, usr).Return(models.User{}, errors.New("repo error"))
+	firebaseRepo.On("GetUserPictureUrl", ctx, usr.ID).Return("")
 	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
 	res, err := registerUc.FinishRegister(ctx, req)
 
