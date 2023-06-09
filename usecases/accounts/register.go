@@ -48,14 +48,16 @@ func (uc *RegistererImpl) FinishRegister(ctx context.Context, req accounts.Finis
 		Height:            req.Height,
 		Weight:            req.Weight,
 		IsVerifiedTrainer: false,
-		Latitude:          req.Latitude,
-		Longitude:         req.Longitude,
+		Latitude:          *req.Latitude,
+		Longitude:         *req.Longitude,
 		Interests:         req.Interests,
 	}
 	createdUser, err := uc.users.CreateUser(ctx, usr)
 	if err != nil {
 		return accounts.FinishRegisterResponse{}, err
 	}
+
+	createdUser.PictureUrl = uc.auth.GetUserPictureUrl(ctx, createdUser.ID)
 
 	registerMetricReq := metrics.CreateMetricRequest{
 		MetricType: "register",

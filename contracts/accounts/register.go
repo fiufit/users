@@ -23,8 +23,8 @@ type FinishRegisterRequest struct {
 	BirthDate       time.Time         `json:"birth_date" binding:"required"`
 	Height          uint              `json:"height" binding:"required"`
 	Weight          uint              `json:"weight" binding:"required"`
-	Latitude        float64           `json:"latitude" binding:"required"`
-	Longitude       float64           `json:"longitude" binding:"required"`
+	Latitude        *float64          `json:"latitude" binding:"required"`
+	Longitude       *float64          `json:"longitude" binding:"required"`
 	InterestStrings []string          `json:"interests"`
 	Interests       []models.Interest `json:"-"`
 	Method          string            `json:"method"`
