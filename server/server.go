@@ -78,6 +78,7 @@ func NewServer() *Server {
 
 	reverseLocator, _ := utils.NewReverseLocator()
 	metricsUrl := os.Getenv("METRICS_SERVICE_URL")
+	notificationUrl := os.Getenv("NOTIFICATION_SERVICE_URL")
 
 	// REPOSITORIES
 	firebaseRepo, err := repositories.NewFirebaseRepository(logger, sdkJson, os.Getenv("FIREBASE_BUCKET_NAME"))
@@ -87,6 +88,7 @@ func NewServer() *Server {
 	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo, reverseLocator)
 	adminRepo := repositories.NewAdminRepository(db, logger)
 	metricsRepo := repositories.NewMetricsRepository(metricsUrl, "v1", logger)
+	notificationRepo := repositories.NewNotificationRepository(notificationUrl, logger, "v1")
 
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo, metricsRepo)
@@ -94,7 +96,7 @@ func NewServer() *Server {
 	getUserUc := users.NewUserGetterImpl(userRepo, firebaseRepo, logger)
 	updateUserUc := users.NewUserUpdaterImpl(userRepo, metricsRepo, firebaseRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
-	followUserUc := users.NewUserFollowerImpl(userRepo)
+	followUserUc := users.NewUserFollowerImpl(userRepo, notificationRepo, logger)
 	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, metricsRepo, logger)
 
 	// HANDLERS
