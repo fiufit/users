@@ -36,9 +36,12 @@ func (repo NotificationRepository) SendFollowersNotification(ctx context.Context
 		Body:     follower.DisplayName + " is now following you!",
 		Sound:    "default",
 		Data: map[string]interface{}{
-			"redirectTo": "Profile",
+			"redirectTo": "User List",
 			"params": map[string]interface{}{
-				"forceRefresh": true,
+				"title":         "Followers",
+				"showFollowers": true,
+				"other":         false,
+				"forceRefresh":  true,
 			},
 		},
 	}
