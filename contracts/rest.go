@@ -10,6 +10,8 @@ var errCodes = map[error]string{
 	ErrUserNotDisabled:     "U6",
 }
 
+var externalCodes = map[string]error{}
+
 type OkResponse struct {
 	Data interface{} `json:"data"`
 }

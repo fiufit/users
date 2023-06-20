@@ -24,7 +24,7 @@ type Users interface {
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	Update(ctx context.Context, user models.User) (models.User, error)
 	DeleteUser(ctx context.Context, userID string) error
-	FollowUser(ctx context.Context, followedUserID string, followerUserID string) error
+	FollowUser(ctx context.Context, followedUser models.User, followerUser models.User) error
 	UnfollowUser(ctx context.Context, followedUserID string, followerUserID string) error
 	GetFollowers(ctx context.Context, request ucontracts.GetUserFollowersRequest) (ucontracts.GetUserFollowersResponse, error)
 	GetFollowed(ctx context.Context, req ucontracts.GetFollowedUsersRequest) (ucontracts.GetFollowedUsersResponse, error)
@@ -179,16 +179,7 @@ func (repo UserRepository) Update(ctx context.Context, user models.User) (models
 	return user, nil
 }
 
-func (repo UserRepository) FollowUser(ctx context.Context, followedUserID string, followerUserID string) error {
-	followedUser, err := repo.GetByID(ctx, followedUserID)
-	if err != nil {
-		return err
-	}
-
-	followerUser, err := repo.GetByID(ctx, followerUserID)
-	if err != nil {
-		return err
-	}
+func (repo UserRepository) FollowUser(ctx context.Context, followedUser models.User, followerUser models.User) error {
 	db := repo.db.WithContext(ctx)
 
 	return db.Model(&followedUser).Association("Followers").Append(&followerUser)
