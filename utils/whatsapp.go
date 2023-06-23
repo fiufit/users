@@ -22,7 +22,7 @@ func (w WhatsApperImpl) SendWhatsAppMessage(to string, pin string) error {
 	params := &openapi.CreateMessageParams{}
 	params.SetTo("whatsapp:" + to)
 	params.SetFrom("whatsapp:" + w.fromPhoneNumber)
-	params.SetBody("Gracias por registrarte en FiuFit! 💪\nTu código de verificación es *" + pin + "*\nIngrésalo en la app para comenzar a entrenar ahora mismo!")
+	params.SetBody("Thanks for signing up for FiuFit! 💪\nYour verification pin is *" + pin + "*\nEnter this code in our app to activate your account and start training!")
 	_, err := w.twilioClient.Api.CreateMessage(params)
 	return err
 }
