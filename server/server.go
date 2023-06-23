@@ -13,6 +13,7 @@ import (
 	"github.com/fiufit/users/usecases/users"
 	"github.com/fiufit/users/utils"
 	"github.com/gin-gonic/gin"
+	twilio "github.com/twilio/twilio-go"
 	"go.uber.org/zap"
 )
 
@@ -35,6 +36,7 @@ type Server struct {
 	notifyUserLogin       handlers.NotifyUserLogin
 	notifyPasswordRecover handlers.NotifyPasswordRecover
 	getClosestUsers       handlers.GetClosestUsers
+	sendVerificationPin   handlers.SendVerificationPin
 }
 
 func (s *Server) Run() {
@@ -50,7 +52,12 @@ func NewServer() *Server {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(&models.User{}, &models.Administrator{}, &models.Interest{})
+	err = db.AutoMigrate(
+		&models.User{},
+		&models.Administrator{},
+		&models.Interest{},
+		&models.VerificationPin{},
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -77,6 +84,9 @@ func NewServer() *Server {
 	}
 
 	reverseLocator, _ := utils.NewReverseLocator()
+
+	whatsAppSender := utils.NewWhatsApperImpl(os.Getenv("TWILIO_PHONE_NUMBER"), twilio.NewRestClient())
+
 	metricsUrl := os.Getenv("METRICS_SERVICE_URL")
 	notificationUrl := os.Getenv("NOTIFICATION_SERVICE_URL")
 
@@ -89,6 +99,7 @@ func NewServer() *Server {
 	adminRepo := repositories.NewAdminRepository(db, logger)
 	metricsRepo := repositories.NewMetricsRepository(metricsUrl, "v1", logger)
 	notificationRepo := repositories.NewNotificationRepository(notificationUrl, logger, "v1")
+	verificationRepo := repositories.NewVerificationPinRepository(db, logger)
 
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo, metricsRepo)
@@ -98,12 +109,14 @@ func NewServer() *Server {
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 	followUserUc := users.NewUserFollowerImpl(userRepo, notificationRepo, logger)
 	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, metricsRepo, logger)
+	verificationUc := accounts.NewVerificatorImpl(verificationRepo, firebaseRepo, whatsAppSender, logger)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
 	finishRegister := handlers.NewFinishRegister(&registerUc, logger)
 	adminRegister := handlers.NewAdminRegister(&adminRegisterUc, logger)
 	adminLogin := handlers.NewAdminLogin(&adminRegisterUc, logger)
+	sendVerificationPin := handlers.NewSendVerificationPin(&verificationUc, logger)
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
 	getUsers := handlers.NewGetUsers(&getUserUc, logger)
@@ -139,5 +152,6 @@ func NewServer() *Server {
 		getClosestUsers:       getClosestUsers,
 		notifyUserLogin:       notifyUserLogin,
 		notifyPasswordRecover: notifyPasswordRecover,
+		sendVerificationPin:   sendVerificationPin,
 	}
 }

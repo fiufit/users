@@ -8,6 +8,7 @@ var errCodes = map[error]string{
 	ErrInvalidPassword:     "U4",
 	ErrUserAlreadyDisabled: "U5",
 	ErrUserNotDisabled:     "U6",
+	ErrUserAlreadyVerified: "U7",
 }
 
 var externalCodes = map[string]error{}
