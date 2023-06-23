@@ -25,6 +25,8 @@ require (
 	gorm.io/gorm v1.25.0
 )
 
+require github.com/golang/mock v1.6.0 // indirect
+
 require (
 	cloud.google.com/go v0.102.1 // indirect
 	cloud.google.com/go/compute v1.7.0 // indirect
@@ -89,6 +91,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/twilio/twilio-go v1.8.0
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/twpayne/go-geom v1.4.4 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect

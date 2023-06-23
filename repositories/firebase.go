@@ -22,6 +22,8 @@ type Firebase interface {
 	GetUserPictureUrl(ctx context.Context, userID string) string
 	EnableUser(ctx context.Context, userID string) error
 	DisableUser(ctx context.Context, userID string) error
+	UserIsVerified(ctx context.Context, userID string) (bool, error)
+	VerifyUser(ctx context.Context, userID string) error
 }
 
 type FirebaseRepository struct {
@@ -144,4 +146,29 @@ func (repo FirebaseRepository) GetUserPictureUrl(ctx context.Context, userID str
 		repo.logger.Error("Unable to Sign user picture from firebase storage", zap.String("userID", userID))
 	}
 	return pictureUrl
+}
+
+func (repo FirebaseRepository) UserIsVerified(ctx context.Context, userID string) (bool, error) {
+	user, err := repo.auth.GetUser(ctx, userID)
+	if err != nil {
+		return false, contracts.ErrUserNotFound
+	}
+	return user.EmailVerified, nil
+}
+
+func (repo FirebaseRepository) VerifyUser(ctx context.Context, userID string) error {
+	user, err := repo.auth.GetUser(ctx, userID)
+	if err == nil && user != nil {
+		if user.EmailVerified {
+			return contracts.ErrUserAlreadyVerified
+		}
+
+		updateUserParams := (&auth.UserToUpdate{}).EmailVerified(true)
+		_, err := repo.auth.UpdateUser(ctx, user.UID, updateUserParams)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return contracts.ErrUserNotFound
 }
