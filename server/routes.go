@@ -87,6 +87,10 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.POST("/:userID/verification/send", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.sendVerificationPin.Handle(),
 	}))
+
+	router.POST("/:userID/verification/verify", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.verifyUser.Handle(),
+	}))
 }
 
 func (s *Server) InitAdminRoutes(router *gin.RouterGroup) {

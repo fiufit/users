@@ -37,6 +37,7 @@ type Server struct {
 	notifyPasswordRecover handlers.NotifyPasswordRecover
 	getClosestUsers       handlers.GetClosestUsers
 	sendVerificationPin   handlers.SendVerificationPin
+	verifyUser            handlers.VerifyUser
 }
 
 func (s *Server) Run() {
@@ -117,6 +118,7 @@ func NewServer() *Server {
 	adminRegister := handlers.NewAdminRegister(&adminRegisterUc, logger)
 	adminLogin := handlers.NewAdminLogin(&adminRegisterUc, logger)
 	sendVerificationPin := handlers.NewSendVerificationPin(&verificationUc, logger)
+	verifyUser := handlers.NewVerifyUser(&verificationUc, logger)
 
 	getUserByID := handlers.NewGetUserByID(&getUserUc, logger)
 	getUsers := handlers.NewGetUsers(&getUserUc, logger)
@@ -153,5 +155,6 @@ func NewServer() *Server {
 		notifyUserLogin:       notifyUserLogin,
 		notifyPasswordRecover: notifyPasswordRecover,
 		sendVerificationPin:   sendVerificationPin,
+		verifyUser:            verifyUser,
 	}
 }

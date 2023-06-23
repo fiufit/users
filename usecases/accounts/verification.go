@@ -16,6 +16,7 @@ import (
 
 type Verificator interface {
 	SendVerificationPin(ctx context.Context, req accounts.SendVerificationPinRequest) (models.VerificationPin, error)
+	VerifyPin(ctx context.Context, req accounts.ValidateVerificationPinRequest) error
 }
 
 type VerificatorImpl struct {
@@ -58,4 +59,19 @@ func (uc *VerificatorImpl) SendVerificationPin(ctx context.Context, req accounts
 		return models.VerificationPin{}, err
 	}
 	return pin, nil
+}
+
+func (uc *VerificatorImpl) VerifyPin(ctx context.Context, req accounts.ValidateVerificationPinRequest) error {
+	pin, err := uc.verification.GetByUserID(ctx, req.UserID)
+	if err != nil {
+		return err
+	}
+	if err := utils.ValidatePassword(req.Pin, pin.Pin); err != nil {
+		return contracts.ErrInvalidVerificationPin
+	}
+	if time.Now().After(pin.ExpiresAt) {
+		return contracts.ErrVerificationPinExpired
+	}
+	err = uc.auth.VerifyUser(ctx, req.UserID)
+	return err
 }

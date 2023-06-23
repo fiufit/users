@@ -1,14 +1,16 @@
 package contracts
 
 var errCodes = map[error]string{
-	ErrInternal:            "U0",
-	ErrBadRequest:          "U1",
-	ErrUserNotFound:        "U2",
-	ErrUserAlreadyExists:   "U3",
-	ErrInvalidPassword:     "U4",
-	ErrUserAlreadyDisabled: "U5",
-	ErrUserNotDisabled:     "U6",
-	ErrUserAlreadyVerified: "U7",
+	ErrInternal:               "U0",
+	ErrBadRequest:             "U1",
+	ErrUserNotFound:           "U2",
+	ErrUserAlreadyExists:      "U3",
+	ErrInvalidPassword:        "U4",
+	ErrUserAlreadyDisabled:    "U5",
+	ErrUserNotDisabled:        "U6",
+	ErrUserAlreadyVerified:    "U7",
+	ErrVerificationPinExpired: "U8",
+	ErrInvalidVerificationPin: "U9",
 }
 
 var externalCodes = map[string]error{}
