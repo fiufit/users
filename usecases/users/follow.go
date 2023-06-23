@@ -1,6 +1,7 @@
 package users
 
 import (
+	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/repositories"
 	"go.uber.org/zap"
@@ -15,10 +16,11 @@ type UserFollower interface {
 type UserFollowerImpl struct {
 	notifications repositories.Notifications
 	users         repositories.Users
+	metrics       repositories.Metrics
 	logger        *zap.Logger
 }
 
-func NewUserFollowerImpl(users repositories.Users, notifications repositories.Notifications, logger *zap.Logger) UserFollowerImpl {
+func NewUserFollowerImpl(users repositories.Users, notifications repositories.Notifications, metrics repositories.Metrics, logger *zap.Logger) UserFollowerImpl {
 	return UserFollowerImpl{users: users, notifications: notifications, logger: logger}
 }
 
@@ -37,6 +39,12 @@ func (uc UserFollowerImpl) FollowUser(ctx context.Context, req users.FollowUserR
 		if uc.notifications.SendFollowersNotification(ctx, followerUser, followedUser) != nil {
 			uc.logger.Error("Error sending notification", zap.Error(err))
 		}
+
+		followMetric := metrics.CreateMetricRequest{
+			MetricType: "user_followed",
+			SubType:    followedUser.ID,
+		}
+		uc.metrics.Create(ctx, followMetric)
 	}
 	return err
 }
