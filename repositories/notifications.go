@@ -38,10 +38,11 @@ func (repo NotificationRepository) SendFollowersNotification(ctx context.Context
 		Data: map[string]interface{}{
 			"redirectTo": "User List",
 			"params": map[string]interface{}{
-				"title":         "Followers",
-				"showFollowers": true,
-				"other":         false,
-				"forceRefresh":  true,
+				"title":              "Followers",
+				"showFollowers":      true,
+				"other":              false,
+				"forceRefresh":       true,
+				"followerPictureUrl": follower.PictureUrl,
 			},
 		},
 	}
