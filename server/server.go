@@ -58,6 +58,7 @@ func NewServer() *Server {
 		&models.Administrator{},
 		&models.Interest{},
 		&models.VerificationPin{},
+		&models.Certification{},
 	)
 	if err != nil {
 		panic(err)
