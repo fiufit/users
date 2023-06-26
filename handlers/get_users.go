@@ -21,21 +21,24 @@ func NewGetUsers(users users.UserGetter, logger *zap.Logger) GetUsers {
 }
 
 // Get Users godoc
-// @Summary      Gets users by different query params with pagination.
-// @Description	 Gets users by their name, nickname, location or verification status. If nickname has a value, other parameters are ignored.
-// @Tags         accounts
-// @Accept       json
-// @Produce      json
-// @Param        version   path      string  true  "API Version"
-// @Param        nickname   query      string  false  "User Nickname"
-// @Param        name   query      string  false  "Substring that can be contained in either the User's Display Name or Nickname"
-// @Param        location   query      string  false  "User Location"
-// @Param        is_verified   query      string  false  "User verification status"
-// @Success      200  {object} 	string "Important Note: OK responses are wrapped in {"data": ... }"
-// @Failure      400  {object} 	contracts.ErrResponse
-// @Failure      404  {object} 	contracts.ErrResponse
-// @Failure      500  {object}  contracts.ErrResponse
-// @Router       /{version}/users/	[get]
+//
+//	@Summary		Gets users by different query params with pagination.
+//	@Description	Gets users by their name, nickname, location or verification status. If nickname has a value, other parameters are ignored.
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			version				path		string	true	"API Version"
+//	@Param			nickname			query		string	false	"User Nickname"
+//	@Param			name				query		string	false	"Substring that can be contained in either the User's Display Name or Nickname"
+//	@Param			location			query		string	false	"User Location"
+//	@Param			is_verified			query		string	false	"User verification status"
+//	@Param			page				query		int		false	"page number when getting with pagination"
+//	@Param			page_size			query		int		false	"page size when getting with pagination"
+//	@Success		200					{object}	string	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400					{object}	contracts.ErrResponse
+//	@Failure		404					{object}	contracts.ErrResponse
+//	@Failure		500					{object}	contracts.ErrResponse
+//	@Router			/{version}/users/	[get]
 func (h GetUsers) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req users2.GetUsersRequest

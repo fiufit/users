@@ -18,6 +18,18 @@ func NewNotifyUserLogin(metrics repositories.Metrics) NotifyUserLogin {
 	return NotifyUserLogin{metrics: metrics}
 }
 
+// Notify User Login godoc
+//
+//	@Summary		Creates a login metric for internal visualization.
+//	@Description	Creates a login metric for internal visualization.
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			version					path		string	true	"API Version"
+//	@Param			method					query		string	true	"Login  method, either 'mail' or 'federated_entity'"
+//	@Success		200						{object}	string	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400						{object}	contracts.ErrResponse
+//	@Router			/{version}/users/login	[post]
 func (h NotifyUserLogin) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req accounts.NotifyLoginMethodRequest

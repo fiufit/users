@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -20,6 +19,22 @@ func NewGetUserFollowers(users users.UserGetter, logger *zap.Logger) GetUserFoll
 	return GetUserFollowers{users: users, logger: logger}
 }
 
+// Get User Followers godoc
+//
+//	@Summary		Gets the followers of a user.
+//	@Description	Gets the followers of a user.
+//	@Tags			followers
+//	@Accept			json
+//	@Produce		json
+//	@Param			version								path		string							true	"API Version"
+//	@Param			userID								path		string							true	"userID of the person whose followers we want to GET"
+//	@Param			page								query		int								false	"page number when getting with pagination"
+//	@Param			page_size							query		int								false	"page size when getting with pagination"
+//	@Success		200									{object}	users.GetUserFollowersResponse	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400									{object}	contracts.ErrResponse
+//	@Failure		404									{object}	contracts.ErrResponse
+//	@Failure		500									{object}	contracts.ErrResponse
+//	@Router			/{version}/users/{userID}/followers	[get]
 func (h GetUserFollowers) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.GetUserFollowersRequest
@@ -33,11 +48,7 @@ func (h GetUserFollowers) Handle() gin.HandlerFunc {
 
 		res, err := h.users.GetUserFollowers(ctx, req)
 		if err != nil {
-			if errors.Is(err, contracts.ErrUserNotFound) {
-				ctx.JSON(http.StatusNotFound, contracts.FormatErrResponse(contracts.ErrUserNotFound))
-				return
-			}
-			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
+			contracts.HandleErrorType(ctx, err)
 			return
 		}
 
