@@ -98,6 +98,10 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 	var res []models.User
 	db := repo.db.WithContext(ctx)
 
+	if req.UserIDs != nil {
+		db = db.Where("id IN ?", req.UserIDs)
+	}
+
 	if req.IsVerified != nil {
 		db = db.Where("is_verified_trainer = ?", *req.IsVerified)
 	}

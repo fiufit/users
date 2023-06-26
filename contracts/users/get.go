@@ -6,10 +6,11 @@ import (
 )
 
 type GetUsersRequest struct {
-	Name       string `form:"name"`
-	Nickname   string `form:"nickname"`
-	IsVerified *bool  `form:"is_verified"`
-	Disabled   *bool  `form:"disabled"`
+	Name       string   `form:"name"`
+	Nickname   string   `form:"nickname"`
+	IsVerified *bool    `form:"is_verified"`
+	Disabled   *bool    `form:"disabled"`
+	UserIDs    []string `form:"user_ids[]"`
 	contracts.Pagination
 }
 
