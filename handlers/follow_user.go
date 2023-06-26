@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -20,6 +19,20 @@ func NewFollowUser(follows users.UserFollower, logger *zap.Logger) FollowUser {
 	return FollowUser{follows: follows, logger: logger}
 }
 
+// User Follow godoc
+//	@Summary		Follow an user.
+//	@Description	Creates a following relationship from the requesting user to the one in the route.
+//	@Tags			followers
+//	@Accept			json
+//	@Produce		json
+//	@Param			version									path		string	true	"API Version"
+//	@Param			follower_id								query		string	true	"userID of the following user"
+//	@Param			userID									path		string	true	"userID of followed user"
+//	@Success		200										{object}	string	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400										{object}	contracts.ErrResponse
+//	@Failure		404										{object}	contracts.ErrResponse
+//	@Failure		500										{object}	contracts.ErrResponse
+//	@Router			/{version}/users/{userID}/followers 	[post]
 func (h FollowUser) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.FollowUserRequest
@@ -33,13 +46,8 @@ func (h FollowUser) Handle() gin.HandlerFunc {
 
 		err = h.follows.FollowUser(ctx, req)
 		if err != nil {
-			if errors.Is(err, contracts.ErrUserNotFound) {
-				ctx.JSON(http.StatusNotFound, contracts.FormatErrResponse(err))
-				return
-			} else {
-				ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
-				return
-			}
+			contracts.HandleErrorType(ctx, err)
+			return
 		}
 
 		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(""))

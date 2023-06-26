@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -20,6 +19,23 @@ func NewGetClosestUsers(users users.UserGetter, logger *zap.Logger) GetClosestUs
 	return GetClosestUsers{users: users, logger: logger}
 }
 
+// Get Closest Users godoc
+//
+//	@Summary		Gets the closest users to a central user.
+//	@Description	Gets the closest users to a central user.
+//	@Tags			followers
+//	@Accept			json
+//	@Produce		json
+//	@Param			version								path		string					true	"API Version"
+//	@Param			userID								path		string					true	"userID of the person whose near users we want to find"
+//	@Param			distance							query		int						true	"distance radio (meters) in which to find users"
+//	@Param			page								query		int						false	"page number when getting with pagination"
+//	@Param			page_size							query		int						false	"page size when getting with pagination"
+//	@Success		200									{object}	users.GetUsersResponse	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400									{object}	contracts.ErrResponse
+//	@Failure		404									{object}	contracts.ErrResponse
+//	@Failure		500									{object}	contracts.ErrResponse
+//	@Router			/{version}/users/{userID}/closest	[get]
 func (h GetClosestUsers) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req uContracts.GetClosestUsersRequest
@@ -34,11 +50,7 @@ func (h GetClosestUsers) Handle() gin.HandlerFunc {
 		req.Pagination.Validate()
 		resUsers, err := h.users.GetClosestUsers(ctx, req)
 		if err != nil {
-			if errors.Is(err, contracts.ErrUserNotFound) {
-				ctx.JSON(http.StatusNotFound, contracts.FormatErrResponse(contracts.ErrUserNotFound))
-				return
-			}
-			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
+			contracts.HandleErrorType(ctx, err)
 			return
 		}
 		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(resUsers))

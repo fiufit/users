@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -20,28 +19,24 @@ func NewDeleteUser(users users.UserDeleter, logger *zap.Logger) DeleteUser {
 }
 
 // User Delete godoc
-// @Summary      Deletes a user by their ID.
-// @Description	 Deletes a user by their ID. This should endpoint should only be called by admins or the same user. Authorization is the gateway's responsibility.
-// @Tags         accounts
-// @Accept       json
-// @Produce      json
-// @Param        version   path      string  true  "API Version"
-// @Param        userID   path      string  true  "User ID"
-// @Success      200  {object} 	string "Important Note: OK responses are wrapped in {"data": ... }"
-// @Failure      400  {object} 	contracts.ErrResponse
-// @Failure      404  {object} 	contracts.ErrResponse
-// @Failure      500  {object}  contracts.ErrResponse
-// @Router       /{version}/users/{userID} 	[delete]
+//	@Summary		Deletes a user by their ID.
+//	@Description	Deletes a user by their ID. This endpoint should only be called by admins or the same user. Authorization is the gateway's responsibility.
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			version						path		string	true	"API Version"
+//	@Param			userID						path		string	true	"User ID"
+//	@Success		200							{object}	string	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400							{object}	contracts.ErrResponse
+//	@Failure		404							{object}	contracts.ErrResponse
+//	@Failure		500							{object}	contracts.ErrResponse
+//	@Router			/{version}/users/{userID} 	[delete]
 func (h DeleteUser) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userID := ctx.MustGet("userID").(string)
 		err := h.users.DeleteUser(ctx, userID)
 		if err != nil {
-			if errors.Is(err, contracts.ErrUserNotFound) {
-				ctx.JSON(http.StatusNotFound, contracts.FormatErrResponse(contracts.ErrUserNotFound))
-				return
-			}
-			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
+			contracts.HandleErrorType(ctx, err)
 			return
 		}
 		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(""))
