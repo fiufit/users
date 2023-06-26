@@ -21,7 +21,7 @@ type UserFollowerImpl struct {
 }
 
 func NewUserFollowerImpl(users repositories.Users, notifications repositories.Notifications, metrics repositories.Metrics, logger *zap.Logger) UserFollowerImpl {
-	return UserFollowerImpl{users: users, notifications: notifications, logger: logger}
+	return UserFollowerImpl{users: users, notifications: notifications, metrics: metrics, logger: logger}
 }
 
 func (uc UserFollowerImpl) FollowUser(ctx context.Context, req users.FollowUserRequest) error {
