@@ -11,6 +11,9 @@ var errCodes = map[error]string{
 	ErrUserAlreadyVerified:    "U7",
 	ErrVerificationPinExpired: "U8",
 	ErrInvalidVerificationPin: "U9",
+	ErrPendingCertsExists:     "U10",
+	ErrUserAlreadyCertified:   "U11",
+	ErrCertificationNotFound:  "U12",
 }
 
 var externalCodes = map[string]error{}

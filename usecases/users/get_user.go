@@ -19,18 +19,12 @@ type UserGetter interface {
 }
 
 type UserGetterImpl struct {
-	users    repositories.Users
-	firebase repositories.Firebase
-	logger   *zap.Logger
+	users  repositories.Users
+	logger *zap.Logger
 }
 
-func NewUserGetterImpl(users repositories.Users, firebase repositories.Firebase, logger *zap.Logger) UserGetterImpl {
-	return UserGetterImpl{users: users, firebase: firebase, logger: logger}
-}
-
-func (uc *UserGetterImpl) fillUserPicture(ctx context.Context, user *models.User) {
-	userPictureUrl := uc.firebase.GetUserPictureUrl(ctx, user.ID)
-	(*user).PictureUrl = userPictureUrl
+func NewUserGetterImpl(users repositories.Users, logger *zap.Logger) UserGetterImpl {
+	return UserGetterImpl{users: users, logger: logger}
 }
 
 func (uc *UserGetterImpl) GetUserByID(ctx context.Context, uid string) (models.User, error) {
@@ -38,7 +32,6 @@ func (uc *UserGetterImpl) GetUserByID(ctx context.Context, uid string) (models.U
 	if err != nil {
 		return user, err
 	}
-	uc.fillUserPicture(ctx, &user)
 	return user, nil
 }
 
@@ -47,7 +40,6 @@ func (uc *UserGetterImpl) GetUserByNickname(ctx context.Context, nickname string
 	if err != nil {
 		return user, err
 	}
-	uc.fillUserPicture(ctx, &user)
 	return user, nil
 }
 
@@ -57,9 +49,6 @@ func (uc *UserGetterImpl) GetUsers(ctx context.Context, req users.GetUsersReques
 		return res, err
 	}
 
-	for i := range res.Users {
-		uc.fillUserPicture(ctx, &res.Users[i])
-	}
 	return res, nil
 }
 
@@ -76,9 +65,6 @@ func (uc *UserGetterImpl) GetClosestUsers(ctx context.Context, req users.GetClos
 		return res, err
 	}
 
-	for i := range res.Users {
-		uc.fillUserPicture(ctx, &res.Users[i])
-	}
 	return res, nil
 }
 
@@ -88,9 +74,6 @@ func (uc *UserGetterImpl) GetUserFollowers(ctx context.Context, req users.GetUse
 		return res, err
 	}
 
-	for i := range res.Followers {
-		uc.fillUserPicture(ctx, &res.Followers[i])
-	}
 	return res, nil
 }
 
@@ -100,8 +83,5 @@ func (uc *UserGetterImpl) GetUserFollowed(ctx context.Context, req users.GetFoll
 		return res, err
 	}
 
-	for i := range res.Followed {
-		uc.fillUserPicture(ctx, &res.Followed[i])
-	}
 	return res, nil
 }

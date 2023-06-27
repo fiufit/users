@@ -91,6 +91,18 @@ func (s *Server) InitUserRoutes(router *gin.RouterGroup) {
 	router.POST("/:userID/verification/verify", middleware.BindUserIDFromUri(), middleware.HandleByVersion(middleware.VersionHandlers{
 		"v1": s.verifyUser.Handle(),
 	}))
+
+	router.POST("/certifications", middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.createCert.Handle(),
+	}))
+
+	router.GET("/certifications", middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.getCert.Handle(),
+	}))
+
+	router.PUT("/certifications/:certificationID", middleware.HandleByVersion(middleware.VersionHandlers{
+		"v1": s.updateCert.Handle(),
+	}))
 }
 
 func (s *Server) InitAdminRoutes(router *gin.RouterGroup) {

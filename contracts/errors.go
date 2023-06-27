@@ -19,6 +19,9 @@ var (
 	ErrUserAlreadyVerified    = errors.New("user is already verified")
 	ErrVerificationPinExpired = errors.New("verification pin is expired")
 	ErrInvalidVerificationPin = errors.New("invalid verification pin")
+	ErrUserAlreadyCertified   = errors.New("user is already verified")
+	ErrPendingCertsExists     = errors.New("A pending certification request already exists")
+	ErrCertificationNotFound  = errors.New("certification not found")
 )
 
 func HandleErrorType(ctx *gin.Context, err error) {
@@ -41,6 +44,12 @@ func HandleErrorType(ctx *gin.Context, err error) {
 		status = http.StatusConflict
 	case errors.Is(err, ErrUserAlreadyVerified):
 		status = http.StatusConflict
+	case errors.Is(err, ErrUserAlreadyCertified):
+		status = http.StatusConflict
+	case errors.Is(err, ErrPendingCertsExists):
+		status = http.StatusConflict
+	case errors.Is(err, ErrCertificationNotFound):
+		status = http.StatusNotFound
 	case errors.Is(err, ErrVerificationPinExpired):
 		status = http.StatusUnauthorized
 	case errors.Is(err, ErrInvalidVerificationPin):

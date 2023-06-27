@@ -52,6 +52,7 @@ func (repo UserRepository) CreateUser(ctx context.Context, user models.User) (mo
 		return models.User{}, result.Error
 	}
 	repo.fillUserLocation(&user)
+	repo.fillUserPicture(ctx, &user)
 	return user, nil
 }
 
@@ -68,6 +69,7 @@ func (repo UserRepository) GetByID(ctx context.Context, userID string) (models.U
 	}
 
 	repo.fillUserLocation(&usr)
+	repo.fillUserPicture(ctx, &usr)
 	return usr, nil
 }
 
@@ -120,6 +122,7 @@ func (repo UserRepository) Get(ctx context.Context, req ucontracts.GetUsersReque
 	}
 	for i := range res {
 		repo.fillUserLocation(&res[i])
+		repo.fillUserPicture(ctx, &res[i])
 	}
 
 	return ucontracts.GetUsersResponse{Users: res, Pagination: req.Pagination}, nil
@@ -139,6 +142,7 @@ func (repo UserRepository) GetByNickname(ctx context.Context, nickname string) (
 	}
 
 	repo.fillUserLocation(&usr)
+	repo.fillUserPicture(ctx, &usr)
 	return usr, nil
 }
 
@@ -160,6 +164,7 @@ func (repo UserRepository) GetByDistance(ctx context.Context, req ucontracts.Get
 
 	for i := range closestUsers {
 		repo.fillUserLocation(&closestUsers[i])
+		repo.fillUserPicture(ctx, &closestUsers[i])
 	}
 
 	return ucontracts.GetUsersResponse{Users: closestUsers, Pagination: req.Pagination}, nil
@@ -180,6 +185,7 @@ func (repo UserRepository) Update(ctx context.Context, user models.User) (models
 		return models.User{}, result.Error
 	}
 	repo.fillUserLocation(&user)
+	repo.fillUserPicture(ctx, &user)
 	return user, nil
 }
 
@@ -225,6 +231,7 @@ func (repo UserRepository) GetFollowers(ctx context.Context, req ucontracts.GetU
 
 	for i := range user.Followers {
 		repo.fillUserLocation(&user.Followers[i])
+		repo.fillUserPicture(ctx, &user.Followers[i])
 	}
 
 	response := ucontracts.GetUserFollowersResponse{
@@ -253,6 +260,7 @@ func (repo UserRepository) GetFollowed(ctx context.Context, req ucontracts.GetFo
 
 	for i := range followedUsers {
 		repo.fillUserLocation(&followedUsers[i])
+		repo.fillUserPicture(ctx, &followedUsers[i])
 	}
 
 	response := ucontracts.GetFollowedUsersResponse{
@@ -270,4 +278,9 @@ func (repo UserRepository) fillUserLocation(user *models.User) {
 		return
 	}
 	user.MainLocation = usrLocation
+}
+
+func (repo UserRepository) fillUserPicture(ctx context.Context, user *models.User) {
+	userPictureUrl := repo.auth.GetUserPictureUrl(ctx, user.ID)
+	(*user).PictureUrl = userPictureUrl
 }
