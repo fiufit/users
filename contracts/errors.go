@@ -44,6 +44,12 @@ func HandleErrorType(ctx *gin.Context, err error) {
 		status = http.StatusConflict
 	case errors.Is(err, ErrUserAlreadyVerified):
 		status = http.StatusConflict
+	case errors.Is(err, ErrUserAlreadyCertified):
+		status = http.StatusConflict
+	case errors.Is(err, ErrPendingCertsExists):
+		status = http.StatusConflict
+	case errors.Is(err, ErrCertificationNotFound):
+		status = http.StatusNotFound
 	case errors.Is(err, ErrVerificationPinExpired):
 		status = http.StatusUnauthorized
 	case errors.Is(err, ErrInvalidVerificationPin):

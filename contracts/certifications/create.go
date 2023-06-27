@@ -1,5 +1,5 @@
 package certifications
 
 type CreateCertificationRequest struct {
-	UserID string `json:"user_id"`
+	UserID string `json:"user_id" binding:"required"`
 }

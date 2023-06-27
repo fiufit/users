@@ -18,8 +18,8 @@ type CertificationCreatorImpl struct {
 	certifications repositories.Certifications
 }
 
-func NewCertificationCreator(certifications repositories.Certifications) CertificationCreatorImpl {
-	return CertificationCreatorImpl{certifications: certifications}
+func NewCertificationCreator(certifications repositories.Certifications, users repositories.Users) CertificationCreatorImpl {
+	return CertificationCreatorImpl{certifications: certifications, users: users}
 }
 
 func (uc CertificationCreatorImpl) Create(ctx context.Context, request certifications.CreateCertificationRequest) (models.Certification, error) {

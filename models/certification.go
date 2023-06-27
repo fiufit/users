@@ -6,7 +6,7 @@ const CertificationStatusPending = "pending"
 const CertificationStatusDenied = "denied"
 const CertificationStatusApproved = "approved"
 
-var validCertificationStatuses = map[string]struct{}{
+var ValidCertificationStatuses = map[string]struct{}{
 	CertificationStatusPending:  {},
 	CertificationStatusDenied:   {},
 	CertificationStatusApproved: {},

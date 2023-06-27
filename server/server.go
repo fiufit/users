@@ -10,6 +10,7 @@ import (
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
 	"github.com/fiufit/users/usecases/accounts"
+	"github.com/fiufit/users/usecases/certifications"
 	"github.com/fiufit/users/usecases/users"
 	"github.com/fiufit/users/utils"
 	"github.com/gin-gonic/gin"
@@ -38,6 +39,9 @@ type Server struct {
 	getClosestUsers       handlers.GetClosestUsers
 	sendVerificationPin   handlers.SendVerificationPin
 	verifyUser            handlers.VerifyUser
+	createCert            handlers.CreateCertification
+	updateCert            handlers.UpdateCertification
+	getCert               handlers.GetCertifications
 }
 
 func (s *Server) Run() {
@@ -102,6 +106,7 @@ func NewServer() *Server {
 	metricsRepo := repositories.NewMetricsRepository(metricsUrl, "v1", logger)
 	notificationRepo := repositories.NewNotificationRepository(notificationUrl, logger, "v1")
 	verificationRepo := repositories.NewVerificationPinRepository(db, logger)
+	certificationRepo := repositories.NewCertificationRepository(db, logger, firebaseRepo)
 
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo, metricsRepo)
@@ -112,6 +117,9 @@ func NewServer() *Server {
 	followUserUc := users.NewUserFollowerImpl(userRepo, notificationRepo, metricsRepo, firebaseRepo, logger)
 	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, metricsRepo, logger)
 	verificationUc := accounts.NewVerificatorImpl(verificationRepo, firebaseRepo, whatsAppSender, logger)
+	createCertUc := certifications.NewCertificationCreator(certificationRepo, userRepo)
+	updateCertUc := certifications.NewCertificationUpdaterImpl(certificationRepo, userRepo, notificationRepo, firebaseRepo, logger)
+	getCertUc := certifications.NewCertificationGetterImpl(certificationRepo)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
@@ -126,6 +134,10 @@ func NewServer() *Server {
 	getClosestUsers := handlers.NewGetClosestUsers(&getUserUc, logger)
 	updateUser := handlers.NewUpdateUser(&updateUserUc, logger)
 	deleteUser := handlers.NewDeleteUser(&deleteUserUc, logger)
+
+	createCertification := handlers.NewCreateCertification(createCertUc)
+	updateCertification := handlers.NewUpdateCertification(updateCertUc)
+	getCertifications := handlers.NewGetCertifications(getCertUc)
 
 	followUser := handlers.NewFollowUser(&followUserUc, logger)
 	unfollowUser := handlers.NewUnfollowUser(&followUserUc, logger)
@@ -157,5 +169,8 @@ func NewServer() *Server {
 		notifyPasswordRecover: notifyPasswordRecover,
 		sendVerificationPin:   sendVerificationPin,
 		verifyUser:            verifyUser,
+		createCert:            createCertification,
+		updateCert:            updateCertification,
+		getCert:               getCertifications,
 	}
 }

@@ -2,5 +2,5 @@ package certifications
 
 type UpdateCertificationRequest struct {
 	CertificationID uint
-	Status          string `form:"status"`
+	Status          string `form:"status" binding:"required"`
 }

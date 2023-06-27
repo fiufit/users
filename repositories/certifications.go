@@ -25,8 +25,8 @@ type CertificationRepository struct {
 	firebase Firebase
 }
 
-func NewCertificationRepository(db *gorm.DB, logger *zap.Logger) CertificationRepository {
-	return CertificationRepository{db: db, logger: logger}
+func NewCertificationRepository(db *gorm.DB, logger *zap.Logger, firebase Firebase) CertificationRepository {
+	return CertificationRepository{db: db, logger: logger, firebase: firebase}
 }
 
 func (repo CertificationRepository) Create(ctx context.Context, certification models.Certification) (models.Certification, error) {
@@ -45,7 +45,7 @@ func (repo CertificationRepository) GetByID(ctx context.Context, id uint) (model
 	db := repo.db.WithContext(ctx)
 	var cert models.Certification
 
-	res := db.Where("id = ?", id).First(&cert)
+	res := db.Where("id = ?", id).Preload("User").First(&cert)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
 			return models.Certification{}, contracts.ErrCertificationNotFound
@@ -71,7 +71,7 @@ func (repo CertificationRepository) Get(ctx context.Context, request certificati
 		db = db.Where("user_id = ?", request.UserID)
 	}
 
-	result := db.Scopes(database.Paginate(res, &request.Pagination, db)).Preload("Users").Find(&res)
+	result := db.Scopes(database.Paginate(res, &request.Pagination, db)).Preload("User").Find(&res)
 	if result.Error != nil {
 		repo.logger.Error("Unable to get certifications", zap.Any("req", request), zap.Error(result.Error))
 		return certifications.GetCertificationsResponse{}, result.Error
