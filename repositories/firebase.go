@@ -20,6 +20,7 @@ type Firebase interface {
 	Register(ctx context.Context, req accounts.RegisterRequest) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
 	GetUserPictureUrl(ctx context.Context, userID string) string
+	GetCertificationVideoUrl(ctx context.Context, userID string) string
 	EnableUser(ctx context.Context, userID string) error
 	DisableUser(ctx context.Context, userID string) error
 	UserIsVerified(ctx context.Context, userID string) (bool, error)
@@ -41,7 +42,7 @@ func NewFirebaseRepository(logger *zap.Logger, sdkJson []byte, storageBucketName
 		return FirebaseRepository{}, err
 	}
 
-	auth, err := app.Auth(context.Background())
+	client, err := app.Auth(context.Background())
 	if err != nil {
 		return FirebaseRepository{}, err
 	}
@@ -59,7 +60,7 @@ func NewFirebaseRepository(logger *zap.Logger, sdkJson []byte, storageBucketName
 	repo := FirebaseRepository{
 		logger:            logger,
 		app:               app,
-		auth:              auth,
+		auth:              client,
 		storageBucketName: storageBucketName,
 		storageBucket:     storageBucket,
 	}
@@ -144,6 +145,30 @@ func (repo FirebaseRepository) GetUserPictureUrl(ctx context.Context, userID str
 	if err != nil {
 		pictureUrl = ""
 		repo.logger.Error("Unable to Sign user picture from firebase storage", zap.String("userID", userID))
+	}
+	return pictureUrl
+}
+
+func (repo FirebaseRepository) GetCertificationVideoUrl(ctx context.Context, userID string) string {
+	userVideoPath := "verification_videos/" + userID + "/video.mp4"
+
+	pictureHandle := repo.storageBucket.Object(userVideoPath)
+	_, err := pictureHandle.Attrs(ctx)
+	if err != nil {
+		if !errors.Is(err, storage.ErrObjectNotExist) {
+			repo.logger.Error("Unable to retrieve certification video from firebase storage", zap.String("userID", userID))
+		}
+		return ""
+	}
+
+	opts := storage.SignedURLOptions{
+		Method:  "GET",
+		Expires: time.Now().Add(time.Hour * 24),
+	}
+	pictureUrl, err := repo.storageBucket.SignedURL(userVideoPath, &opts)
+	if err != nil {
+		pictureUrl = ""
+		repo.logger.Error("Unable to Sign certification video from firebase storage", zap.String("userID", userID))
 	}
 	return pictureUrl
 }

@@ -14,4 +14,7 @@ var (
 	ErrUserAlreadyVerified    = errors.New("user is already verified")
 	ErrVerificationPinExpired = errors.New("verification pin is expired")
 	ErrInvalidVerificationPin = errors.New("invalid verification pin")
+	ErrUserAlreadyCertified   = errors.New("user is already verified")
+	ErrPendingCertsExists     = errors.New("A pending certification request already exists")
+	ErrCertificationNotFound  = errors.New("certification not found")
 )

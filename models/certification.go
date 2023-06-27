@@ -4,12 +4,12 @@ import "gorm.io/gorm"
 
 const CertificationStatusPending = "pending"
 const CertificationStatusDenied = "denied"
-const CertificationStatusAccepted = "accepted"
+const CertificationStatusApproved = "approved"
 
 var validCertificationStatuses = map[string]struct{}{
 	CertificationStatusPending:  {},
 	CertificationStatusDenied:   {},
-	CertificationStatusAccepted: {},
+	CertificationStatusApproved: {},
 }
 
 type Certification struct {
@@ -17,5 +17,5 @@ type Certification struct {
 	UserID   string
 	User     User
 	Status   string
-	VideoUrl string
+	VideoUrl string `gorm:"-"`
 }

@@ -15,6 +15,7 @@ import (
 
 type Notifications interface {
 	SendFollowersNotification(ctx context.Context, follower models.User, followed models.User) error
+	SendCertificationNotification(ctx context.Context, userID string, certificationStatus string) error
 }
 
 type NotificationRepository struct {
@@ -43,6 +44,56 @@ func (repo NotificationRepository) SendFollowersNotification(ctx context.Context
 				"other":              false,
 				"forceRefresh":       true,
 				"followerPictureUrl": follower.PictureUrl,
+			},
+		},
+	}
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	bodyReader := bytes.NewBuffer(jsonBody)
+	res, err := utils.MakeRequest(http.MethodPost, url, bodyReader)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	resBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	statusCode := res.StatusCode
+
+	if statusCode >= 400 {
+		err := contracts.UnwrapError(resBody)
+		return err
+	}
+	return nil
+}
+
+func (repo NotificationRepository) SendCertificationNotification(ctx context.Context, userID string, certificationStatus string) error {
+	url := repo.url + "/api/" + repo.version + "/notifications/push"
+
+	var message string
+	var message_type string
+	if certificationStatus == models.CertificationStatusApproved {
+		message = "Congratulations! Your profile is now verified"
+		message_type = "VERIFICATION_APPROVED"
+	} else {
+		message = "Your verification petition was denied. Please try again"
+		message_type = "VERIFICATION_REJECTED"
+	}
+
+	body := notificationBody{
+		ToUserID: []string{userID},
+		Title:    "FiuFit",
+		Subtitle: "Your verification status has been updated",
+		Body:     message,
+		Sound:    "default",
+		Data: map[string]interface{}{
+			"redirectTo": "Profile Settings",
+			"type":       message_type,
+			"params": map[string]interface{}{
+				"forceRefresh": true,
 			},
 		},
 	}
