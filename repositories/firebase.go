@@ -139,7 +139,7 @@ func (repo FirebaseRepository) GetUserPictureUrl(ctx context.Context, userID str
 
 	opts := storage.SignedURLOptions{
 		Method:  "GET",
-		Expires: time.Now().Add(time.Hour * 24),
+		Expires: time.Now().Add(time.Hour * 24 * 7),
 	}
 	pictureUrl, err := repo.storageBucket.SignedURL(picturePath, &opts)
 	if err != nil {
