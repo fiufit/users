@@ -16,13 +16,12 @@ type UserUpdater interface {
 }
 
 type UserUpdaterImpl struct {
-	users    repositories.Users
-	metrics  repositories.Metrics
-	firebase repositories.Firebase
+	users   repositories.Users
+	metrics repositories.Metrics
 }
 
-func NewUserUpdaterImpl(users repositories.Users, metrics repositories.Metrics, firebase repositories.Firebase) UserUpdaterImpl {
-	return UserUpdaterImpl{users: users, metrics: metrics, firebase: firebase}
+func NewUserUpdaterImpl(users repositories.Users, metrics repositories.Metrics) UserUpdaterImpl {
+	return UserUpdaterImpl{users: users, metrics: metrics}
 }
 
 func (uc *UserUpdaterImpl) UpdateUser(ctx context.Context, req ucontracts.UpdateUserRequest) (models.User, error) {
@@ -50,8 +49,6 @@ func (uc *UserUpdaterImpl) UpdateUser(ctx context.Context, req ucontracts.Update
 		uc.metrics.Create(ctx, locationMetricReq)
 	}
 
-	userPictureUrl := uc.firebase.GetUserPictureUrl(ctx, user.ID)
-	updatedUser.PictureUrl = userPictureUrl
 	return updatedUser, nil
 }
 

@@ -65,6 +65,7 @@ func (uc CertificationUpdaterImpl) Update(ctx context.Context, req certification
 		}
 	}
 
+	updatedCert.User = user
 	updatedCert.VideoUrl = uc.firebase.GetCertificationVideoUrl(ctx, user.ID)
 	return updatedCert, nil
 }

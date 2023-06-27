@@ -23,7 +23,7 @@ func NewCertificationCreator(certifications repositories.Certifications, users r
 }
 
 func (uc CertificationCreatorImpl) Create(ctx context.Context, request certifications.CreateCertificationRequest) (models.Certification, error) {
-	_, err := uc.users.GetByID(ctx, request.UserID)
+	user, err := uc.users.GetByID(ctx, request.UserID)
 	if err != nil {
 		return models.Certification{}, err
 	}
@@ -47,5 +47,10 @@ func (uc CertificationCreatorImpl) Create(ctx context.Context, request certifica
 	}
 
 	cert := models.Certification{Status: models.CertificationStatusPending, UserID: request.UserID}
-	return uc.certifications.Create(ctx, cert)
+	createdCert, err := uc.certifications.Create(ctx, cert)
+	if err != nil {
+		return models.Certification{}, err
+	}
+	createdCert.User = user
+	return createdCert, nil
 }

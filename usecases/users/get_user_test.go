@@ -21,7 +21,7 @@ func TestGetUserByIdError(t *testing.T) {
 
 	//when
 	userRepo.On("GetByID", ctx, userID).Return(models.User{}, errors.New("repo error"))
-	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
 	_, err := userUc.GetUserByID(ctx, userID)
 
 	//then
@@ -34,12 +34,10 @@ func TestGetUserByIdOk(t *testing.T) {
 	ctx := context.Background()
 	userID := "H014"
 	user := models.User{ID: userID}
-	firebaseMock := new(mocks.Firebase)
 
 	//when
-	firebaseMock.On("GetUserPictureUrl", ctx, userID).Return("aHR0cHM6Ly9zaG9ydHVybC5hdC9mcHRXNg==")
 	userRepo.On("GetByID", ctx, userID).Return(user, nil)
-	userUc := NewUserGetterImpl(userRepo, firebaseMock, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
 	res, err := userUc.GetUserByID(ctx, userID)
 
 	//then
@@ -55,7 +53,7 @@ func TestGetUserByNicknameError(t *testing.T) {
 
 	//when
 	userRepo.On("GetByNickname", ctx, username).Return(models.User{}, errors.New("repo error"))
-	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
 	_, err := userUc.GetUserByNickname(ctx, username)
 
 	//then
@@ -68,12 +66,10 @@ func TestGetUserByNicknameOk(t *testing.T) {
 	ctx := context.Background()
 	username := "Arnold84"
 	user := models.User{Nickname: username, ID: "userID"}
-	firebaseMock := new(mocks.Firebase)
 
 	//when
-	firebaseMock.On("GetUserPictureUrl", ctx, user.ID).Return("aHR0cHM6Ly9zaG9ydHVybC5hdC9mcHRXNg==")
 	userRepo.On("GetByNickname", ctx, username).Return(user, nil)
-	userUc := NewUserGetterImpl(userRepo, firebaseMock, zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
 	res, err := userUc.GetUserByNickname(ctx, username)
 
 	//then
@@ -91,7 +87,7 @@ func TestGetUsersError(t *testing.T) {
 
 	//when
 	userRepo.On("Get", ctx, req).Return(users.GetUsersResponse{}, errors.New("repo error"))
-	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
 	_, err := userUc.GetUsers(ctx, req)
 
 	//then
@@ -112,7 +108,7 @@ func TestGetUsersOk(t *testing.T) {
 
 	//when
 	userRepo.On("Get", ctx, req).Return(res, nil)
-	userUc := NewUserGetterImpl(userRepo, new(mocks.Firebase), zaptest.NewLogger(t))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
 	_, err := userUc.GetUsers(ctx, req)
 
 	//then

@@ -111,10 +111,10 @@ func NewServer() *Server {
 	// USECASES
 	registerUc := accounts.NewRegisterImpl(userRepo, logger, firebaseRepo, metricsRepo)
 	adminRegisterUc := accounts.NewAdminRegistererImpl(adminRepo, logger, toker)
-	getUserUc := users.NewUserGetterImpl(userRepo, firebaseRepo, logger)
-	updateUserUc := users.NewUserUpdaterImpl(userRepo, metricsRepo, firebaseRepo)
+	getUserUc := users.NewUserGetterImpl(userRepo, logger)
+	updateUserUc := users.NewUserUpdaterImpl(userRepo, metricsRepo)
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
-	followUserUc := users.NewUserFollowerImpl(userRepo, notificationRepo, metricsRepo, firebaseRepo, logger)
+	followUserUc := users.NewUserFollowerImpl(userRepo, notificationRepo, metricsRepo, logger)
 	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, metricsRepo, logger)
 	verificationUc := accounts.NewVerificatorImpl(verificationRepo, firebaseRepo, whatsAppSender, logger)
 	createCertUc := certifications.NewCertificationCreator(certificationRepo, userRepo)

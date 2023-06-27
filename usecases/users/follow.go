@@ -3,7 +3,6 @@ package users
 import (
 	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/contracts/users"
-	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
@@ -18,18 +17,11 @@ type UserFollowerImpl struct {
 	notifications repositories.Notifications
 	users         repositories.Users
 	metrics       repositories.Metrics
-	firebase      repositories.Firebase
 	logger        *zap.Logger
 }
 
-
-func NewUserFollowerImpl(users repositories.Users, notifications repositories.Notifications, metrics repositories.Metrics, firebase repositories.Firebase, logger *zap.Logger) UserFollowerImpl {
-  return UserFollowerImpl{users: users, notifications: notifications, metrics: metrics, firebase: firebase, logger: logger}
-}
-
-func (uc *UserFollowerImpl) fillUserPicture(ctx context.Context, user *models.User) {
-	userPictureUrl := uc.firebase.GetUserPictureUrl(ctx, user.ID)
-	(*user).PictureUrl = userPictureUrl
+func NewUserFollowerImpl(users repositories.Users, notifications repositories.Notifications, metrics repositories.Metrics, logger *zap.Logger) UserFollowerImpl {
+	return UserFollowerImpl{users: users, notifications: notifications, metrics: metrics, logger: logger}
 }
 
 func (uc UserFollowerImpl) FollowUser(ctx context.Context, req users.FollowUserRequest) error {
@@ -42,7 +34,6 @@ func (uc UserFollowerImpl) FollowUser(ctx context.Context, req users.FollowUserR
 	if err != nil {
 		return err
 	}
-	uc.fillUserPicture(ctx, &followerUser)
 	err = uc.users.FollowUser(ctx, followedUser, followerUser)
 	if err == nil {
 		if uc.notifications.SendFollowersNotification(ctx, followerUser, followedUser) != nil {
