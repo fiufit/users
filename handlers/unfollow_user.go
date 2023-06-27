@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -20,6 +19,21 @@ func NewUnfollowUser(follows users.UserFollower, logger *zap.Logger) UnfollowUse
 	return UnfollowUser{follows: follows, logger: logger}
 }
 
+// User Unfollow godoc
+//
+//	@Summary		Unfollow an user.
+//	@Description	Removes a following relationship between two users.
+//	@Tags			followers
+//	@Accept			json
+//	@Produce		json
+//	@Param			version												path		string	true	"API Version"
+//	@Param			followerID											path		string	true	"userID of the following user"
+//	@Param			userID												path		string	true	"userID of followed user"
+//	@Success		200													{object}	string	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400													{object}	contracts.ErrResponse
+//	@Failure		404													{object}	contracts.ErrResponse
+//	@Failure		500													{object}	contracts.ErrResponse
+//	@Router			/{version}/users/{userID}/followers/{followerID} 	[delete]
 func (h UnfollowUser) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.UnfollowUserRequest
@@ -33,13 +47,8 @@ func (h UnfollowUser) Handle() gin.HandlerFunc {
 
 		err = h.follows.UnfollowUser(ctx, req)
 		if err != nil {
-			if errors.Is(err, contracts.ErrUserNotFound) {
-				ctx.JSON(http.StatusNotFound, contracts.FormatErrResponse(err))
-				return
-			} else {
-				ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
-				return
-			}
+			contracts.HandleErrorType(ctx, err)
+			return
 		}
 
 		ctx.JSON(http.StatusOK, contracts.FormatOkResponse(""))

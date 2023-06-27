@@ -22,8 +22,9 @@ type UserFollowerImpl struct {
 	logger        *zap.Logger
 }
 
+
 func NewUserFollowerImpl(users repositories.Users, notifications repositories.Notifications, metrics repositories.Metrics, firebase repositories.Firebase, logger *zap.Logger) UserFollowerImpl {
-	return UserFollowerImpl{users: users, notifications: notifications, firebase: firebase, logger: logger}
+  return UserFollowerImpl{users: users, notifications: notifications, metrics: metrics, firebase: firebase, logger: logger}
 }
 
 func (uc *UserFollowerImpl) fillUserPicture(ctx context.Context, user *models.User) {

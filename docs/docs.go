@@ -184,6 +184,18 @@ const docTemplate = `{
                         "description": "User verification status",
                         "name": "is_verified",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number when getting with pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size when getting with pagination",
+                        "name": "page_size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -266,6 +278,89 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/login": {
+            "post": {
+                "description": "Creates a login metric for internal visualization.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Creates a login metric for internal visualization.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Login  method, either 'mail' or 'federated_entity'",
+                        "name": "method",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/password-recover": {
+            "post": {
+                "description": "Creates a password recovery metric for internal visualization.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Creates a password recovery metric for internal visualization.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/contracts.ErrResponse"
                         }
@@ -365,7 +460,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
@@ -389,7 +484,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes a user by their ID. This should endpoint should only be called by admins or the same user. Authorization is the gateway's responsibility.",
+                "description": "Deletes a user by their ID. This endpoint should only be called by admins or the same user. Authorization is the gateway's responsibility.",
                 "consumes": [
                     "application/json"
                 ],
@@ -513,6 +608,472 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/{version}/users/{userID}/closest": {
+            "get": {
+                "description": "Gets the closest users to a central user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "followers"
+                ],
+                "summary": "Gets the closest users to a central user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "userID of the person whose near users we want to find",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "distance radio (meters) in which to find users",
+                        "name": "distance",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number when getting with pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size when getting with pagination",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "$ref": "#/definitions/users.GetUsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/{userID}/disable": {
+            "delete": {
+                "description": "Disables a user by their ID, preventing them from doing further requests. This endpoint should only be called by admins. Authorization is the gateway's responsibility.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Disables a user by their ID, preventing them from doing further requests.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/{userID}/enable": {
+            "post": {
+                "description": "Re-enables a user by their ID, allowing them to do further requests. This endpoint should only be called by admins. Authorization is the gateway's responsibility.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Re-enables a user by their ID, allowing them to do further requests.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/{userID}/followerd": {
+            "get": {
+                "description": "Gets the followers of a user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "followers"
+                ],
+                "summary": "Gets the followers of a user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "userID of the person whose followed users we want to GET",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number when getting with pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size when getting with pagination",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "$ref": "#/definitions/users.GetFollowedUsersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/{userID}/followers": {
+            "get": {
+                "description": "Gets the followers of a user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "followers"
+                ],
+                "summary": "Gets the followers of a user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "userID of the person whose followers we want to GET",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number when getting with pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size when getting with pagination",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "$ref": "#/definitions/users.GetUserFollowersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a following relationship from the requesting user to the one in the route.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "followers"
+                ],
+                "summary": "Follow an user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "userID of the following user",
+                        "name": "follower_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "userID of followed user",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{version}/users/{userID}/followers/{followerID}": {
+            "delete": {
+                "description": "Removes a following relationship between two users.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "followers"
+                ],
+                "summary": "Unfollow an user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "userID of the following user",
+                        "name": "followerID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "userID of followed user",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Important Note: OK responses are wrapped in {\"data\": ... }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/contracts.ErrResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -569,7 +1130,8 @@ const docTemplate = `{
                 "display_name",
                 "height",
                 "is_male",
-                "main_location",
+                "latitude",
+                "longitude",
                 "nickname",
                 "weight"
             ],
@@ -583,10 +1145,22 @@ const docTemplate = `{
                 "height": {
                     "type": "integer"
                 },
+                "interests": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "is_male": {
                     "type": "boolean"
                 },
-                "main_location": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "method": {
                     "type": "string"
                 },
                 "nickname": {
@@ -650,6 +1224,20 @@ const docTemplate = `{
                 }
             }
         },
+        "contracts.Pagination": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_rows": {
+                    "type": "integer"
+                }
+            }
+        },
         "gorm.DeletedAt": {
             "type": "object",
             "properties": {
@@ -682,6 +1270,14 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Interest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -694,8 +1290,17 @@ const docTemplate = `{
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
+                "disabled": {
+                    "type": "boolean"
+                },
                 "displayName": {
                     "type": "string"
+                },
+                "followers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
                 },
                 "height": {
                     "type": "integer"
@@ -706,7 +1311,7 @@ const docTemplate = `{
                 "interests": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/models.Interest"
                     }
                 },
                 "isMale": {
@@ -715,14 +1320,77 @@ const docTemplate = `{
                 "isVerifiedTrainer": {
                     "type": "boolean"
                 },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
                 "mainLocation": {
                     "type": "string"
                 },
                 "nickname": {
                     "type": "string"
                 },
+                "pictureUrl": {
+                    "type": "string"
+                },
                 "weight": {
                     "type": "integer"
+                }
+            }
+        },
+        "users.GetFollowedUsersResponse": {
+            "type": "object",
+            "properties": {
+                "followed": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_rows": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.GetUserFollowersResponse": {
+            "type": "object",
+            "properties": {
+                "followers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_rows": {
+                    "type": "integer"
+                }
+            }
+        },
+        "users.GetUsersResponse": {
+            "type": "object",
+            "properties": {
+                "pagination": {
+                    "$ref": "#/definitions/contracts.Pagination"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
                 }
             }
         },
@@ -741,11 +1409,20 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "interests": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "is_male": {
                     "type": "boolean"
                 },
-                "main_location": {
-                    "type": "string"
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
                 },
                 "nickname": {
                     "type": "string"

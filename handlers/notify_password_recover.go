@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
-	"github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/repositories"
 	"github.com/gin-gonic/gin"
@@ -18,15 +17,19 @@ func NewNotifyPasswordRecover(metrics repositories.Metrics) NotifyPasswordRecove
 	return NotifyPasswordRecover{metrics: metrics}
 }
 
+// Notify Password Recovery godoc
+//
+//	@Summary		Creates a password recovery metric for internal visualization.
+//	@Description	Creates a password recovery metric for internal visualization.
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			version								path		string	true	"API Version"
+//	@Success		200									{object}	string	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400									{object}	contracts.ErrResponse
+//	@Router			/{version}/users/password-recover 	[post]
 func (h NotifyPasswordRecover) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req accounts.NotifyLoginMethodRequest
-		err := ctx.ShouldBindQuery(&req)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, contracts.FormatErrResponse(contracts.ErrBadRequest))
-			return
-		}
-
 		metricsReq := metrics.CreateMetricRequest{
 			MetricType: "password_recover",
 		}

@@ -38,9 +38,17 @@ definitions:
         type: string
       height:
         type: integer
+      interests:
+        items:
+          type: string
+        type: array
       is_male:
         type: boolean
-      main_location:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      method:
         type: string
       nickname:
         type: string
@@ -53,7 +61,8 @@ definitions:
     - display_name
     - height
     - is_male
-    - main_location
+    - latitude
+    - longitude
     - nickname
     - weight
     type: object
@@ -89,6 +98,15 @@ definitions:
       error:
         $ref: '#/definitions/contracts.ErrPayload'
     type: object
+  contracts.Pagination:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_rows:
+        type: integer
+    type: object
   gorm.DeletedAt:
     properties:
       time:
@@ -110,6 +128,11 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.Interest:
+    properties:
+      name:
+        type: string
+    type: object
   models.User:
     properties:
       bornAt:
@@ -118,26 +141,73 @@ definitions:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
+      disabled:
+        type: boolean
       displayName:
         type: string
+      followers:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
       height:
         type: integer
       id:
         type: string
       interests:
         items:
-          type: string
+          $ref: '#/definitions/models.Interest'
         type: array
       isMale:
         type: boolean
       isVerifiedTrainer:
         type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
       mainLocation:
         type: string
       nickname:
         type: string
+      pictureUrl:
+        type: string
       weight:
         type: integer
+    type: object
+  users.GetFollowedUsersResponse:
+    properties:
+      followed:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_rows:
+        type: integer
+    type: object
+  users.GetUserFollowersResponse:
+    properties:
+      followers:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_rows:
+        type: integer
+    type: object
+  users.GetUsersResponse:
+    properties:
+      pagination:
+        $ref: '#/definitions/contracts.Pagination'
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
     type: object
   users.UpdateUserRequest:
     properties:
@@ -149,10 +219,16 @@ definitions:
         type: integer
       id:
         type: string
+      interests:
+        items:
+          type: string
+        type: array
       is_male:
         type: boolean
-      main_location:
-        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
       nickname:
         type: string
       weight:
@@ -282,6 +358,14 @@ paths:
         in: query
         name: is_verified
         type: string
+      - description: page number when getting with pagination
+        in: query
+        name: page
+        type: integer
+      - description: page size when getting with pagination
+        in: query
+        name: page_size
+        type: integer
       produces:
       - application/json
       responses:
@@ -308,8 +392,8 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Deletes a user by their ID. This should endpoint should only be
-        called by admins or the same user. Authorization is the gateway's responsibility.
+      description: Deletes a user by their ID. This endpoint should only be called
+        by admins or the same user. Authorization is the gateway's responsibility.
       parameters:
       - description: API Version
         in: path
@@ -364,7 +448,7 @@ paths:
         "200":
           description: 'Important Note: OK responses are wrapped in {"data": ... }'
           schema:
-            type: string
+            $ref: '#/definitions/models.User'
         "400":
           description: Bad Request
           schema:
@@ -428,6 +512,323 @@ paths:
       summary: Updates a user.
       tags:
       - accounts
+  /{version}/users/{userID}/closest:
+    get:
+      consumes:
+      - application/json
+      description: Gets the closest users to a central user.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: userID of the person whose near users we want to find
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: distance radio (meters) in which to find users
+        in: query
+        name: distance
+        required: true
+        type: integer
+      - description: page number when getting with pagination
+        in: query
+        name: page
+        type: integer
+      - description: page size when getting with pagination
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/users.GetUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Gets the closest users to a central user.
+      tags:
+      - followers
+  /{version}/users/{userID}/disable:
+    delete:
+      consumes:
+      - application/json
+      description: Disables a user by their ID, preventing them from doing further
+        requests. This endpoint should only be called by admins. Authorization is
+        the gateway's responsibility.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Disables a user by their ID, preventing them from doing further requests.
+      tags:
+      - accounts
+  /{version}/users/{userID}/enable:
+    post:
+      consumes:
+      - application/json
+      description: Re-enables a user by their ID, allowing them to do further requests.
+        This endpoint should only be called by admins. Authorization is the gateway's
+        responsibility.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Re-enables a user by their ID, allowing them to do further requests.
+      tags:
+      - accounts
+  /{version}/users/{userID}/followerd:
+    get:
+      consumes:
+      - application/json
+      description: Gets the followers of a user.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: userID of the person whose followed users we want to GET
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: page number when getting with pagination
+        in: query
+        name: page
+        type: integer
+      - description: page size when getting with pagination
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/users.GetFollowedUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Gets the followers of a user.
+      tags:
+      - followers
+  /{version}/users/{userID}/followers:
+    get:
+      consumes:
+      - application/json
+      description: Gets the followers of a user.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: userID of the person whose followers we want to GET
+        in: path
+        name: userID
+        required: true
+        type: string
+      - description: page number when getting with pagination
+        in: query
+        name: page
+        type: integer
+      - description: page size when getting with pagination
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            $ref: '#/definitions/users.GetUserFollowersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Gets the followers of a user.
+      tags:
+      - followers
+    post:
+      consumes:
+      - application/json
+      description: Creates a following relationship from the requesting user to the
+        one in the route.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: userID of the following user
+        in: query
+        name: follower_id
+        required: true
+        type: string
+      - description: userID of followed user
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Follow an user.
+      tags:
+      - followers
+  /{version}/users/{userID}/followers/{followerID}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a following relationship between two users.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: userID of the following user
+        in: path
+        name: followerID
+        required: true
+        type: string
+      - description: userID of followed user
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Unfollow an user.
+      tags:
+      - followers
   /{version}/users/finish-register:
     post:
       consumes:
@@ -466,6 +867,61 @@ paths:
           schema:
             $ref: '#/definitions/contracts.ErrResponse'
       summary: Register a new user.
+      tags:
+      - accounts
+  /{version}/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Creates a login metric for internal visualization.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      - description: Login  method, either 'mail' or 'federated_entity'
+        in: query
+        name: method
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Creates a login metric for internal visualization.
+      tags:
+      - accounts
+  /{version}/users/password-recover:
+    post:
+      consumes:
+      - application/json
+      description: Creates a password recovery metric for internal visualization.
+      parameters:
+      - description: API Version
+        in: path
+        name: version
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Important Note: OK responses are wrapped in {"data": ... }'
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/contracts.ErrResponse'
+      summary: Creates a password recovery metric for internal visualization.
       tags:
       - accounts
   /{version}/users/register:

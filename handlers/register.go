@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/fiufit/users/contracts"
@@ -21,18 +20,19 @@ func NewRegister(users accounts.Registerer, logger *zap.Logger) Register {
 }
 
 // User Register godoc
-// @Summary      Register a new user.
-// @Description	 Register a new User.
-// @Tags         accounts
-// @Accept       json
-// @Produce      json
-// @Param        version   path      string  true  "API Version"
-// @Param        payload   body      ucontracts.RegisterRequest  true  "Body params"
-// @Success      200  {object} 	ucontracts.RegisterResponse "Important Note: OK responses are wrapped in {"data": ... }"
-// @Failure      400  {object} 	contracts.ErrResponse
-// @Failure      409  {object}  contracts.ErrResponse
-// @Failure      500  {object}  contracts.ErrResponse
-// @Router       /{version}/users/register 	[post]
+//
+//	@Summary		Register a new user.
+//	@Description	Register a new User.
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			version						path		string						true	"API Version"
+//	@Param			payload						body		ucontracts.RegisterRequest	true	"Body params"
+//	@Success		200							{object}	ucontracts.RegisterResponse	"Important Note: OK responses are wrapped in {"data": ... }"
+//	@Failure		400							{object}	contracts.ErrResponse
+//	@Failure		409							{object}	contracts.ErrResponse
+//	@Failure		500							{object}	contracts.ErrResponse
+//	@Router			/{version}/users/register 	[post]
 func (h Register) Handle() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req ucontracts.RegisterRequest
@@ -44,12 +44,7 @@ func (h Register) Handle() gin.HandlerFunc {
 
 		res, err := h.users.Register(ctx, req)
 		if err != nil {
-			if errors.Is(err, contracts.ErrUserAlreadyExists) {
-				ctx.JSON(http.StatusConflict, contracts.FormatErrResponse(err))
-				return
-			}
-
-			ctx.JSON(http.StatusInternalServerError, contracts.FormatErrResponse(contracts.ErrInternal))
+			contracts.HandleErrorType(ctx, err)
 			return
 		}
 
