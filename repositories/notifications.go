@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//go:generate mockery --name Notifications
 type Notifications interface {
 	SendFollowersNotification(ctx context.Context, follower models.User, followed models.User) error
 	SendCertificationNotification(ctx context.Context, userID string, certificationStatus string) error
@@ -74,13 +75,13 @@ func (repo NotificationRepository) SendCertificationNotification(ctx context.Con
 	url := repo.url + "/api/" + repo.version + "/notifications/push"
 
 	var message string
-	var message_type string
+	var messageType string
 	if certificationStatus == models.CertificationStatusApproved {
 		message = "Congratulations! Your profile is now verified"
-		message_type = "VERIFICATION_APPROVED"
+		messageType = "VERIFICATION_APPROVED"
 	} else {
 		message = "Your verification petition was denied. Please try again"
-		message_type = "VERIFICATION_REJECTED"
+		messageType = "VERIFICATION_REJECTED"
 	}
 
 	body := notificationBody{
@@ -91,7 +92,7 @@ func (repo NotificationRepository) SendCertificationNotification(ctx context.Con
 		Sound:    "default",
 		Data: map[string]interface{}{
 			"redirectTo": "Profile Settings",
-			"type":       message_type,
+			"type":       messageType,
 			"params": map[string]interface{}{
 				"forceRefresh": true,
 			},

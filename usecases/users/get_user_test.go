@@ -114,3 +114,125 @@ func TestGetUsersOk(t *testing.T) {
 	//then
 	assert.NoError(t, err)
 }
+
+func TestGetClosestUsers_ErrUserNotFound(t *testing.T) {
+	//given
+	userRepo := new(mocks.Users)
+	ctx := context.Background()
+	req := users.GetClosestUsersRequest{
+		UserID: "H014",
+	}
+	userRepo.On("GetByID", ctx, req.UserID).Return(models.User{}, contracts.ErrUserNotFound)
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+
+	//when
+	_, err := userUc.GetClosestUsers(ctx, req)
+
+	//then
+	assert.Error(t, err)
+	assert.ErrorIs(t, err, contracts.ErrUserNotFound)
+}
+
+func TestGetClosestUsers_GetByDistanceError(t *testing.T) {
+	//given
+	userRepo := new(mocks.Users)
+	ctx := context.Background()
+	req := users.GetClosestUsersRequest{
+		UserID: "H014",
+	}
+	userRepo.On("GetByID", ctx, req.UserID).Return(models.User{ID: req.UserID}, nil)
+	userRepo.On("GetByDistance", ctx, req).Return(users.GetUsersResponse{}, errors.New("repo error"))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+
+	//when
+	_, err := userUc.GetClosestUsers(ctx, req)
+
+	//then
+	assert.Error(t, err)
+}
+
+func TestGetClosestUsers_Ok(t *testing.T) {
+	//given
+	userRepo := new(mocks.Users)
+	ctx := context.Background()
+	req := users.GetClosestUsersRequest{
+		UserID: "H014",
+	}
+	userRepo.On("GetByID", ctx, req.UserID).Return(models.User{ID: req.UserID}, nil)
+	userRepo.On("GetByDistance", ctx, req).Return(users.GetUsersResponse{}, nil)
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+
+	//when
+	_, err := userUc.GetClosestUsers(ctx, req)
+
+	//then
+	assert.NoError(t, err)
+}
+
+func TestGetUserFollowers_Error(t *testing.T) {
+	//given
+	userRepo := new(mocks.Users)
+	ctx := context.Background()
+	req := users.GetUserFollowersRequest{
+		UserID: "H014",
+	}
+	userRepo.On("GetFollowers", ctx, req).Return(users.GetUserFollowersResponse{}, errors.New("repo error"))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+
+	//when
+	_, err := userUc.GetUserFollowers(ctx, req)
+
+	//then
+	assert.Error(t, err)
+}
+
+func TestGetUserFollowers_Ok(t *testing.T) {
+	//given
+	userRepo := new(mocks.Users)
+	ctx := context.Background()
+	req := users.GetUserFollowersRequest{
+		UserID: "H014",
+	}
+	userRepo.On("GetFollowers", ctx, req).Return(users.GetUserFollowersResponse{}, nil)
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+
+	//when
+	_, err := userUc.GetUserFollowers(ctx, req)
+
+	//then
+	assert.NoError(t, err)
+}
+
+func TestGetUserFollowed_Error(t *testing.T) {
+	//given
+	userRepo := new(mocks.Users)
+	ctx := context.Background()
+	req := users.GetFollowedUsersRequest{
+		UserID: "H014",
+	}
+	userRepo.On("GetFollowed", ctx, req).Return(users.GetFollowedUsersResponse{}, errors.New("repo error"))
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+
+	//when
+	_, err := userUc.GetUserFollowed(ctx, req)
+
+	//then
+	assert.Error(t, err)
+}
+
+func TestGetUserFollowed_Ok(t *testing.T) {
+	//given
+	userRepo := new(mocks.Users)
+	ctx := context.Background()
+	req := users.GetFollowedUsersRequest{
+		UserID: "H014",
+	}
+	userRepo.On("GetFollowed", ctx, req).Return(users.GetFollowedUsersResponse{}, nil)
+	userUc := NewUserGetterImpl(userRepo, zaptest.NewLogger(t))
+
+	//when
+	_, err := userUc.GetUserFollowed(ctx, req)
+
+	//then
+	assert.NoError(t, err)
+}

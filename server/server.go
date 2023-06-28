@@ -116,7 +116,7 @@ func NewServer() *Server {
 	deleteUserUc := users.NewUserDeleterImpl(userRepo)
 	followUserUc := users.NewUserFollowerImpl(userRepo, notificationRepo, metricsRepo, logger)
 	enableUserUc := users.NewUserEnablerImpl(userRepo, firebaseRepo, metricsRepo, logger)
-	verificationUc := accounts.NewVerificatorImpl(verificationRepo, firebaseRepo, whatsAppSender, logger)
+	verificationUc := accounts.NewVerifierImpl(verificationRepo, firebaseRepo, whatsAppSender, logger)
 	createCertUc := certifications.NewCertificationCreator(certificationRepo, userRepo)
 	updateCertUc := certifications.NewCertificationUpdaterImpl(certificationRepo, userRepo, notificationRepo, firebaseRepo, logger)
 	getCertUc := certifications.NewCertificationGetterImpl(certificationRepo)

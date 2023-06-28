@@ -5,6 +5,7 @@ import (
 	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
+//go:generate mockery --name WhatsApper
 type WhatsApper interface {
 	SendWhatsAppMessage(to string, pin string) error
 }

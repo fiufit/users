@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockery --name Certifications
 type Certifications interface {
 	Create(ctx context.Context, certification models.Certification) (models.Certification, error)
 	Get(ctx context.Context, request certifications.GetCertificationsRequest) (certifications.GetCertificationsResponse, error)
