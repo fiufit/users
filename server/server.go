@@ -119,7 +119,7 @@ func NewServer() *Server {
 	verificationUc := accounts.NewVerifierImpl(verificationRepo, firebaseRepo, whatsAppSender, logger)
 	createCertUc := certifications.NewCertificationCreator(certificationRepo, userRepo)
 	updateCertUc := certifications.NewCertificationUpdaterImpl(certificationRepo, userRepo, notificationRepo, firebaseRepo, logger)
-	getCertUc := certifications.NewCertificationGetterImpl(certificationRepo)
+	getCertUc := certifications.NewCertificationGetterImpl(certificationRepo, userRepo)
 
 	// HANDLERS
 	register := handlers.NewRegister(&registerUc, logger)
