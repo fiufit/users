@@ -8,6 +8,7 @@ import (
 	"github.com/fiufit/users/contracts/certifications"
 	"github.com/fiufit/users/database"
 	"github.com/fiufit/users/models"
+	"github.com/fiufit/users/repositories/external"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -23,10 +24,10 @@ type Certifications interface {
 type CertificationRepository struct {
 	db       *gorm.DB
 	logger   *zap.Logger
-	firebase Firebase
+	firebase external.Firebase
 }
 
-func NewCertificationRepository(db *gorm.DB, logger *zap.Logger, firebase Firebase) CertificationRepository {
+func NewCertificationRepository(db *gorm.DB, logger *zap.Logger, firebase external.Firebase) CertificationRepository {
 	return CertificationRepository{db: db, logger: logger, firebase: firebase}
 }
 

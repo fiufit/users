@@ -296,13 +296,13 @@ func TestUserRepository_Get_OK(t *testing.T) {
 	repo := NewUserRepository(db, zaptest.NewLogger(t), firebaseMock, reverseLocator)
 
 	testUsers := [7]models.User{
-		models.User{ID: "a", Nickname: "Guille"},
-		models.User{ID: "b", Nickname: "Goye", DisplayName: "Arnie"},
-		models.User{ID: "c", Nickname: "Guillermo"},
-		models.User{ID: "d", Nickname: "Bob"},
-		models.User{ID: "e", Nickname: "Arnold", IsVerifiedTrainer: true},
-		models.User{ID: "f", Nickname: "Arnolda"},
-		models.User{ID: "g", Nickname: "Mike", IsVerifiedTrainer: true},
+		{ID: "a", Nickname: "Guille"},
+		{ID: "b", Nickname: "Goye", DisplayName: "Arnie"},
+		{ID: "c", Nickname: "Guillermo"},
+		{ID: "d", Nickname: "Bob"},
+		{ID: "e", Nickname: "Arnold", IsVerifiedTrainer: true},
+		{ID: "f", Nickname: "Arnolda"},
+		{ID: "g", Nickname: "Mike", IsVerifiedTrainer: true},
 	}
 
 	for _, user := range testUsers {
@@ -365,4 +365,48 @@ func areUserIDsInResult(ids []string, users []models.User) bool {
 		}
 	}
 	return true
+}
+
+func TestUserRepository_GetByDistance_DBError(t *testing.T) {
+	defer testSuite.TruncateModels()
+	ctx := context.Background()
+	db := testSuite.DB
+	reverseLocator, _ := utils.NewReverseLocator()
+	firebaseMock := new(mocks.Firebase)
+	repo := NewUserRepository(db, zaptest.NewLogger(t), firebaseMock, reverseLocator)
+
+	_ = db.AddError(errors.New("test error"))
+	testReq := users.GetClosestUsersRequest{}
+	_, err := repo.GetByDistance(ctx, testReq)
+
+	assert.Error(t, err)
+	assert.Equal(t, err.Error(), "test error")
+	db.Error = nil //overwrite the db Error so that TruncateModels() doesn't panic
+}
+
+func TestUserRepository_GetByDistance_Ok(t *testing.T) {
+	t.Skip("TODO: figure out how to enable EARTHDISTANCE postgres extension in testsuite postgres container")
+	defer testSuite.TruncateModels()
+	ctx := context.Background()
+	db := testSuite.DB
+	reverseLocator, _ := utils.NewReverseLocator()
+	firebaseMock := new(mocks.Firebase)
+	repo := NewUserRepository(db, zaptest.NewLogger(t), firebaseMock, reverseLocator)
+
+	testUsers := [3]models.User{
+		{ID: "a", Nickname: "Guille", Latitude: -34.6, Longitude: -58.38},
+		{ID: "b", Nickname: "Guillermito", Latitude: -34.9, Longitude: -56.16},
+		{ID: "c", Nickname: "Guilherme", Latitude: -22.9, Longitude: -43.19},
+	}
+
+	for _, user := range testUsers {
+		firebaseMock.On("GetUserPictureUrl", ctx, user.ID).Return("")
+	}
+
+	_ = db.Create(&testUsers)
+
+	res, err := repo.GetByDistance(ctx, users.GetClosestUsersRequest{UserID: testUsers[0].ID, Latitude: testUsers[0].Latitude, Longitude: testUsers[0].Longitude, Distance: 200})
+
+	assert.NoError(t, err)
+	assert.Equal(t, len(res.Users), 1)
 }

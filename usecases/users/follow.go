@@ -4,6 +4,7 @@ import (
 	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
 )
@@ -14,13 +15,13 @@ type UserFollower interface {
 }
 
 type UserFollowerImpl struct {
-	notifications repositories.Notifications
+	notifications external.Notifications
 	users         repositories.Users
-	metrics       repositories.Metrics
+	metrics       external.Metrics
 	logger        *zap.Logger
 }
 
-func NewUserFollowerImpl(users repositories.Users, notifications repositories.Notifications, metrics repositories.Metrics, logger *zap.Logger) UserFollowerImpl {
+func NewUserFollowerImpl(users repositories.Users, notifications external.Notifications, metrics external.Metrics, logger *zap.Logger) UserFollowerImpl {
 	return UserFollowerImpl{users: users, notifications: notifications, metrics: metrics, logger: logger}
 }
 

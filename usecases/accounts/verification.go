@@ -10,6 +10,7 @@ import (
 	"github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"github.com/fiufit/users/utils"
 	"go.uber.org/zap"
 )
@@ -22,11 +23,11 @@ type Verifier interface {
 type VerifierImpl struct {
 	verification   repositories.VerificationPins
 	logger         *zap.Logger
-	auth           repositories.Firebase
+	auth           external.Firebase
 	whatsappSender utils.WhatsApper
 }
 
-func NewVerifierImpl(verification repositories.VerificationPins, auth repositories.Firebase, whatsAppSender utils.WhatsApper, logger *zap.Logger) VerifierImpl {
+func NewVerifierImpl(verification repositories.VerificationPins, auth external.Firebase, whatsAppSender utils.WhatsApper, logger *zap.Logger) VerifierImpl {
 	return VerifierImpl{logger: logger, auth: auth, verification: verification, whatsappSender: whatsAppSender}
 }
 

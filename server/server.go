@@ -9,6 +9,7 @@ import (
 	"github.com/fiufit/users/handlers"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"github.com/fiufit/users/usecases/accounts"
 	"github.com/fiufit/users/usecases/certifications"
 	"github.com/fiufit/users/usecases/users"
@@ -97,14 +98,14 @@ func NewServer() *Server {
 	notificationUrl := os.Getenv("NOTIFICATION_SERVICE_URL")
 
 	// REPOSITORIES
-	firebaseRepo, err := repositories.NewFirebaseRepository(logger, sdkJson, os.Getenv("FIREBASE_BUCKET_NAME"))
+	firebaseRepo, err := external.NewFirebaseRepository(logger, sdkJson, os.Getenv("FIREBASE_BUCKET_NAME"))
 	if err != nil {
 		panic(err)
 	}
 	userRepo := repositories.NewUserRepository(db, logger, firebaseRepo, reverseLocator)
 	adminRepo := repositories.NewAdminRepository(db, logger)
-	metricsRepo := repositories.NewMetricsRepository(metricsUrl, "v1", logger)
-	notificationRepo := repositories.NewNotificationRepository(notificationUrl, logger, "v1")
+	metricsRepo := external.NewMetricsRepository(metricsUrl, "v1", logger)
+	notificationRepo := external.NewNotificationRepository(notificationUrl, logger, "v1")
 	verificationRepo := repositories.NewVerificationPinRepository(db, logger)
 	certificationRepo := repositories.NewCertificationRepository(db, logger, firebaseRepo)
 

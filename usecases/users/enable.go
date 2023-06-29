@@ -5,6 +5,7 @@ import (
 
 	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"go.uber.org/zap"
 )
 
@@ -15,12 +16,12 @@ type UserEnabler interface {
 
 type UserEnablerImpl struct {
 	users    repositories.Users
-	metrics  repositories.Metrics
-	firebase repositories.Firebase
+	metrics  external.Metrics
+	firebase external.Firebase
 	logger   *zap.Logger
 }
 
-func NewUserEnablerImpl(users repositories.Users, firebase repositories.Firebase, metrics repositories.Metrics, logger *zap.Logger) UserEnablerImpl {
+func NewUserEnablerImpl(users repositories.Users, firebase external.Firebase, metrics external.Metrics, logger *zap.Logger) UserEnablerImpl {
 	return UserEnablerImpl{users: users, firebase: firebase, metrics: metrics, logger: logger}
 }
 

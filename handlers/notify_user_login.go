@@ -6,15 +6,15 @@ import (
 	"github.com/fiufit/users/contracts"
 	"github.com/fiufit/users/contracts/accounts"
 	"github.com/fiufit/users/contracts/metrics"
-	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"github.com/gin-gonic/gin"
 )
 
 type NotifyUserLogin struct {
-	metrics repositories.Metrics
+	metrics external.Metrics
 }
 
-func NewNotifyUserLogin(metrics repositories.Metrics) NotifyUserLogin {
+func NewNotifyUserLogin(metrics external.Metrics) NotifyUserLogin {
 	return NotifyUserLogin{metrics: metrics}
 }
 

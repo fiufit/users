@@ -8,6 +8,7 @@ import (
 	"github.com/fiufit/users/contracts/metrics"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"go.uber.org/zap"
 )
 
@@ -18,12 +19,12 @@ type Registerer interface {
 
 type RegistererImpl struct {
 	users   repositories.Users
-	metrics repositories.Metrics
+	metrics external.Metrics
 	logger  *zap.Logger
-	auth    repositories.Firebase
+	auth    external.Firebase
 }
 
-func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth repositories.Firebase, metrics repositories.Metrics) RegistererImpl {
+func NewRegisterImpl(users repositories.Users, logger *zap.Logger, auth external.Firebase, metrics external.Metrics) RegistererImpl {
 	return RegistererImpl{users: users, metrics: metrics, logger: logger, auth: auth}
 }
 

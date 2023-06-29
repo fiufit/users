@@ -10,6 +10,7 @@ import (
 	ucontracts "github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/database"
 	"github.com/fiufit/users/models"
+	"github.com/fiufit/users/repositories/external"
 	"github.com/fiufit/users/utils"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -33,11 +34,11 @@ type Users interface {
 type UserRepository struct {
 	db             *gorm.DB
 	logger         *zap.Logger
-	auth           Firebase
+	auth           external.Firebase
 	reverseLocator *utils.ReverseLocator
 }
 
-func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth Firebase, reverseLocator *utils.ReverseLocator) UserRepository {
+func NewUserRepository(db *gorm.DB, logger *zap.Logger, auth external.Firebase, reverseLocator *utils.ReverseLocator) UserRepository {
 	return UserRepository{db: db, logger: logger, auth: auth, reverseLocator: reverseLocator}
 }
 

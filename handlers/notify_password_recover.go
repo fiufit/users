@@ -5,15 +5,15 @@ import (
 
 	"github.com/fiufit/users/contracts"
 	"github.com/fiufit/users/contracts/metrics"
-	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"github.com/gin-gonic/gin"
 )
 
 type NotifyPasswordRecover struct {
-	metrics repositories.Metrics
+	metrics external.Metrics
 }
 
-func NewNotifyPasswordRecover(metrics repositories.Metrics) NotifyPasswordRecover {
+func NewNotifyPasswordRecover(metrics external.Metrics) NotifyPasswordRecover {
 	return NotifyPasswordRecover{metrics: metrics}
 }
 
