@@ -15,6 +15,8 @@ func TestMain(m *testing.M) {
 		models.Administrator{},
 		models.User{},
 		models.Interest{},
+		models.Certification{},
+		models.VerificationPin{},
 	)
 
 	testResult := m.Run()

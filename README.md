@@ -1,5 +1,11 @@
+
 # users
 Microservice for managing fiufit's users, admins and profiles
+
+[![codecov](https://codecov.io/github/fiufit/users/branch/main/graph/badge.svg?token=PDT69DRER8)](https://codecov.io/github/fiufit/users)
+[![test](https://github.com/fiufit/users/actions/workflows/test.yml/badge.svg)](https://github.com/fiufit/users/actions/workflows/test.yml)
+[![Lint Go Code](https://github.com/fiufit/users/actions/workflows/lint.yml/badge.svg)](https://github.com/fiufit/users/actions/workflows/lint.yml)
+[![Fly Deploy](https://github.com/fiufit/users/actions/workflows/fly.yml/badge.svg)](https://github.com/fiufit/users/actions/workflows/fly.yml)
 
 ### Usage
 

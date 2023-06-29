@@ -12,11 +12,11 @@ import (
 )
 
 type SendVerificationPin struct {
-	validation accounts.Verificator
+	validation accounts.Verifier
 	logger     *zap.Logger
 }
 
-func NewSendVerificationPin(validation accounts.Verificator, logger *zap.Logger) SendVerificationPin {
+func NewSendVerificationPin(validation accounts.Verifier, logger *zap.Logger) SendVerificationPin {
 	return SendVerificationPin{validation: validation, logger: logger}
 }
 

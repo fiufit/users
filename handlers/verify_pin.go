@@ -12,11 +12,11 @@ import (
 )
 
 type VerifyUser struct {
-	validation accounts.Verificator
+	validation accounts.Verifier
 	logger     *zap.Logger
 }
 
-func NewVerifyUser(validation accounts.Verificator, logger *zap.Logger) VerifyUser {
+func NewVerifyUser(validation accounts.Verifier, logger *zap.Logger) VerifyUser {
 	return VerifyUser{validation: validation, logger: logger}
 }
 

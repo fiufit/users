@@ -128,13 +128,14 @@ func TestAdminRegisterRepoError(t *testing.T) {
 		Password: "passwordHash",
 	}
 
-	_, _ = mpatch.PatchMethod(utils.HashPassword, func(string) (string, error) {
+	patch, _ := mpatch.PatchMethod(utils.HashPassword, func(string) (string, error) {
 		return "passwordHash", nil
 	})
 
 	adminUc := NewAdminRegistererImpl(adminRepo, zaptest.NewLogger(t), toker)
 	adminRepo.On("Create", ctx, admin).Return(models.Administrator{}, errors.New("repo error"))
 	_, err := adminUc.Register(ctx, req)
+	patch.Unpatch()
 
 	assert.Error(t, err)
 }

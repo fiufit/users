@@ -111,7 +111,7 @@ func TestFinishRegisterOk(t *testing.T) {
 	}
 	metricsRepo.On("Create", ctx, locationMetricsReq)
 
-	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
+	timePatch, _ := mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
 	})
 	userRepo.On("CreateUser", ctx, usr).Return(usr, nil)
@@ -119,6 +119,7 @@ func TestFinishRegisterOk(t *testing.T) {
 	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
 	_, err := registerUc.FinishRegister(ctx, req)
 
+	timePatch.Unpatch()
 	assert.NoError(t, err)
 }
 
@@ -160,7 +161,7 @@ func TestFinishRegisterError(t *testing.T) {
 	userRepo := new(mocks.Users)
 	metricsRepo := new(mocks.Metrics)
 
-	_, _ = mpatch.PatchMethod(time.Now, func() time.Time {
+	timePatch, _ := mpatch.PatchMethod(time.Now, func() time.Time {
 		return creationDate
 	})
 
@@ -169,6 +170,7 @@ func TestFinishRegisterError(t *testing.T) {
 	registerUc := NewRegisterImpl(userRepo, zaptest.NewLogger(t), firebaseRepo, metricsRepo)
 	res, err := registerUc.FinishRegister(ctx, req)
 
+	timePatch.Unpatch()
 	assert.Equal(t, res.User, models.User{})
 	assert.Error(t, err)
 }

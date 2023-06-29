@@ -7,6 +7,7 @@ import (
 	"github.com/fiufit/users/contracts/certifications"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 	"go.uber.org/zap"
 )
 
@@ -17,12 +18,12 @@ type CertificationUpdater interface {
 type CertificationUpdaterImpl struct {
 	certifications repositories.Certifications
 	users          repositories.Users
-	notifications  repositories.Notifications
-	firebase       repositories.Firebase
+	notifications  external.Notifications
+	firebase       external.Firebase
 	logger         *zap.Logger
 }
 
-func NewCertificationUpdaterImpl(certifications repositories.Certifications, users repositories.Users, notifications repositories.Notifications, firebase repositories.Firebase, logger *zap.Logger) CertificationUpdaterImpl {
+func NewCertificationUpdaterImpl(certifications repositories.Certifications, users repositories.Users, notifications external.Notifications, firebase external.Firebase, logger *zap.Logger) CertificationUpdaterImpl {
 	return CertificationUpdaterImpl{certifications: certifications, users: users, notifications: notifications, firebase: firebase, logger: logger}
 }
 

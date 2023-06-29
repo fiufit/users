@@ -9,6 +9,7 @@ import (
 	ucontracts "github.com/fiufit/users/contracts/users"
 	"github.com/fiufit/users/models"
 	"github.com/fiufit/users/repositories"
+	"github.com/fiufit/users/repositories/external"
 )
 
 type UserUpdater interface {
@@ -17,10 +18,10 @@ type UserUpdater interface {
 
 type UserUpdaterImpl struct {
 	users   repositories.Users
-	metrics repositories.Metrics
+	metrics external.Metrics
 }
 
-func NewUserUpdaterImpl(users repositories.Users, metrics repositories.Metrics) UserUpdaterImpl {
+func NewUserUpdaterImpl(users repositories.Users, metrics external.Metrics) UserUpdaterImpl {
 	return UserUpdaterImpl{users: users, metrics: metrics}
 }
 
