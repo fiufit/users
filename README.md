@@ -1,3 +1,6 @@
+<p align="center">
+  <img alt="App" src="https://firebasestorage.googleapis.com/v0/b/fiufit.appspot.com/o/fiufit-logo.png?alt=media&token=39f3ae3f-34d1-4fb3-96ca-8707adf2bc37" height="200" />
+</p>
 
 # users
 Microservice for managing fiufit's users, admins and profiles
