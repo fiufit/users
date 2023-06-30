@@ -11,7 +11,7 @@ Microservice for managing fiufit's users, admins and profiles
 
 #### With docker:
 * Edit .example-env with your own secret credentials and rename it to .env
-* `docker build -t fiufit-users`
+* `docker build -t fiufit-users .`
 * `docker run -p PORT:PORT --env-file=.env fiufit-users`
 
 #### Natively: 
