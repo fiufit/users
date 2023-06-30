@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="App" src="https://github.com/fiufit/app/assets/86434696/82a49b69-d7bd-4f7d-9449-79b8b60335b1" height="200" />
+  <img alt="App" src="https://github.com/fiufit/app/assets/86434696/2dc48884-cd7c-4aca-ad99-e9adf2f4410d" height="200" />
 </p>
 
 # users
