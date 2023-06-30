@@ -73,7 +73,7 @@ func (repo CertificationRepository) Get(ctx context.Context, request certificati
 		db = db.Where("user_id = ?", request.UserID)
 	}
 
-	result := db.Scopes(database.Paginate(res, &request.Pagination, db)).Find(&res)
+	result := db.Order("created_at desc").Scopes(database.Paginate(res, &request.Pagination, db)).Find(&res)
 	if result.Error != nil {
 		repo.logger.Error("Unable to get certifications", zap.Any("req", request), zap.Error(result.Error))
 		return certifications.GetCertificationsResponse{}, result.Error
